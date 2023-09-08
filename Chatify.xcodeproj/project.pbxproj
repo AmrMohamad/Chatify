@@ -10,7 +10,6 @@
 		2D6C07492AA65AFD0036E273 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6C07482AA65AFD0036E273 /* AppDelegate.swift */; };
 		2D6C074B2AA65AFD0036E273 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6C074A2AA65AFD0036E273 /* SceneDelegate.swift */; };
 		2D6C074D2AA65AFD0036E273 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6C074C2AA65AFD0036E273 /* ViewController.swift */; };
-		2D6C07502AA65AFD0036E273 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2D6C074E2AA65AFD0036E273 /* Main.storyboard */; };
 		2D6C07522AA65AFF0036E273 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2D6C07512AA65AFF0036E273 /* Assets.xcassets */; };
 		2D6C07552AA65AFF0036E273 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2D6C07532AA65AFF0036E273 /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
@@ -20,7 +19,6 @@
 		2D6C07482AA65AFD0036E273 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2D6C074A2AA65AFD0036E273 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		2D6C074C2AA65AFD0036E273 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		2D6C074F2AA65AFD0036E273 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		2D6C07512AA65AFF0036E273 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2D6C07542AA65AFF0036E273 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2D6C07562AA65AFF0036E273 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -59,7 +57,6 @@
 				2D6C07482AA65AFD0036E273 /* AppDelegate.swift */,
 				2D6C074A2AA65AFD0036E273 /* SceneDelegate.swift */,
 				2D6C074C2AA65AFD0036E273 /* ViewController.swift */,
-				2D6C074E2AA65AFD0036E273 /* Main.storyboard */,
 				2D6C07512AA65AFF0036E273 /* Assets.xcassets */,
 				2D6C07532AA65AFF0036E273 /* LaunchScreen.storyboard */,
 				2D6C07562AA65AFF0036E273 /* Info.plist */,
@@ -127,7 +124,6 @@
 			files = (
 				2D6C07552AA65AFF0036E273 /* LaunchScreen.storyboard in Resources */,
 				2D6C07522AA65AFF0036E273 /* Assets.xcassets in Resources */,
-				2D6C07502AA65AFD0036E273 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -147,14 +143,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		2D6C074E2AA65AFD0036E273 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				2D6C074F2AA65AFD0036E273 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		2D6C07532AA65AFF0036E273 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -289,9 +277,9 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Chatify/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -316,9 +304,9 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Chatify/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
