@@ -56,12 +56,36 @@
 			children = (
 				2D6C07482AA65AFD0036E273 /* AppDelegate.swift */,
 				2D6C074A2AA65AFD0036E273 /* SceneDelegate.swift */,
-				2D6C074C2AA65AFD0036E273 /* ViewController.swift */,
+				2DA155032AADE8F90012AFCD /* Models */,
+				2DA155042AADE9230012AFCD /* Views */,
+				2DA155022AADE6580012AFCD /* Controllers */,
 				2D6C07512AA65AFF0036E273 /* Assets.xcassets */,
 				2D6C07532AA65AFF0036E273 /* LaunchScreen.storyboard */,
 				2D6C07562AA65AFF0036E273 /* Info.plist */,
 			);
 			path = Chatify;
+			sourceTree = "<group>";
+		};
+		2DA155022AADE6580012AFCD /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				2D6C074C2AA65AFD0036E273 /* ViewController.swift */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
+		2DA155032AADE8F90012AFCD /* Models */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		2DA155042AADE9230012AFCD /* Views */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
