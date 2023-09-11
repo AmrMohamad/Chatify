@@ -28,6 +28,7 @@ class LoginViewController: UIViewController {
         button.layer.cornerRadius = 12
         return button
     }()
+    
     let nameTextField: UITextField = {
         let tf = UITextField()
         tf.translatesAutoresizingMaskIntoConstraints = false
@@ -35,13 +36,17 @@ class LoginViewController: UIViewController {
         tf.font = UIFont.systemFont(ofSize: 22, weight: .regular)
         return tf
     }()
+    
     let emailTextField: UITextField = {
         let tf = UITextField()
         tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.placeholder = "Email"
+        tf.placeholder = "Email Address"
+        tf.textContentType = .emailAddress
+        tf.keyboardType = .emailAddress
         tf.font = UIFont.systemFont(ofSize: 22, weight: .regular)
         return tf
     }()
+    
     let passwordTextField: UITextField = {
         let tf = UITextField()
         tf.translatesAutoresizingMaskIntoConstraints = false
@@ -49,6 +54,14 @@ class LoginViewController: UIViewController {
         tf.font = UIFont.systemFont(ofSize: 22, weight: .regular)
         tf.isSecureTextEntry = true
         return tf
+    }()
+    
+    let icon : UIImageView = {
+        let image = UIImageView(image: UIImage(systemName: "message.fill"))
+        image.contentMode = .scaleAspectFit
+        image.tintColor = .white
+        image.translatesAutoresizingMaskIntoConstraints = false
+        return image
     }()
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -58,6 +71,8 @@ class LoginViewController: UIViewController {
         setupInputsContainerConstraints()
         view.addSubview(registerButton)
         setupRegisterButtonConstraints()
+        view.addSubview(icon)
+        setupIconConstraints()
     }
     
     func setupInputsContainerConstraints(){
@@ -67,6 +82,7 @@ class LoginViewController: UIViewController {
         // Size of InputsContainer
         inputsContainer.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 1/4).isActive = true
         inputsContainer.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.85).isActive = true
+        // Stack catch inputs of account data
         let textFieldsStack = UIStackView(
             arrangedSubviews: [
                 nameTextField,
@@ -80,12 +96,30 @@ class LoginViewController: UIViewController {
         textFieldsStack.distribution = .fillEqually
         textFieldsStack.spacing      = 0
         inputsContainer.addSubview(textFieldsStack)
-        textFieldsStack.centerXAnchor.constraint(equalTo: inputsContainer.centerXAnchor).isActive = true
-        textFieldsStack.centerYAnchor.constraint(equalTo: inputsContainer.centerYAnchor).isActive = true
-        textFieldsStack.topAnchor.constraint(equalTo: inputsContainer.topAnchor, constant: 0).isActive = true
-        textFieldsStack.bottomAnchor.constraint(equalTo: inputsContainer.bottomAnchor, constant: 0).isActive = true
-        textFieldsStack.leadingAnchor.constraint(equalTo: inputsContainer.leadingAnchor, constant: 2).isActive = true
-        textFieldsStack.trailingAnchor.constraint(equalTo: inputsContainer.trailingAnchor, constant: -2).isActive = true
+        textFieldsStack
+            .centerXAnchor
+            .constraint(equalTo: inputsContainer.centerXAnchor)
+            .isActive = true
+        textFieldsStack
+            .centerYAnchor
+            .constraint(equalTo: inputsContainer.centerYAnchor)
+            .isActive = true
+        textFieldsStack
+            .topAnchor
+            .constraint(equalTo: inputsContainer.topAnchor, constant: 0)
+            .isActive = true
+        textFieldsStack
+            .bottomAnchor
+            .constraint(equalTo: inputsContainer.bottomAnchor, constant: 0)
+            .isActive = true
+        textFieldsStack
+            .leadingAnchor
+            .constraint(equalTo: inputsContainer.leadingAnchor, constant: 2)
+            .isActive = true
+        textFieldsStack
+            .trailingAnchor
+            .constraint(equalTo: inputsContainer.trailingAnchor, constant: -2)
+            .isActive = true
         nameTextField.heightAnchor.constraint(equalTo: inputsContainer.heightAnchor, multiplier: 1/3).isActive = true
         
     }
@@ -96,4 +130,21 @@ class LoginViewController: UIViewController {
         registerButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 1/11).isActive = true
     }
     
+    func setupIconConstraints() {
+        icon.centerXAnchor
+            .constraint(equalTo: view.centerXAnchor)
+            .isActive = true
+        
+        icon.bottomAnchor
+            .constraint(equalTo: inputsContainer.topAnchor, constant: -12)
+            .isActive = true
+        
+        icon.widthAnchor
+            .constraint(equalTo: view.widthAnchor, multiplier: 0.80)
+            .isActive = true
+        icon.heightAnchor
+            .constraint(equalTo: view.heightAnchor, multiplier: 1/5)
+            .isActive = true
+        
+    }
 }
