@@ -132,7 +132,7 @@ iOSInjectionProject/
 **/xcshareddata/WorkspaceSettings.xcsettings
 
 # sensitive data
-
+/Chatify/GoogleService-Info.plist
 *Constants.swift
 
 # FireBase

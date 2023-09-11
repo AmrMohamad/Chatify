@@ -7,15 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2D250BB92AAF58AE00042158 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2D250BB82AAF58AE00042158 /* GoogleService-Info.plist */; };
 		2D6C07492AA65AFD0036E273 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6C07482AA65AFD0036E273 /* AppDelegate.swift */; };
 		2D6C074B2AA65AFD0036E273 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6C074A2AA65AFD0036E273 /* SceneDelegate.swift */; };
 		2D6C074D2AA65AFD0036E273 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6C074C2AA65AFD0036E273 /* MainViewController.swift */; };
 		2D6C07522AA65AFF0036E273 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2D6C07512AA65AFF0036E273 /* Assets.xcassets */; };
 		2D6C07552AA65AFF0036E273 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2D6C07532AA65AFF0036E273 /* LaunchScreen.storyboard */; };
 		2DA155082AAE0C540012AFCD /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA155072AAE0C540012AFCD /* LoginViewController.swift */; };
+		B5955674E0BF03A77F653F2C /* Pods_Chatify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F60F88CBFEFBD673C51F8BE /* Pods_Chatify.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2D250BB82AAF58AE00042158 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		2D6C07452AA65AFD0036E273 /* Chatify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chatify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D6C07482AA65AFD0036E273 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2D6C074A2AA65AFD0036E273 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -24,6 +27,9 @@
 		2D6C07542AA65AFF0036E273 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2D6C07562AA65AFF0036E273 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2DA155072AAE0C540012AFCD /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		49701EC90B6FD722D6A0806B /* Pods-Chatify.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chatify.debug.xcconfig"; path = "Target Support Files/Pods-Chatify/Pods-Chatify.debug.xcconfig"; sourceTree = "<group>"; };
+		5F60F88CBFEFBD673C51F8BE /* Pods_Chatify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Chatify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE33BC174F8672D934D046C7 /* Pods-Chatify.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chatify.release.xcconfig"; path = "Target Support Files/Pods-Chatify/Pods-Chatify.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,17 +37,30 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5955674E0BF03A77F653F2C /* Pods_Chatify.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		12F2C1324F8F0948D2CD942A /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				49701EC90B6FD722D6A0806B /* Pods-Chatify.debug.xcconfig */,
+				EE33BC174F8672D934D046C7 /* Pods-Chatify.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		2D6C073C2AA65AFD0036E273 = {
 			isa = PBXGroup;
 			children = (
 				2D6C07472AA65AFD0036E273 /* Chatify */,
 				2D6C07462AA65AFD0036E273 /* Products */,
+				12F2C1324F8F0948D2CD942A /* Pods */,
+				FE730012190E350F26720480 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -64,6 +83,7 @@
 				2D6C07512AA65AFF0036E273 /* Assets.xcassets */,
 				2D6C07532AA65AFF0036E273 /* LaunchScreen.storyboard */,
 				2D6C07562AA65AFF0036E273 /* Info.plist */,
+				2D250BB82AAF58AE00042158 /* GoogleService-Info.plist */,
 			);
 			path = Chatify;
 			sourceTree = "<group>";
@@ -91,6 +111,14 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		FE730012190E350F26720480 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5F60F88CBFEFBD673C51F8BE /* Pods_Chatify.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -98,9 +126,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2D6C07592AA65AFF0036E273 /* Build configuration list for PBXNativeTarget "Chatify" */;
 			buildPhases = (
+				DC2729087B9C7018BD015BB1 /* [CP] Check Pods Manifest.lock */,
 				2D6C07412AA65AFD0036E273 /* Sources */,
 				2D6C07422AA65AFD0036E273 /* Frameworks */,
 				2D6C07432AA65AFD0036E273 /* Resources */,
+				E67AF455C855339D0E784DC4 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -151,10 +181,53 @@
 			files = (
 				2D6C07552AA65AFF0036E273 /* LaunchScreen.storyboard in Resources */,
 				2D6C07522AA65AFF0036E273 /* Assets.xcassets in Resources */,
+				2D250BB92AAF58AE00042158 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		DC2729087B9C7018BD015BB1 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Chatify-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E67AF455C855339D0E784DC4 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Chatify/Pods-Chatify-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Chatify/Pods-Chatify-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Chatify/Pods-Chatify-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		2D6C07412AA65AFD0036E273 /* Sources */ = {
@@ -298,6 +371,7 @@
 		};
 		2D6C075A2AA65AFF0036E273 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 49701EC90B6FD722D6A0806B /* Pods-Chatify.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -325,6 +399,7 @@
 		};
 		2D6C075B2AA65AFF0036E273 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = EE33BC174F8672D934D046C7 /* Pods-Chatify.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
