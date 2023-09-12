@@ -6,6 +6,9 @@
 //
 
 import UIKit
+import FirebaseCore
+import FirebaseFirestore
+import FirebaseAuth
 
 class LoginViewController: UIViewController {
     var inputsContainer: UIView = {
@@ -63,6 +66,7 @@ class LoginViewController: UIViewController {
         image.translatesAutoresizingMaskIntoConstraints = false
         return image
     }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(red: 61/255, green: 91/255, blue: 151/255, alpha: 1)
@@ -71,8 +75,37 @@ class LoginViewController: UIViewController {
         setupInputsContainerConstraints()
         view.addSubview(registerButton)
         setupRegisterButtonConstraints()
+        registerButton.addTarget(self, action: #selector(registerAction), for: .touchUpInside)
         view.addSubview(icon)
         setupIconConstraints()
+    }
+    
+    let db = Firestore.firestore()
+    
+    @objc func registerAction(){
+        let signup = Auth.auth()
+        if let name = nameTextField.text,
+           let email = emailTextField.text,
+           let password = passwordTextField.text {
+            signup.createUser(
+                withEmail: email,
+                password: password
+            ) { authResult, error in
+                if let e = error {
+                    print("\(e.localizedDescription)")
+                } else {
+                    guard let uid = authResult?.user.uid else {return}
+                    self.db.collection("users").document(uid).setData([
+                        "name" : name,
+                        "email": email
+                    ]) { error in
+                        if let e = error {
+                            print("\(e.localizedDescription)")
+                        }
+                    }
+                }
+            }
+        }
     }
     
     func setupInputsContainerConstraints(){
@@ -129,7 +162,6 @@ class LoginViewController: UIViewController {
         registerButton.widthAnchor.constraint(equalTo: inputsContainer.widthAnchor).isActive = true
         registerButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 1/11).isActive = true
     }
-    
     func setupIconConstraints() {
         icon.centerXAnchor
             .constraint(equalTo: view.centerXAnchor)

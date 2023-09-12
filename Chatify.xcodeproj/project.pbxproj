@@ -7,18 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2D250BB92AAF58AE00042158 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2D250BB82AAF58AE00042158 /* GoogleService-Info.plist */; };
 		2D6C07492AA65AFD0036E273 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6C07482AA65AFD0036E273 /* AppDelegate.swift */; };
 		2D6C074B2AA65AFD0036E273 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6C074A2AA65AFD0036E273 /* SceneDelegate.swift */; };
 		2D6C074D2AA65AFD0036E273 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6C074C2AA65AFD0036E273 /* MainViewController.swift */; };
 		2D6C07522AA65AFF0036E273 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2D6C07512AA65AFF0036E273 /* Assets.xcassets */; };
 		2D6C07552AA65AFF0036E273 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2D6C07532AA65AFF0036E273 /* LaunchScreen.storyboard */; };
+		2D77BDB62AB0C47F007D62E5 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2D77BDB52AB0C47F007D62E5 /* GoogleService-Info.plist */; };
 		2DA155082AAE0C540012AFCD /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA155072AAE0C540012AFCD /* LoginViewController.swift */; };
 		B5955674E0BF03A77F653F2C /* Pods_Chatify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F60F88CBFEFBD673C51F8BE /* Pods_Chatify.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		2D250BB82AAF58AE00042158 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		2D6C07452AA65AFD0036E273 /* Chatify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chatify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D6C07482AA65AFD0036E273 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2D6C074A2AA65AFD0036E273 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -26,6 +25,7 @@
 		2D6C07512AA65AFF0036E273 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2D6C07542AA65AFF0036E273 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2D6C07562AA65AFF0036E273 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2D77BDB52AB0C47F007D62E5 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		2DA155072AAE0C540012AFCD /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		49701EC90B6FD722D6A0806B /* Pods-Chatify.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chatify.debug.xcconfig"; path = "Target Support Files/Pods-Chatify/Pods-Chatify.debug.xcconfig"; sourceTree = "<group>"; };
 		5F60F88CBFEFBD673C51F8BE /* Pods_Chatify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Chatify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -50,7 +50,6 @@
 				49701EC90B6FD722D6A0806B /* Pods-Chatify.debug.xcconfig */,
 				EE33BC174F8672D934D046C7 /* Pods-Chatify.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -83,7 +82,7 @@
 				2D6C07512AA65AFF0036E273 /* Assets.xcassets */,
 				2D6C07532AA65AFF0036E273 /* LaunchScreen.storyboard */,
 				2D6C07562AA65AFF0036E273 /* Info.plist */,
-				2D250BB82AAF58AE00042158 /* GoogleService-Info.plist */,
+				2D77BDB52AB0C47F007D62E5 /* GoogleService-Info.plist */,
 			);
 			path = Chatify;
 			sourceTree = "<group>";
@@ -181,7 +180,7 @@
 			files = (
 				2D6C07552AA65AFF0036E273 /* LaunchScreen.storyboard in Resources */,
 				2D6C07522AA65AFF0036E273 /* Assets.xcassets in Resources */,
-				2D250BB92AAF58AE00042158 /* GoogleService-Info.plist in Resources */,
+				2D77BDB62AB0C47F007D62E5 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
