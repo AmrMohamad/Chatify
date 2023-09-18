@@ -73,20 +73,25 @@ class LoginViewController: UIViewController {
         
         view.addSubview(inputsContainer)
         setupInputsContainerConstraints()
+        
         view.addSubview(registerButton)
         setupRegisterButtonConstraints()
         registerButton.addTarget(self, action: #selector(registerAction), for: .touchUpInside)
+        
         view.addSubview(icon)
         setupIconConstraints()
     }
     
+    // For get a database connection
     let db = Firestore.firestore()
     
     @objc func registerAction(){
+        // To enable authentication to get sign up
         let signup = Auth.auth()
         if let name = nameTextField.text,
            let email = emailTextField.text,
            let password = passwordTextField.text {
+            // add new user
             signup.createUser(
                 withEmail: email,
                 password: password
@@ -94,7 +99,14 @@ class LoginViewController: UIViewController {
                 if let e = error {
                     print("\(e.localizedDescription)")
                 } else {
+                    // if the user is added successfully then save his data: name and email
                     guard let uid = authResult?.user.uid else {return}
+                    /* 📂 users
+                             L 📄 UserID
+                                    L
+                                        → his name
+                                        → his email
+                    */
                     self.db.collection("users").document(uid).setData([
                         "name" : name,
                         "email": email
@@ -129,48 +141,53 @@ class LoginViewController: UIViewController {
         textFieldsStack.distribution = .fillEqually
         textFieldsStack.spacing      = 0
         inputsContainer.addSubview(textFieldsStack)
-        textFieldsStack
-            .centerXAnchor
+        textFieldsStack.centerXAnchor
             .constraint(equalTo: inputsContainer.centerXAnchor)
             .isActive = true
-        textFieldsStack
-            .centerYAnchor
+        textFieldsStack.centerYAnchor
             .constraint(equalTo: inputsContainer.centerYAnchor)
             .isActive = true
-        textFieldsStack
-            .topAnchor
+        textFieldsStack.topAnchor
             .constraint(equalTo: inputsContainer.topAnchor, constant: 0)
             .isActive = true
-        textFieldsStack
-            .bottomAnchor
+        textFieldsStack.bottomAnchor
             .constraint(equalTo: inputsContainer.bottomAnchor, constant: 0)
             .isActive = true
-        textFieldsStack
-            .leadingAnchor
+        textFieldsStack.leadingAnchor
             .constraint(equalTo: inputsContainer.leadingAnchor, constant: 2)
             .isActive = true
-        textFieldsStack
-            .trailingAnchor
+        textFieldsStack.trailingAnchor
             .constraint(equalTo: inputsContainer.trailingAnchor, constant: -2)
             .isActive = true
-        nameTextField.heightAnchor.constraint(equalTo: inputsContainer.heightAnchor, multiplier: 1/3).isActive = true
+        
+        nameTextField.heightAnchor
+            .constraint(equalTo: inputsContainer.heightAnchor, multiplier: 1/3)
+            .isActive = true
         
     }
+    
     func setupRegisterButtonConstraints(){
-        registerButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        registerButton.topAnchor.constraint(equalTo: inputsContainer.bottomAnchor, constant: 12).isActive = true
-        registerButton.widthAnchor.constraint(equalTo: inputsContainer.widthAnchor).isActive = true
-        registerButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 1/11).isActive = true
+        registerButton.centerXAnchor
+            .constraint(equalTo: view.centerXAnchor)
+            .isActive = true
+        registerButton.topAnchor
+            .constraint(equalTo: inputsContainer.bottomAnchor, constant: 12)
+            .isActive = true
+        registerButton.widthAnchor
+            .constraint(equalTo: inputsContainer.widthAnchor)
+            .isActive = true
+        registerButton.heightAnchor
+            .constraint(equalTo: view.heightAnchor, multiplier: 1/11)
+            .isActive = true
     }
+    
     func setupIconConstraints() {
         icon.centerXAnchor
             .constraint(equalTo: view.centerXAnchor)
             .isActive = true
-        
         icon.bottomAnchor
             .constraint(equalTo: inputsContainer.topAnchor, constant: -12)
             .isActive = true
-        
         icon.widthAnchor
             .constraint(equalTo: view.widthAnchor, multiplier: 0.80)
             .isActive = true
