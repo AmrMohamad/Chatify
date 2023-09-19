@@ -128,34 +128,51 @@ class LoginViewController: UIViewController {
     
     @objc func registerAndLoginActionHandler(_ sender: UIButton) {
         // To enable authentication to get sign up
-        let signup = Auth.auth()
-        if let name = nameTextField.text,
-           let email = emailTextField.text,
-           let password = passwordTextField.text {
-            // add new user
-            signup.createUser(
-                withEmail: email,
-                password: password
-            ) { authResult, error in
-                if let e = error {
-                    print("\(e.localizedDescription)")
-                } else {
-                    // if the user is added successfully then save his data: name and email
-                    guard let uid = authResult?.user.uid else {return}
-                    /* 📂 users
-                             L 📄 UserID
-                                    L
-                                        → his name
-                                        → his email
-                    */
-                    self.db.collection("users").document(uid).setData([
-                        "name" : name,
-                        "email": email
-                    ]) { error in
-                        if let e = error {
-                            print("\(e.localizedDescription)")
+        if sender.currentTitle == "Register"{
+            let signup = Auth.auth()
+            if let name = nameTextField.text,
+               let email = emailTextField.text,
+               let password = passwordTextField.text {
+                // add new user
+                signup.createUser(
+                    withEmail: email,
+                    password: password
+                ) { authResult, error in
+                    if let e = error {
+                        print("\(e.localizedDescription)")
+                    } else {
+                        // if the user is added successfully then save his data: name and email
+                        guard let uid = authResult?.user.uid else {return}
+                        /* 📂 users
+                                 L 📄 UserID
+                                        L
+                                            → his name
+                                            → his email
+                        */
+                        self.db.collection("users").document(uid).setData([
+                            "name" : name,
+                            "email": email
+                        ]) { error in
+                            if let e = error {
+                                print("\(e.localizedDescription)")
+                            }
                         }
+                        self.dismiss(animated: true) 
                     }
+                }
+            }
+        }
+        else {
+            let login = Auth.auth()
+            if let email = emailTextField.text,
+               let password = passwordTextField.text {
+                login.signIn(
+                    withEmail: email,
+                    password: password) { authResult, error in
+                        if error != nil{
+                            print(error!.localizedDescription)
+                        }
+                        self.dismiss(animated: true)
                 }
             }
         }

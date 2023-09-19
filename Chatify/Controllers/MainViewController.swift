@@ -6,6 +6,9 @@
 //
 
 import UIKit
+import FirebaseAuth
+import FirebaseFirestore
+import FirebaseCore
 
 class MainViewController: UITableViewController {
 
@@ -18,10 +21,18 @@ class MainViewController: UITableViewController {
             target: self,
             action: #selector(handeleLogOut)
         )
+        if Auth.auth().currentUser?.uid == nil {
+            perform(#selector(handeleLogOut), with: nil, afterDelay: 0)
+        }
     }
 
 
     @objc func handeleLogOut(){
+        do{
+            try Auth.auth().signOut()
+        }catch {
+            print(error)
+        }
         let loginVC = LoginViewController()
         loginVC.modalPresentationStyle = .fullScreen
         present(loginVC, animated: true)
