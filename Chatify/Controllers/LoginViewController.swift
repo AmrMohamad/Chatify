@@ -21,7 +21,7 @@ class LoginViewController: UIViewController {
         return view
     }()
     
-    let registerButton: UIButton = {
+    let registerAndLoginButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Register", for: .normal)
@@ -67,25 +67,66 @@ class LoginViewController: UIViewController {
         return image
     }()
     
+    lazy var loginRegisterSegmentedConrtol: UISegmentedControl = {
+        let sc = UISegmentedControl(items: ["Log In", "Register"])
+        sc.translatesAutoresizingMaskIntoConstraints = false
+        sc.selectedSegmentIndex = 1
+        sc.setTitleTextAttributes(
+            [
+            NSAttributedString.Key.foregroundColor : UIColor.white
+            ],
+            for: .normal
+        )
+        sc.setTitleTextAttributes(
+            [
+            NSAttributedString.Key.foregroundColor : UIColor(red: 61/255, green: 91/255, blue: 151/255, alpha: 1)
+            ],
+            for: .selected
+        )
+        sc.addTarget(self,
+                     action: #selector(handleChangeBetweenRegisterAndLogin),
+                     for: .valueChanged
+        )
+        
+        return sc
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(red: 61/255, green: 91/255, blue: 151/255, alpha: 1)
         
-        view.addSubview(inputsContainer)
-        setupInputsContainerConstraints()
-        
-        view.addSubview(registerButton)
-        setupRegisterButtonConstraints()
-        registerButton.addTarget(self, action: #selector(registerAction), for: .touchUpInside)
-        
         view.addSubview(icon)
+        view.addSubview(loginRegisterSegmentedConrtol)
+        view.addSubview(inputsContainer)
+        view.addSubview(registerAndLoginButton)
+        
+        
+        setupInputsContainerConstraints()
+        setupRegisterLoginButtonConstraints()
         setupIconConstraints()
+        setuploginRegisterSegmentedConrtolConstraints()
+        
+        registerAndLoginButton.addTarget(self, action: #selector(registerAndLoginActionHandler), for: .touchUpInside)
+       
     }
     
+    var textFieldsStack: UIStackView?
+    var inputsContainerHeightConstraint: NSLayoutConstraint?
+    @objc func handleChangeBetweenRegisterAndLogin(){
+        registerAndLoginButton.setTitle(
+            loginRegisterSegmentedConrtol.titleForSegment(at: loginRegisterSegmentedConrtol.selectedSegmentIndex),
+            for: .normal
+        )
+        textFieldsStack?.arrangedSubviews[0].isHidden = loginRegisterSegmentedConrtol
+            .selectedSegmentIndex == 0 ? true : false
+        
+        inputsContainerHeightConstraint?.constant = loginRegisterSegmentedConrtol
+            .selectedSegmentIndex == 0 ?  125.0 : 200.0
+    }
     // For get a database connection
     let db = Firestore.firestore()
     
-    @objc func registerAction(){
+    @objc func registerAndLoginActionHandler(_ sender: UIButton) {
         // To enable authentication to get sign up
         let signup = Auth.auth()
         if let name = nameTextField.text,
@@ -120,43 +161,63 @@ class LoginViewController: UIViewController {
         }
     }
     
+    func setupIconConstraints() {
+        icon.centerXAnchor
+            .constraint(equalTo: view.centerXAnchor)
+            .isActive = true
+        icon.topAnchor
+            .constraint(equalToSystemSpacingBelow: view.safeAreaLayoutGuide.topAnchor, multiplier: 1/2)
+            .isActive = true
+        icon.widthAnchor
+            .constraint(equalTo: view.widthAnchor, multiplier: 0.80)
+            .isActive = true
+        icon.heightAnchor
+            .constraint(equalTo: view.heightAnchor, multiplier: 1/5)
+            .isActive = true
+        
+    }
+    
     func setupInputsContainerConstraints(){
         // Postion of InputsContainer
-        inputsContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        inputsContainer.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        inputsContainer.centerXAnchor
+            .constraint(equalTo: view.centerXAnchor).isActive = true
+        inputsContainer.centerYAnchor
+            .constraint(equalTo: view.centerYAnchor).isActive = true
         // Size of InputsContainer
-        inputsContainer.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 1/4).isActive = true
+        inputsContainerHeightConstraint = inputsContainer.heightAnchor
+            .constraint(equalToConstant: 200)
+        inputsContainerHeightConstraint?.isActive = true
         inputsContainer.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.85).isActive = true
         // Stack catch inputs of account data
-        let textFieldsStack = UIStackView(
+        textFieldsStack = UIStackView(
             arrangedSubviews: [
                 nameTextField,
                 emailTextField,
                 passwordTextField
             ]
         )
-        textFieldsStack.translatesAutoresizingMaskIntoConstraints = false
-        textFieldsStack.axis         = .vertical
-        textFieldsStack.alignment    = .fill
-        textFieldsStack.distribution = .fillEqually
-        textFieldsStack.spacing      = 0
-        inputsContainer.addSubview(textFieldsStack)
-        textFieldsStack.centerXAnchor
+        textFieldsStack?.translatesAutoresizingMaskIntoConstraints = false
+        textFieldsStack?.axis         = .vertical
+        textFieldsStack?.alignment    = .fill
+        textFieldsStack?.distribution = .fillEqually
+        textFieldsStack?.spacing      = 0
+        inputsContainer.addSubview(textFieldsStack ?? UIView())
+        textFieldsStack?.centerXAnchor
             .constraint(equalTo: inputsContainer.centerXAnchor)
             .isActive = true
-        textFieldsStack.centerYAnchor
+        textFieldsStack?.centerYAnchor
             .constraint(equalTo: inputsContainer.centerYAnchor)
             .isActive = true
-        textFieldsStack.topAnchor
+        textFieldsStack?.topAnchor
             .constraint(equalTo: inputsContainer.topAnchor, constant: 0)
             .isActive = true
-        textFieldsStack.bottomAnchor
+        textFieldsStack?.bottomAnchor
             .constraint(equalTo: inputsContainer.bottomAnchor, constant: 0)
             .isActive = true
-        textFieldsStack.leadingAnchor
+        textFieldsStack?.leadingAnchor
             .constraint(equalTo: inputsContainer.leadingAnchor, constant: 2)
             .isActive = true
-        textFieldsStack.trailingAnchor
+        textFieldsStack?.trailingAnchor
             .constraint(equalTo: inputsContainer.trailingAnchor, constant: -2)
             .isActive = true
         
@@ -166,34 +227,33 @@ class LoginViewController: UIViewController {
         
     }
     
-    func setupRegisterButtonConstraints(){
-        registerButton.centerXAnchor
+    func setupRegisterLoginButtonConstraints(){
+        registerAndLoginButton.centerXAnchor
             .constraint(equalTo: view.centerXAnchor)
             .isActive = true
-        registerButton.topAnchor
+        registerAndLoginButton.topAnchor
             .constraint(equalTo: inputsContainer.bottomAnchor, constant: 12)
             .isActive = true
-        registerButton.widthAnchor
+        registerAndLoginButton.widthAnchor
             .constraint(equalTo: inputsContainer.widthAnchor)
             .isActive = true
-        registerButton.heightAnchor
+        registerAndLoginButton.heightAnchor
             .constraint(equalTo: view.heightAnchor, multiplier: 1/11)
             .isActive = true
     }
     
-    func setupIconConstraints() {
-        icon.centerXAnchor
+    func setuploginRegisterSegmentedConrtolConstraints() {
+        loginRegisterSegmentedConrtol.centerXAnchor
             .constraint(equalTo: view.centerXAnchor)
             .isActive = true
-        icon.bottomAnchor
+        loginRegisterSegmentedConrtol.bottomAnchor
             .constraint(equalTo: inputsContainer.topAnchor, constant: -12)
             .isActive = true
-        icon.widthAnchor
-            .constraint(equalTo: view.widthAnchor, multiplier: 0.80)
+        loginRegisterSegmentedConrtol.heightAnchor
+            .constraint(equalToConstant: 50)
             .isActive = true
-        icon.heightAnchor
-            .constraint(equalTo: view.heightAnchor, multiplier: 1/5)
+        loginRegisterSegmentedConrtol.widthAnchor
+            .constraint(equalTo: inputsContainer.widthAnchor, multiplier: 0.7)
             .isActive = true
-        
     }
 }
