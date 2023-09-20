@@ -61,7 +61,13 @@ class MainViewController: UITableViewController {
     }
     
     @objc func addNewMessage(){
-        
+        let newMessageVC = NewMeesageViewController()
+        let nav = UINavigationController(rootViewController: newMessageVC)
+        nav.modalPresentationStyle = .pageSheet
+        nav.sheetPresentationController?.prefersGrabberVisible = true
+        nav.sheetPresentationController?.detents = [.medium(), .large()]
+        nav.sheetPresentationController?.prefersScrollingExpandsWhenScrolledToEdge = false
+        present(nav, animated: true)
     }
 }
 
