@@ -67,19 +67,35 @@ class LoginViewController: UIViewController {
         return image
     }()
     
+    lazy var addImageProfile : UIImageView = {
+        let image = UIImageView()
+        image.image = UIImage(systemName: "person.crop.circle.fill.badge.plus")
+        image.translatesAutoresizingMaskIntoConstraints = false
+        image.contentMode = .scaleAspectFit
+        image.tintColor   = UIColor(red: 61/255, green: 91/255, blue: 151/255, alpha: 1)
+        image.isUserInteractionEnabled = true
+        image.addGestureRecognizer(
+            UITapGestureRecognizer(
+                target: self,
+                action: #selector(handleAddImageGesture)
+            )
+        )
+        return image
+    }()
+    
     lazy var loginRegisterSegmentedConrtol: UISegmentedControl = {
         let sc = UISegmentedControl(items: ["Log In", "Register"])
         sc.translatesAutoresizingMaskIntoConstraints = false
         sc.selectedSegmentIndex = 1
         sc.setTitleTextAttributes(
             [
-            NSAttributedString.Key.foregroundColor : UIColor.white
+                NSAttributedString.Key.foregroundColor : UIColor.white
             ],
             for: .normal
         )
         sc.setTitleTextAttributes(
             [
-            NSAttributedString.Key.foregroundColor : UIColor(red: 61/255, green: 91/255, blue: 151/255, alpha: 1)
+                NSAttributedString.Key.foregroundColor : UIColor(red: 61/255, green: 91/255, blue: 151/255, alpha: 1)
             ],
             for: .selected
         )
@@ -107,76 +123,20 @@ class LoginViewController: UIViewController {
         setuploginRegisterSegmentedConrtolConstraints()
         
         registerAndLoginButton.addTarget(self, action: #selector(registerAndLoginActionHandler), for: .touchUpInside)
-       
+        
+//        addImageProfile.addGestureRecognizer(
+//            UITapGestureRecognizer(
+//                target: self,
+//                action: #selector(handleAddImageGesture)
+//            )
+//        )
     }
     
-    var textFieldsStack: UIStackView?
-    var inputsContainerHeightConstraint: NSLayoutConstraint?
-    @objc func handleChangeBetweenRegisterAndLogin(){
-        registerAndLoginButton.setTitle(
-            loginRegisterSegmentedConrtol.titleForSegment(at: loginRegisterSegmentedConrtol.selectedSegmentIndex),
-            for: .normal
-        )
-        textFieldsStack?.arrangedSubviews[0].isHidden = loginRegisterSegmentedConrtol
-            .selectedSegmentIndex == 0 ? true : false
-        
-        inputsContainerHeightConstraint?.constant = loginRegisterSegmentedConrtol
-            .selectedSegmentIndex == 0 ?  125.0 : 200.0
-    }
+    public var textFieldsStack: UIStackView?
+    public var inputsContainerHeightConstraint: NSLayoutConstraint?
+
     // For get a database connection
     let db = Firestore.firestore()
-    
-    @objc func registerAndLoginActionHandler(_ sender: UIButton) {
-        // To enable authentication to get sign up
-        if sender.currentTitle == "Register"{
-            let signup = Auth.auth()
-            if let name = nameTextField.text,
-               let email = emailTextField.text,
-               let password = passwordTextField.text {
-                // add new user
-                signup.createUser(
-                    withEmail: email,
-                    password: password
-                ) { authResult, error in
-                    if let e = error {
-                        print("\(e.localizedDescription)")
-                    } else {
-                        // if the user is added successfully then save his data: name and email
-                        guard let uid = authResult?.user.uid else {return}
-                        /* 📂 users
-                                 L 📄 UserID
-                                        L
-                                            → his name
-                                            → his email
-                        */
-                        self.db.collection("users").document(uid).setData([
-                            "name" : name,
-                            "email": email
-                        ]) { error in
-                            if let e = error {
-                                print("\(e.localizedDescription)")
-                            }
-                        }
-                        self.dismiss(animated: true) 
-                    }
-                }
-            }
-        }
-        else {
-            let login = Auth.auth()
-            if let email = emailTextField.text,
-               let password = passwordTextField.text {
-                login.signIn(
-                    withEmail: email,
-                    password: password) { authResult, error in
-                        if error != nil{
-                            print(error!.localizedDescription)
-                        }
-                        self.dismiss(animated: true)
-                }
-            }
-        }
-    }
     
     func setupIconConstraints() {
         icon.centerXAnchor
@@ -202,12 +162,13 @@ class LoginViewController: UIViewController {
             .constraint(equalTo: view.centerYAnchor).isActive = true
         // Size of InputsContainer
         inputsContainerHeightConstraint = inputsContainer.heightAnchor
-            .constraint(equalToConstant: 200)
+            .constraint(equalToConstant: 250)
         inputsContainerHeightConstraint?.isActive = true
         inputsContainer.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.85).isActive = true
         // Stack catch inputs of account data
         textFieldsStack = UIStackView(
             arrangedSubviews: [
+                addImageProfile,
                 nameTextField,
                 emailTextField,
                 passwordTextField
@@ -239,7 +200,10 @@ class LoginViewController: UIViewController {
             .isActive = true
         
         nameTextField.heightAnchor
-            .constraint(equalTo: inputsContainer.heightAnchor, multiplier: 1/3)
+            .constraint(equalTo: inputsContainer.heightAnchor, multiplier: 1/4)
+            .isActive = true
+        addImageProfile.heightAnchor
+            .constraint(equalTo: inputsContainer.heightAnchor, multiplier: 1/4)
             .isActive = true
         
     }

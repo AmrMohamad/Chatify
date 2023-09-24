@@ -8,5 +8,6 @@ target 'Chatify' do
   # Pods for Chatify
 pod 'FirebaseAuth'
 pod 'FirebaseFirestore'
+pod 'FirebaseStorage'
 
 end

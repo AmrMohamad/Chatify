@@ -43,7 +43,8 @@ class NewMeesageViewController: UITableViewController {
                     for doc in docs {
                         let userData = doc.data()
                         let user = User(name: userData["name"] as! String,
-                                        email: userData["email"] as! String
+                                        email: userData["email"] as! String,
+                                        profileImageURL: userData["profileImageURL"] as! String
                         )
                         self.users.append(user)
                         DispatchQueue.main.async {
