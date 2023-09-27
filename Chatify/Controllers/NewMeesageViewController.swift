@@ -63,15 +63,26 @@ class NewMeesageViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return users.count
     }
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 66
+    }
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(
             withIdentifier: AddNewUserCell.identifier,
             for: indexPath
         ) as! AddNewUserCell
-        var contentOfCell = cell.defaultContentConfiguration()
-        contentOfCell.text = users[indexPath.row].name
-        contentOfCell.secondaryText = users[indexPath.row].email
-        cell.contentConfiguration = contentOfCell
+//        URLSession.shared.dataTask(
+//            with: URL(string: users[indexPath.row].profileImageURL)!
+//        ) { data, response, error in
+//            if let d = data {
+//                DispatchQueue.main.async {
+//                    cell.profileImage.image = UIImage(data: d)
+//                }
+//            }
+//        }.resume()
+        cell.profileImage.loadImagefromCacheWithURLstring(urlString: users[indexPath.row].profileImageURL)
+        cell.emailLabel.text = users[indexPath.row].email
+        cell.userLabel.text  = users[indexPath.row].name
         return cell
     }
 }

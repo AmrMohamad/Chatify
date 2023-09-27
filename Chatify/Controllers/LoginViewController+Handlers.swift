@@ -15,6 +15,7 @@ import FirebaseStorage
 extension LoginViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     //MARK: - handle Change Between Register And Login
+    
     /// Handle the switching between of Register and Login View
     @objc func handleChangeBetweenRegisterAndLogin(){
         registerAndLoginButton.setTitle(
@@ -33,6 +34,7 @@ extension LoginViewController: UIImagePickerControllerDelegate, UINavigationCont
     }
     
     //MARK: - Handle Add Profile Image
+    
     /// Handle the implementation of adding profile image
     @objc func handleAddImageGesture() {
         let imagePicker = UIImagePickerController()
@@ -73,11 +75,12 @@ extension LoginViewController: UIImagePickerControllerDelegate, UINavigationCont
     
     
     //MARK: - Handle Register And Login Action
+    
     /// Handle the behavior of registerAndLoginButton
     @objc func registerAndLoginActionHandler(_ sender: UIButton) {
         // To enable authentication to get sign up
         let storage = Storage.storage()
-        let uploadedProfileImage = addImageProfile.image?.jpegData(compressionQuality: 0.5)
+        let uploadedProfileImage = addImageProfile.image?.jpegData(compressionQuality: 0.1)
         if sender.currentTitle == "Register"{
             let signup = Auth.auth()
             if let name = nameTextField.text,
@@ -129,21 +132,13 @@ extension LoginViewController: UIImagePickerControllerDelegate, UINavigationCont
             }
         }
         else {
-            let login = Auth.auth()
-            if let email = emailTextField.text,
-               let password = passwordTextField.text {
-                login.signIn(
-                    withEmail: email,
-                    password: password) { authResult, error in
-                        if error != nil{
-                            print(error!.localizedDescription)
-                        }
-                        self.dismiss(animated: true)
-                    }
-            }
+            loginUserIntoDBtoAccessChat()
         }
     }
     
+    ///Saving the data of the user depend on assigned `values`
+    /// - Parameter uid: the UserID
+    /// - Parameter values: a dictionary of values, the keys in string and values in any type
     func registerUserIntoDBWithUID(
         uid: String,
         values: [String: Any]
@@ -152,6 +147,22 @@ extension LoginViewController: UIImagePickerControllerDelegate, UINavigationCont
             if let e = error {
                 print("\(e.localizedDescription)")
             }
+        }
+    }
+    
+    ///logging in to DataBase to load the user chats
+    func loginUserIntoDBtoAccessChat(){
+        let login = Auth.auth()
+        if let email = emailTextField.text,
+           let password = passwordTextField.text {
+            login.signIn(
+                withEmail: email,
+                password: password) { authResult, error in
+                    if error != nil{
+                        print(error!.localizedDescription)
+                    }
+                    self.dismiss(animated: true)
+                }
         }
     }
 }
