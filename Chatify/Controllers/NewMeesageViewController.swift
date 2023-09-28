@@ -71,15 +71,7 @@ class NewMeesageViewController: UITableViewController {
             withIdentifier: AddNewUserCell.identifier,
             for: indexPath
         ) as! AddNewUserCell
-//        URLSession.shared.dataTask(
-//            with: URL(string: users[indexPath.row].profileImageURL)!
-//        ) { data, response, error in
-//            if let d = data {
-//                DispatchQueue.main.async {
-//                    cell.profileImage.image = UIImage(data: d)
-//                }
-//            }
-//        }.resume()
+
         cell.profileImage.loadImagefromCacheWithURLstring(urlString: users[indexPath.row].profileImageURL)
         cell.emailLabel.text = users[indexPath.row].email
         cell.userLabel.text  = users[indexPath.row].name

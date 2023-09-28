@@ -31,11 +31,16 @@ class MainViewController: UITableViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
         checkIfUserIsLogin()
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        checkIfUserIsLogin()
+    func setupNavTitle(){
+        print("555555555555")
+        if let uid = Auth.auth().currentUser?.uid {
+            db.collection("users").document(uid).getDocument { snapshot, error in
+                if let userData = snapshot?.data() {
+                    self.navigationItem.title = userData["name"] as? String
+                }
+            }
+        }
     }
-    
     func checkIfUserIsLogin(){
         if Auth.auth().currentUser?.uid == nil {
             perform(#selector(handeleLogOut), with: nil, afterDelay: 0)
@@ -43,7 +48,7 @@ class MainViewController: UITableViewController {
             let uid = Auth.auth().currentUser!.uid
             db.collection("users").document(uid).getDocument { snapshot, error in
                 if let userData = snapshot?.data() {
-                    self.title = userData["name"] as? String
+                    self.navigationItem.title = userData["name"] as? String
                 }
             }
         }
@@ -57,7 +62,9 @@ class MainViewController: UITableViewController {
         }
         let loginVC = LoginViewController()
         loginVC.modalPresentationStyle = .fullScreen
+//        print(self.navigationController?.viewControllers)
         present(loginVC, animated: true)
+//        navigationController?.pushViewController(loginVC, animated: true)
     }
     
     @objc func addNewMessage(){

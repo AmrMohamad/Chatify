@@ -11,6 +11,9 @@ import FirebaseFirestore
 import FirebaseAuth
 
 class LoginViewController: UIViewController {
+    
+    var mainViewController: MainViewController?
+    
     var inputsContainer: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false

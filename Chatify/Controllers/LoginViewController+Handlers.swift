@@ -125,8 +125,13 @@ extension LoginViewController: UIImagePickerControllerDelegate, UINavigationCont
                             }
                         }
                         uploadTask.resume()
-                        
-                        self.dismiss(animated: true)
+                        self.mainViewController = MainViewController()
+                        if let mainVC = self.mainViewController {
+                            let navVC = UINavigationController(rootViewController: mainVC)
+                            mainVC.title = name
+                            navVC.modalPresentationStyle = .fullScreen
+                            self.present(navVC, animated: true)
+                        }
                     }
                 }
             }
@@ -161,8 +166,21 @@ extension LoginViewController: UIImagePickerControllerDelegate, UINavigationCont
                     if error != nil{
                         print(error!.localizedDescription)
                     }
-                    self.dismiss(animated: true)
+                    self.db
+                        .collection("users")
+                        .document(authResult!.user.uid)
+                        .getDocument { snapshot, error in
+                            if let safeData = snapshot?.data() {
+                                self.mainViewController = MainViewController()
+                                if let mainVC = self.mainViewController {
+                                    mainVC.navigationController?.title = safeData["name"] as? String
+                                    let navVC = UINavigationController(rootViewController: mainVC)
+                                    navVC.modalPresentationStyle = .fullScreen
+                                    self.present(navVC, animated: true)
+                        }
+                    }
                 }
+            }
         }
     }
 }
