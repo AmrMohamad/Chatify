@@ -80,7 +80,7 @@ extension LoginViewController: UIImagePickerControllerDelegate, UINavigationCont
     @objc func registerAndLoginActionHandler(_ sender: UIButton) {
         // To enable authentication to get sign up
         let storage = Storage.storage()
-        let uploadedProfileImage = addImageProfile.image?.jpegData(compressionQuality: 0.1)
+        let uploadedProfileImage = addImageProfile.image?.jpegData(compressionQuality: 0.05)
         if sender.currentTitle == "Register"{
             let signup = Auth.auth()
             if let name = nameTextField.text,
@@ -125,13 +125,6 @@ extension LoginViewController: UIImagePickerControllerDelegate, UINavigationCont
                             }
                         }
                         uploadTask.resume()
-                        self.mainViewController = MainViewController()
-                        if let mainVC = self.mainViewController {
-                            let navVC = UINavigationController(rootViewController: mainVC)
-                            mainVC.title = name
-                            navVC.modalPresentationStyle = .fullScreen
-                            self.present(navVC, animated: true)
-                        }
                     }
                 }
             }
@@ -151,6 +144,18 @@ extension LoginViewController: UIImagePickerControllerDelegate, UINavigationCont
         self.db.collection("users").document(uid).setData(values) { error in
             if let e = error {
                 print("\(e.localizedDescription)")
+            }
+            self.mainViewController = MainViewController()
+            if let mainVC = self.mainViewController {
+                let navVC = UINavigationController(rootViewController: mainVC)
+                let u = User(
+                    name: values["name"] as! String,
+                    email:  values["email"] as! String,
+                    profileImageURL:  values["profileImageURL"] as! String
+                )
+                mainVC.setupNavTitleWith(user: u)
+                navVC.modalPresentationStyle = .fullScreen
+                self.present(navVC, animated: true)
             }
         }
     }
@@ -173,7 +178,14 @@ extension LoginViewController: UIImagePickerControllerDelegate, UINavigationCont
                             if let safeData = snapshot?.data() {
                                 self.mainViewController = MainViewController()
                                 if let mainVC = self.mainViewController {
-                                    mainVC.navigationController?.title = safeData["name"] as? String
+//                                    mainVC.navigationController?.title = safeData["name"] as? String
+//                                    mainVC.setupNavTitleWith(
+//                                        user: User(
+//                                            name: safeData["name"] as! String,
+//                                            email: safeData["email"] as! String,
+//                                            profileImageURL: safeData["profileImageURL"] as! String
+//                                        )
+//                                    )
                                     let navVC = UINavigationController(rootViewController: mainVC)
                                     navVC.modalPresentationStyle = .fullScreen
                                     self.present(navVC, animated: true)
