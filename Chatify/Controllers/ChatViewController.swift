@@ -10,7 +10,10 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseCore
 
-class ChatViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class ChatViewController: UIViewController,
+                          UITableViewDataSource,
+                          UITableViewDelegate,
+                          UITextFieldDelegate {
 
     lazy var containerTypingArea: UIView = {
         let view = UIView()
@@ -27,6 +30,7 @@ class ChatViewController: UIViewController, UITableViewDataSource, UITableViewDe
         let tf = UITextField()
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.placeholder = "Enter Message ..."
+        tf.delegate = self
         return tf
     }()
     lazy var sendMessageButton: UIButton = {
@@ -35,6 +39,8 @@ class ChatViewController: UIViewController, UITableViewDataSource, UITableViewDe
         button.setTitle("Send", for: .normal)
         return button
     }()
+    
+    let db = Firestore.firestore()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -80,7 +86,28 @@ class ChatViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
     
     @objc func handleSendingMessage(){
-        
+        if let sender = Auth.auth().currentUser?.uid,
+           let text   = writeMessageTextField.text {
+            if text != "" {
+                db.collection("messages")
+                    .addDocument(
+                        data: [
+                            "sender" : sender,
+                            "text"   : text,
+                            "Date"   : Date().timeIntervalSince1970
+                        ]
+                    ) { error in
+                        if error != nil {
+                            print(error!.localizedDescription)
+                        }else{
+                            print("send data successfully")
+                            DispatchQueue.main.async {
+                                self.writeMessageTextField.text = ""
+                            }
+                        }
+                    }
+            }
+        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

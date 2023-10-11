@@ -179,13 +179,13 @@ extension LoginViewController: UIImagePickerControllerDelegate, UINavigationCont
                                 self.mainViewController = MainViewController()
                                 if let mainVC = self.mainViewController {
 //                                    mainVC.navigationController?.title = safeData["name"] as? String
-//                                    mainVC.setupNavTitleWith(
-//                                        user: User(
-//                                            name: safeData["name"] as! String,
-//                                            email: safeData["email"] as! String,
-//                                            profileImageURL: safeData["profileImageURL"] as! String
-//                                        )
-//                                    )
+                                    mainVC.setupNavTitleWith(
+                                        user: User(
+                                            name: safeData["name"] as! String,
+                                            email: safeData["email"] as! String,
+                                            profileImageURL: safeData["profileImageURL"] as! String
+                                        )
+                                    )
                                     let navVC = UINavigationController(rootViewController: mainVC)
                                     navVC.modalPresentationStyle = .fullScreen
                                     self.present(navVC, animated: true)

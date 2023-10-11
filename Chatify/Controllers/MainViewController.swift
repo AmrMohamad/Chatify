@@ -29,32 +29,32 @@ class MainViewController: UITableViewController {
             action: #selector(addNewMessage)
         )
 //        navigationController?.navigationBar.prefersLargeTitles = true
-        checkIfUserIsLogin()
+//        checkIfUserIsLogin()
         
     }
 
-    func checkIfUserIsLogin(){
-        if Auth.auth().currentUser?.uid == nil {
-            perform(#selector(handeleLogOut), with: nil, afterDelay: 0)
-        } else {
-            let uid = Auth.auth().currentUser!.uid
-            db.collection("users").document(uid).getDocument { snapShot, error in
-                if error != nil {
-                    print(error!)
-                    return
-                }
-                if let safeData = snapShot?.data() {
-                    self.setupNavTitleWith(
-                        user: User(
-                            name: safeData["name"] as! String,
-                            email: safeData["email"] as! String,
-                            profileImageURL: safeData["profileImageURL"] as! String
-                                  )
-                    )
-                }
-            }
-        }
-    }
+//    func checkIfUserIsLogin(){
+//        if Auth.auth().currentUser?.uid == nil {
+//            perform(#selector(handeleLogOut), with: nil, afterDelay: 0)
+//        } else {
+//            let uid = Auth.auth().currentUser!.uid
+//            db.collection("users").document(uid).getDocument { snapShot, error in
+//                if error != nil {
+//                    print(error!)
+//                    return
+//                }
+//                if let safeData = snapShot?.data() {
+//                    self.setupNavTitleWith(
+//                        user: User(
+//                            name: safeData["name"] as! String,
+//                            email: safeData["email"] as! String,
+//                            profileImageURL: safeData["profileImageURL"] as! String
+//                                  )
+//                    )
+//                }
+//            }
+//        }
+//    }
 
     func setupNavTitleWith(user: User){
         let customTitleView = UIView()

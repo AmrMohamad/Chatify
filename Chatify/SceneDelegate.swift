@@ -19,12 +19,30 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
+        let db = Firestore.firestore()
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(frame: windowScene.coordinateSpace.bounds)
         window?.windowScene = windowScene
 //        window?.rootViewController = UINavigationController(rootViewController: MainViewController())
         if Auth.auth().currentUser?.uid != nil {
-            window?.rootViewController = UINavigationController(rootViewController: MainViewController())
+            let mainVC = MainViewController()
+            let uid = Auth.auth().currentUser!.uid
+            db.collection("users").document(uid).getDocument { snapShot, error in
+                if error != nil {
+                    print(error!)
+                    return
+                }
+                if let safeData = snapShot?.data() {
+                    mainVC.setupNavTitleWith(
+                        user: User(
+                            name: safeData["name"] as! String,
+                            email: safeData["email"] as! String,
+                            profileImageURL: safeData["profileImageURL"] as! String
+                        )
+                    )
+                }
+            }
+            window?.rootViewController = UINavigationController(rootViewController: mainVC)
         }else{
             window?.rootViewController = UINavigationController(rootViewController: LoginViewController())
         }
