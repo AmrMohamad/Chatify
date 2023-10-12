@@ -77,4 +77,10 @@ class NewMeesageViewController: UITableViewController {
         cell.userLabel.text  = users[indexPath.row].name
         return cell
     }
+    var mainVC: MainViewController?
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        dismiss(animated: true) {
+            self.mainVC?.handleNavigationToChat(of: self.users[indexPath.row].name)
+        }
+    }
 }

@@ -99,13 +99,15 @@ class MainViewController: UITableViewController {
 
         userNameLabel.centerXAnchor.constraint(equalTo: imageProfile.centerXAnchor).isActive = true
         userNameLabel.topAnchor.constraint(equalTo: imageProfile.bottomAnchor, constant: -1).isActive = true
-        customTitleView.addGestureRecognizer(
-            UITapGestureRecognizer(target: self, action: #selector(handleNavigationToChat))
-        )
+//        customTitleView.addGestureRecognizer(
+//            UITapGestureRecognizer(target: self, action: #selector(handleNavigationToChat))
+//        )
     }
     
-    @objc func handleNavigationToChat(){
-        self.navigationController?.pushViewController(ChatViewController(), animated: true)
+    @objc func handleNavigationToChat(of username: String){
+        let chatVC = ChatViewController()
+        chatVC.navigationItem.title = username
+        self.navigationController?.pushViewController(chatVC, animated: true)
     }
     @objc func handeleLogOut(){
         do{
@@ -122,6 +124,7 @@ class MainViewController: UITableViewController {
     
     @objc func addNewMessage(){
         let newMessageVC = NewMeesageViewController()
+        newMessageVC.mainVC = self
         let nav = UINavigationController(rootViewController: newMessageVC)
         nav.modalPresentationStyle = .pageSheet
         nav.sheetPresentationController?.prefersGrabberVisible = true

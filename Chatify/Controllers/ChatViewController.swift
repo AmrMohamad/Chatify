@@ -45,8 +45,6 @@ class ChatViewController: UIViewController,
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationItem.title = "Chat Log"
-        
         view.addSubview(chatLogTableView)
         chatLogTableView.frame = view.frame
         chatLogTableView.dataSource = self
