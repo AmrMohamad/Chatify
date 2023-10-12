@@ -119,5 +119,8 @@ class ChatViewController: UIViewController,
         return cell
     }
     
-    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        handleSendingMessage()
+        return true
+    }
 }
