@@ -42,9 +42,11 @@ class NewMeesageViewController: UITableViewController {
                 if let docs = snapshot?.documents {
                     for doc in docs {
                         let userData = doc.data()
-                        let user = User(name: userData["name"] as! String,
-                                        email: userData["email"] as! String,
-                                        profileImageURL: userData["profileImageURL"] as! String
+                        let user = User(
+                            id             : doc.documentID ,
+                            name           : userData["name"] as! String,
+                            email          : userData["email"] as! String,
+                            profileImageURL: userData["profileImageURL"] as! String
                         )
                         self.users.append(user)
                         DispatchQueue.main.async {
@@ -79,8 +81,9 @@ class NewMeesageViewController: UITableViewController {
     }
     var mainVC: MainViewController?
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let user = users[indexPath.row]
         dismiss(animated: true) {
-            self.mainVC?.handleNavigationToChat(of: self.users[indexPath.row].name)
+            self.mainVC?.handleNavigationToChat(of: user)
         }
     }
 }

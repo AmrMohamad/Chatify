@@ -116,6 +116,7 @@ extension LoginViewController: UIImagePickerControllerDelegate, UINavigationCont
                                     self.registerUserIntoDBWithUID(
                                         uid: uid,
                                         values: [
+                                            "userID"          : uid,
                                             "name"            : name,
                                             "email"           : email,
                                             "profileImageURL" : urlD.absoluteString
@@ -149,8 +150,9 @@ extension LoginViewController: UIImagePickerControllerDelegate, UINavigationCont
             if let mainVC = self.mainViewController {
                 let navVC = UINavigationController(rootViewController: mainVC)
                 let u = User(
-                    name: values["name"] as! String,
-                    email:  values["email"] as! String,
+                    id             : values["userID"] as! String,
+                    name           : values["name"] as! String,
+                    email          :  values["email"] as! String,
                     profileImageURL:  values["profileImageURL"] as! String
                 )
                 mainVC.setupNavTitleWith(user: u)
@@ -181,8 +183,9 @@ extension LoginViewController: UIImagePickerControllerDelegate, UINavigationCont
 //                                    mainVC.navigationController?.title = safeData["name"] as? String
                                     mainVC.setupNavTitleWith(
                                         user: User(
-                                            name: safeData["name"] as! String,
-                                            email: safeData["email"] as! String,
+                                            id             : safeData["userID"] as! String,
+                                            name           : safeData["name"] as! String,
+                                            email          : safeData["email"] as! String,
                                             profileImageURL: safeData["profileImageURL"] as! String
                                         )
                                     )

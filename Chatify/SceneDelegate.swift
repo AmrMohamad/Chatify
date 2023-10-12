@@ -35,6 +35,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 if let safeData = snapShot?.data() {
                     mainVC.setupNavTitleWith(
                         user: User(
+                            id: snapShot!.documentID,
                             name: safeData["name"] as! String,
                             email: safeData["email"] as! String,
                             profileImageURL: safeData["profileImageURL"] as! String

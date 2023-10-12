@@ -15,6 +15,12 @@ class ChatViewController: UIViewController,
                           UITableViewDelegate,
                           UITextFieldDelegate {
 
+    var user: User? {
+        didSet{
+            navigationItem.title = user!.name
+        }
+    }
+    
     lazy var containerTypingArea: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -90,9 +96,10 @@ class ChatViewController: UIViewController,
                 db.collection("messages")
                     .addDocument(
                         data: [
-                            "sender" : sender,
-                            "text"   : text,
-                            "Date"   : Date().timeIntervalSince1970
+                            "sendFromID"   : sender,
+                            "sendToID"     : user!.id,
+                            "text"         : text,
+                            "Date"         : Date().timeIntervalSince1970
                         ]
                     ) { error in
                         if error != nil {

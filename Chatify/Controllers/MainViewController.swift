@@ -104,9 +104,9 @@ class MainViewController: UITableViewController {
 //        )
     }
     
-    @objc func handleNavigationToChat(of username: String){
+    func handleNavigationToChat(of user: User){
         let chatVC = ChatViewController()
-        chatVC.navigationItem.title = username
+        chatVC.user = user
         self.navigationController?.pushViewController(chatVC, animated: true)
     }
     @objc func handeleLogOut(){
