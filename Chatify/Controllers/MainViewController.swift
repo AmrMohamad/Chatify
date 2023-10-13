@@ -58,25 +58,38 @@ class MainViewController: UITableViewController {
 
     func setupNavTitleWith(user: User){
         let customTitleView = UIView()
-//        customTitleView.translatesAutoresizingMaskIntoConstraints = false
-        customTitleView.frame = CGRect(
-            x: 0,
-            y: 0,
-            width: 100 ,
-            height: 44
-        )
+        customTitleView.translatesAutoresizingMaskIntoConstraints = false
+
         self.navigationItem.titleView = customTitleView
-//        customTitleView.backgroundColor = .red
+        customTitleView.widthAnchor
+            .constraint(equalToConstant: 100)
+            .isActive = true
+        customTitleView.heightAnchor
+            .constraint(equalToConstant: 44)
+            .isActive = true
+        
         let containerView = UIView()
         containerView.translatesAutoresizingMaskIntoConstraints = false
-//        r.backgroundColor = .gray
         customTitleView.addSubview(containerView)
-        containerView.leadingAnchor.constraint(equalTo: customTitleView.leadingAnchor, constant: 1).isActive = true
-        containerView.trailingAnchor.constraint(equalTo: customTitleView.trailingAnchor, constant: -1).isActive = true
-        containerView.topAnchor.constraint(equalTo: customTitleView.topAnchor, constant: 2).isActive = true
-        containerView.bottomAnchor.constraint(equalTo: customTitleView.bottomAnchor, constant: -1).isActive = true
-        containerView.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        containerView.widthAnchor.constraint(equalToConstant: 160).isActive = true
+        
+        containerView.leadingAnchor
+            .constraint(equalTo: customTitleView.leadingAnchor, constant: 0)
+            .isActive = true
+        containerView.trailingAnchor
+            .constraint(equalTo: customTitleView.trailingAnchor, constant: 0)
+            .isActive = true
+        containerView.topAnchor
+            .constraint(equalTo: customTitleView.topAnchor, constant: 0)
+            .isActive = true
+        containerView.bottomAnchor
+            .constraint(equalTo: customTitleView.bottomAnchor, constant: 0)
+            .isActive = true
+        containerView.centerXAnchor
+            .constraint(equalTo: customTitleView.centerXAnchor)
+            .isActive = true
+        containerView.centerYAnchor
+            .constraint(equalTo: customTitleView.centerYAnchor)
+            .isActive = true
         
         
         let imageProfile = UIImageView()
@@ -86,10 +99,18 @@ class MainViewController: UITableViewController {
         imageProfile.layer.masksToBounds = true
         containerView.addSubview(imageProfile)
 
-        imageProfile.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
-        imageProfile.bottomAnchor.constraint(equalTo: containerView.topAnchor, constant: 29).isActive = true
-        imageProfile.heightAnchor.constraint(equalToConstant: 31).isActive = true
-        imageProfile.widthAnchor.constraint(equalToConstant: 31).isActive = true
+        imageProfile.centerXAnchor
+            .constraint(equalTo: containerView.centerXAnchor)
+            .isActive = true
+        imageProfile.topAnchor
+            .constraint(equalTo: containerView.topAnchor, constant: -1)
+            .isActive = true
+        imageProfile.heightAnchor
+            .constraint(equalToConstant: 31)
+            .isActive = true
+        imageProfile.widthAnchor
+            .constraint(equalToConstant: 31)
+            .isActive = true
 
         let userNameLabel = UILabel()
         userNameLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -97,11 +118,13 @@ class MainViewController: UITableViewController {
         userNameLabel.font = UIFont.boldSystemFont(ofSize: 15)
         containerView.addSubview(userNameLabel)
 
-        userNameLabel.centerXAnchor.constraint(equalTo: imageProfile.centerXAnchor).isActive = true
-        userNameLabel.topAnchor.constraint(equalTo: imageProfile.bottomAnchor, constant: -1).isActive = true
-//        customTitleView.addGestureRecognizer(
-//            UITapGestureRecognizer(target: self, action: #selector(handleNavigationToChat))
-//        )
+        userNameLabel.centerXAnchor
+            .constraint(equalTo: imageProfile.centerXAnchor)
+            .isActive = true
+        userNameLabel.topAnchor
+            .constraint(equalTo: imageProfile.bottomAnchor, constant: -1)
+            .isActive = true
+        
     }
     
     func handleNavigationToChat(of user: User){
