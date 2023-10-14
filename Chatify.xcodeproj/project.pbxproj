@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2D5A1B332ADAB64D00456C3E /* ChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5A1B322ADAB64D00456C3E /* ChatTableViewCell.swift */; };
+		2D5E141F2AD99A47009CBE98 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5E141E2AD99A47009CBE98 /* Message.swift */; };
 		2D6C07492AA65AFD0036E273 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6C07482AA65AFD0036E273 /* AppDelegate.swift */; };
 		2D6C074B2AA65AFD0036E273 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6C074A2AA65AFD0036E273 /* SceneDelegate.swift */; };
 		2D6C074D2AA65AFD0036E273 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6C074C2AA65AFD0036E273 /* MainViewController.swift */; };
@@ -24,6 +26,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2D5A1B322ADAB64D00456C3E /* ChatTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatTableViewCell.swift; sourceTree = "<group>"; };
+		2D5E141E2AD99A47009CBE98 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		2D6C07452AA65AFD0036E273 /* Chatify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chatify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D6C07482AA65AFD0036E273 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2D6C074A2AA65AFD0036E273 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -124,6 +128,7 @@
 			isa = PBXGroup;
 			children = (
 				2DB4360E2ABB2F4F00BF1A60 /* User.swift */,
+				2D5E141E2AD99A47009CBE98 /* Message.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -132,6 +137,7 @@
 			isa = PBXGroup;
 			children = (
 				2DB4360C2ABB2BE300BF1A60 /* AddNewUserCell.swift */,
+				2D5A1B322ADAB64D00456C3E /* ChatTableViewCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -265,8 +271,10 @@
 				2DB4360B2ABB1C9300BF1A60 /* NewMeesageViewController.swift in Sources */,
 				2D6C07492AA65AFD0036E273 /* AppDelegate.swift in Sources */,
 				2D6C074B2AA65AFD0036E273 /* SceneDelegate.swift in Sources */,
+				2D5E141F2AD99A47009CBE98 /* Message.swift in Sources */,
 				2DCC3FFD2AC05AAE00156346 /* LoginViewController+Handlers.swift in Sources */,
 				2DB4360D2ABB2BE300BF1A60 /* AddNewUserCell.swift in Sources */,
+				2D5A1B332ADAB64D00456C3E /* ChatTableViewCell.swift in Sources */,
 				2DACA5E92AD6D49F0093EBF4 /* ChatViewController.swift in Sources */,
 				2DB4360F2ABB2F4F00BF1A60 /* User.swift in Sources */,
 			);

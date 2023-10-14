@@ -13,9 +13,14 @@ import FirebaseCore
 class MainViewController: UITableViewController {
 
     let db = Firestore.firestore()
+    var messages: [Message] = [Message]()
+    var users: [User] = [User]()
+    let imgsCache = NSCache<AnyObject, AnyObject>()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        tableView.register(ChatTableViewCell.self, forCellReuseIdentifier: ChatTableViewCell.identifier)
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             title: "Log Out",
             style: .plain,
@@ -28,33 +33,9 @@ class MainViewController: UITableViewController {
             target: self,
             action: #selector(addNewMessage)
         )
-//        navigationController?.navigationBar.prefersLargeTitles = true
-//        checkIfUserIsLogin()
-        
+        fetchUsers()
+        fetchMessages()
     }
-
-//    func checkIfUserIsLogin(){
-//        if Auth.auth().currentUser?.uid == nil {
-//            perform(#selector(handeleLogOut), with: nil, afterDelay: 0)
-//        } else {
-//            let uid = Auth.auth().currentUser!.uid
-//            db.collection("users").document(uid).getDocument { snapShot, error in
-//                if error != nil {
-//                    print(error!)
-//                    return
-//                }
-//                if let safeData = snapShot?.data() {
-//                    self.setupNavTitleWith(
-//                        user: User(
-//                            name: safeData["name"] as! String,
-//                            email: safeData["email"] as! String,
-//                            profileImageURL: safeData["profileImageURL"] as! String
-//                                  )
-//                    )
-//                }
-//            }
-//        }
-//    }
 
     func setupNavTitleWith(user: User){
         let customTitleView = UIView()
@@ -154,6 +135,85 @@ class MainViewController: UITableViewController {
         nav.sheetPresentationController?.detents = [.medium(), .large()]
         nav.sheetPresentationController?.prefersScrollingExpandsWhenScrolledToEdge = false
         present(nav, animated: true)
+    }
+    
+    func fetchMessages(){
+        db.collection("messages")
+            .order(by: "Date")
+            .addSnapshotListener { snapshots, error in
+                self.messages = []
+                if error != nil{
+                    print(error!.localizedDescription)
+                    return
+                }
+                if let snaps = snapshots {
+                    for doc in snaps.documents{
+                        let safeData = doc.data()
+                        let message = Message(
+                            sendToID   : safeData["sendToID"] as! String,
+                            sendFromID : safeData["sendFromID"] as! String,
+                            Date       : safeData["Date"] as! Double,
+                            text       : safeData["text"] as! String
+                        )
+                        self.messages.append(message)
+                    }
+                    DispatchQueue.main.async {
+                        self.tableView.reloadData()
+                    }
+                }
+            }
+    }
+    func fetchUsers(){
+        db.collection("users").addSnapshotListener { snapshot, error in
+            self.users = []
+            if error != nil {
+                print("\(error?.localizedDescription ?? "error")")
+            } else {
+                if let docs = snapshot?.documents {
+                    for doc in docs {
+                        let userData = doc.data()
+                        let user = User(
+                            id             : doc.documentID ,
+                            name           : userData["name"] as! String,
+                            email          : userData["email"] as! String,
+                            profileImageURL: userData["profileImageURL"] as! String
+                        )
+                        URLSession.shared.dataTask(
+                            with: URL(string: userData["profileImageURL"] as! String)!
+                        ) { data, response, error in
+                            if let d = data {
+                                DispatchQueue.main.sync {
+                                    if let downloadedImage = UIImage(data: d) {
+                                        self.imgsCache.setObject(
+                                            downloadedImage,
+                                            forKey: NSString(string: userData["profileImageURL"] as! String)
+                                        )
+                                    }
+                                }
+                            }
+                        }.resume()
+                        self.users.append(user)
+//                        DispatchQueue.main.async {
+//                            self.tableView.reloadData()
+//                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return messages.count
+    }
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: ChatTableViewCell.identifier, for: indexPath) as! ChatTableViewCell
+        let message = messages[indexPath.row]
+        if let user = users.first(where: {$0.id == message.sendToID}){
+            cell.profileImage.loadImagefromCacheWithURLstring(urlString: user.profileImageURL)
+        }
+        cell.userLabel.text = message.sendToID
+        cell.lastMessageLabel.text = message.text
+        return cell
     }
 }
 
