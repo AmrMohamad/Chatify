@@ -75,7 +75,9 @@ class ChatTableViewCell: UITableViewCell {
         stackLabels.leadingAnchor
             .constraint(equalTo: profileImage.trailingAnchor, constant: 16)
             .isActive = true
-        
+        stackLabels.centerYAnchor
+            .constraint(equalTo: profileImage.centerYAnchor)
+            .isActive = true
 //        stackLabels.trailingAnchor
 //            .constraint(equalTo: contentView.trailingAnchor, constant: -16)
 //            .isActive = true

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseCore
@@ -17,10 +18,19 @@ class MainViewController: UITableViewController {
     var users: [User] = [User]()
     let imgsCache = NSCache<AnyObject, AnyObject>()
     
+    let userNameLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        label.font = UIFont.boldSystemFont(ofSize: 15)
+        return label
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         tableView.register(ChatTableViewCell.self, forCellReuseIdentifier: ChatTableViewCell.identifier)
+        tableView.separatorStyle = .none
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             title: "Log Out",
             style: .plain,
@@ -33,10 +43,64 @@ class MainViewController: UITableViewController {
             target: self,
             action: #selector(addNewMessage)
         )
+        navigationController?.navigationBar.prefersLargeTitles = true
         fetchUsers()
         fetchMessages()
+        
     }
+    override func viewWillAppear(_ animated: Bool) {
+        
+        guard let navBar = navigationController?
+            .navigationBar else {
+            fatalError("Navigation Bar not exist YET")
+        }
+        navBar.setBackgroundImage(UIImage(), for: .default)
+        navBar.shadowImage = UIImage()
+        let variableBlurView = VariableBlurView(
+            gradientMask: UIImage(named: "Gradient")!,
+            maxBlurRadius: 28,
+            filterType: "variableBlur"
+        )
+        let hostingController = UIHostingController(rootView: variableBlurView)
 
+        hostingController.view.backgroundColor = .clear
+        hostingController.view.tag = 1
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+
+        hostingController.didMove(toParent: self.navigationController!)
+        navBar.subviews.first?.insertSubview(hostingController.view, at: 0)
+        if let backView = navBar.subviews.first {
+            if let shadowImage = backView.subviews.last {
+                shadowImage.alpha = 0
+            }
+            hostingController.view
+                .topAnchor.constraint(equalTo: backView.topAnchor, constant: 0).isActive = true
+            hostingController.view
+                .bottomAnchor.constraint(equalTo: backView.bottomAnchor, constant: 2).isActive = true
+            hostingController.view
+                .leadingAnchor.constraint(equalTo: backView.leadingAnchor).isActive = true
+            hostingController.view
+                .trailingAnchor.constraint(equalTo: backView.trailingAnchor).isActive = true
+        }
+        
+        let cnav = UINavigationBarAppearance()
+        cnav.configureWithOpaqueBackground()
+        cnav.backgroundColor = .clear
+        navBar.standardAppearance = cnav
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        guard let navBar = navigationController?
+            .navigationBar else {
+            fatalError("Navigation controller not exist yet")
+        }
+        navBar.subviews.first?.subviews.last?.removeFromSuperview()
+    }
+    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if let largeBarView = navigationController?.navigationBar.subviews[1]{
+            userNameLabel.alpha = largeBarView.alpha == 1.0 ? 0.0 : 1.0
+        }
+    }
+    
     func setupNavTitleWith(user: User){
         let customTitleView = UIView()
         customTitleView.translatesAutoresizingMaskIntoConstraints = false
@@ -93,10 +157,7 @@ class MainViewController: UITableViewController {
             .constraint(equalToConstant: 31)
             .isActive = true
 
-        let userNameLabel = UILabel()
-        userNameLabel.translatesAutoresizingMaskIntoConstraints = false
         userNameLabel.text = user.name
-        userNameLabel.font = UIFont.boldSystemFont(ofSize: 15)
         containerView.addSubview(userNameLabel)
 
         userNameLabel.centerXAnchor
@@ -105,7 +166,7 @@ class MainViewController: UITableViewController {
         userNameLabel.topAnchor
             .constraint(equalTo: imageProfile.bottomAnchor, constant: -1)
             .isActive = true
-        
+        navigationItem.title = user.name
     }
     
     func handleNavigationToChat(of user: User){
@@ -113,6 +174,7 @@ class MainViewController: UITableViewController {
         chatVC.user = user
         self.navigationController?.pushViewController(chatVC, animated: true)
     }
+    
     @objc func handeleLogOut(){
         do{
             try Auth.auth().signOut()
@@ -163,6 +225,7 @@ class MainViewController: UITableViewController {
                 }
             }
     }
+    
     func fetchUsers(){
         db.collection("users").addSnapshotListener { snapshot, error in
             self.users = []
