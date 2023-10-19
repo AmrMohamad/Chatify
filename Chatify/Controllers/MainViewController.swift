@@ -49,7 +49,7 @@ class MainViewController: UITableViewController {
         
     }
     override func viewWillAppear(_ animated: Bool) {
-        
+        navigationController?.navigationBar.prefersLargeTitles = true
         guard let navBar = navigationController?
             .navigationBar else {
             fatalError("Navigation Bar not exist YET")
@@ -88,13 +88,26 @@ class MainViewController: UITableViewController {
         cnav.backgroundColor = .clear
         navBar.standardAppearance = cnav
     }
+    
     override func viewWillDisappear(_ animated: Bool) {
         guard let navBar = navigationController?
             .navigationBar else {
             fatalError("Navigation controller not exist yet")
         }
+        navBar.setBackgroundImage(nil, for: .default)
+        navBar.shadowImage = nil
+        if let backView = navBar.subviews.first {
+            if let shadowImage = backView.subviews.first {
+                shadowImage.alpha = 1
+            }
+        }
         navBar.subviews.first?.subviews.last?.removeFromSuperview()
+        navigationController?.navigationBar.prefersLargeTitles = false
+        let cnav = UINavigationBarAppearance()
+        cnav.configureWithDefaultBackground()
+        navBar.standardAppearance = cnav
     }
+    
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if let largeBarView = navigationController?.navigationBar.subviews[1]{
             userNameLabel.alpha = largeBarView.alpha == 1.0 ? 0.0 : 1.0
