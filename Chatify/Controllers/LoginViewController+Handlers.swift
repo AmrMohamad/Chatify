@@ -183,7 +183,7 @@ extension LoginViewController: UIImagePickerControllerDelegate, UINavigationCont
 //                                    mainVC.navigationController?.title = safeData["name"] as? String
                                     mainVC.setupNavTitleWith(
                                         user: User(
-                                            id             : safeData["userID"] as! String,
+                                            id             : authResult!.user.uid,
                                             name           : safeData["name"] as! String,
                                             email          : safeData["email"] as! String,
                                             profileImageURL: safeData["profileImageURL"] as! String

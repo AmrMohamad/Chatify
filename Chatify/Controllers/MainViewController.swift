@@ -21,9 +21,37 @@ class MainViewController: UITableViewController {
     let userNameLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        
+        label.layer.shadowRadius = 2.2
+        label.layer.shadowOpacity = 0.28
+        label.layer.shadowColor = UIColor.black.cgColor
+        label.layer.shadowOffset = CGSize(width: 0, height: 0)
         label.font = UIFont.boldSystemFont(ofSize: 15)
+        label.textAlignment = .center
         return label
+    }()
+    
+    lazy var leftBarButtonLogOut: UIBarButtonItem = {
+        let cButton = UIButton(type: .system)
+        cButton.setTitle("Log Out", for: .normal)
+        cButton.layer.shadowRadius = 2.2
+        cButton.layer.shadowOpacity = 0.28
+        cButton.layer.shadowColor = UIColor.black.cgColor
+        cButton.layer.shadowOffset = CGSize(width: 0, height: 0)
+        cButton.addTarget(self, action: #selector(handeleLogOut), for: .touchUpInside)
+        let button = UIBarButtonItem(customView: cButton)
+        return button
+    }()
+    
+    lazy var rightBarButtonNewChat: UIBarButtonItem = {
+        let cButton = UIButton(type: .system)
+        cButton.setImage(UIImage(systemName: "plus.message"), for: .normal)
+        cButton.layer.shadowRadius = 2.2
+        cButton.layer.shadowOpacity = 0.28
+        cButton.layer.shadowColor = UIColor.black.cgColor
+        cButton.layer.shadowOffset = CGSize(width: 0, height: 0)
+        cButton.addTarget(self, action: #selector(addNewMessage), for: .touchUpInside)
+        let button = UIBarButtonItem(customView: cButton)
+        return button
     }()
     
     override func viewDidLoad() {
@@ -31,18 +59,8 @@ class MainViewController: UITableViewController {
         // Do any additional setup after loading the view.
         tableView.register(ChatTableViewCell.self, forCellReuseIdentifier: ChatTableViewCell.identifier)
         tableView.separatorStyle = .none
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
-            title: "Log Out",
-            style: .plain,
-            target: self,
-            action: #selector(handeleLogOut)
-        )
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "plus.message"),
-            style: .plain,
-            target: self,
-            action: #selector(addNewMessage)
-        )
+        navigationItem.leftBarButtonItem = leftBarButtonLogOut
+        navigationItem.rightBarButtonItem = rightBarButtonNewChat
         navigationController?.navigationBar.prefersLargeTitles = true
         fetchUsers()
         fetchMessages()
@@ -117,6 +135,7 @@ class MainViewController: UITableViewController {
     func setupNavTitleWith(user: User){
         let customTitleView = UIView()
         customTitleView.translatesAutoresizingMaskIntoConstraints = false
+//        customTitleView.backgroundColor = .orange
 
         self.navigationItem.titleView = customTitleView
         customTitleView.widthAnchor
@@ -128,6 +147,7 @@ class MainViewController: UITableViewController {
         
         let containerView = UIView()
         containerView.translatesAutoresizingMaskIntoConstraints = false
+//        containerView.backgroundColor = .yellow
         customTitleView.addSubview(containerView)
         
         containerView.leadingAnchor
@@ -149,35 +169,49 @@ class MainViewController: UITableViewController {
             .constraint(equalTo: customTitleView.centerYAnchor)
             .isActive = true
         
+        let imageProfileContainer = UIView()
+        imageProfileContainer.translatesAutoresizingMaskIntoConstraints = false
+//        imageProfileContainer.backgroundColor = .cyan
+        imageProfileContainer.layer.cornerRadius = 15.5
+        imageProfileContainer.layer.shadowRadius = 2.2
+        imageProfileContainer.layer.shadowOpacity = 0.30
+        imageProfileContainer.layer.shadowColor = UIColor.black.cgColor
+        imageProfileContainer.layer.shadowOffset = CGSize(width: 0, height: 0)
+        containerView.addSubview(imageProfileContainer)
+        
+        imageProfileContainer.centerXAnchor
+            .constraint(equalTo: containerView.centerXAnchor)
+            .isActive = true
+        imageProfileContainer.topAnchor
+            .constraint(equalTo: containerView.topAnchor, constant: -1)
+            .isActive = true
+        imageProfileContainer.heightAnchor
+            .constraint(equalToConstant: 31)
+            .isActive = true
+        imageProfileContainer.widthAnchor
+            .constraint(equalToConstant: 31)
+            .isActive = true
         
         let imageProfile = UIImageView()
         imageProfile.translatesAutoresizingMaskIntoConstraints = false
-        imageProfile.loadImagefromCacheWithURLstring(urlString: user.profileImageURL)
         imageProfile.layer.cornerRadius = 15.5
         imageProfile.layer.masksToBounds = true
-        containerView.addSubview(imageProfile)
-
-        imageProfile.centerXAnchor
-            .constraint(equalTo: containerView.centerXAnchor)
-            .isActive = true
-        imageProfile.topAnchor
-            .constraint(equalTo: containerView.topAnchor, constant: -1)
-            .isActive = true
-        imageProfile.heightAnchor
-            .constraint(equalToConstant: 31)
-            .isActive = true
-        imageProfile.widthAnchor
-            .constraint(equalToConstant: 31)
-            .isActive = true
-
+        imageProfile.loadImagefromCacheWithURLstring(urlString: user.profileImageURL)
+        
+        imageProfileContainer.addSubview(imageProfile)
+        imageProfile.topAnchor.constraint(equalTo: imageProfileContainer.topAnchor).isActive = true
+        imageProfile.bottomAnchor.constraint(equalTo: imageProfileContainer.bottomAnchor).isActive = true
+        imageProfile.leadingAnchor.constraint(equalTo: imageProfileContainer.leadingAnchor).isActive = true
+        imageProfile.trailingAnchor.constraint(equalTo: imageProfileContainer.trailingAnchor).isActive = true
+        
         userNameLabel.text = user.name
         containerView.addSubview(userNameLabel)
 
         userNameLabel.centerXAnchor
-            .constraint(equalTo: imageProfile.centerXAnchor)
+            .constraint(equalTo: imageProfileContainer.centerXAnchor)
             .isActive = true
         userNameLabel.topAnchor
-            .constraint(equalTo: imageProfile.bottomAnchor, constant: -1)
+            .constraint(equalTo: imageProfileContainer.bottomAnchor, constant: -1)
             .isActive = true
         navigationItem.title = user.name
     }
