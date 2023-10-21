@@ -96,9 +96,9 @@ class MainViewController: UITableViewController {
             hostingController.view
                 .bottomAnchor.constraint(equalTo: backView.bottomAnchor, constant: 2).isActive = true
             hostingController.view
-                .leadingAnchor.constraint(equalTo: backView.leadingAnchor).isActive = true
+                .leadingAnchor.constraint(equalTo: navBar.leadingAnchor).isActive = true
             hostingController.view
-                .trailingAnchor.constraint(equalTo: backView.trailingAnchor).isActive = true
+                .trailingAnchor.constraint(equalTo: navBar.trailingAnchor).isActive = true
         }
         
         let cnav = UINavigationBarAppearance()
