@@ -75,16 +75,5 @@ class AddNewUserCell: UITableViewCell {
         stackLabels.leadingAnchor
             .constraint(equalTo: profileImage.trailingAnchor, constant: 16)
             .isActive = true
-        
-//        stackLabels.trailingAnchor
-//            .constraint(equalTo: contentView.trailingAnchor, constant: -16)
-//            .isActive = true
-//        stackLabels.topAnchor
-//            .constraint(equalTo: contentView.topAnchor, constant: 10.5)
-//            .isActive = true
-//        stackLabels.bottomAnchor
-//            .constraint(equalTo: contentView.bottomAnchor, constant: -10.5)
-//            .isActive = true
-        
     }
 }

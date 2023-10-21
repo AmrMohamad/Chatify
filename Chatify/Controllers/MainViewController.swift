@@ -246,11 +246,13 @@ class MainViewController: UITableViewController {
         present(nav, animated: true)
     }
     
+    var messageDicationary: [String : Message] = [String : Message]()
     func fetchMessages(){
         db.collection("messages")
-            .order(by: "Date")
+            .order(by: "Date", descending: false)
             .addSnapshotListener { snapshots, error in
                 self.messages = []
+                self.messageDicationary = [:]
                 if error != nil{
                     print(error!.localizedDescription)
                     return
@@ -264,8 +266,12 @@ class MainViewController: UITableViewController {
                             Date       : safeData["Date"] as! Double,
                             text       : safeData["text"] as! String
                         )
-                        self.messages.append(message)
+//                        self.messages.append(message)
+                        self.messageDicationary[message.sendToID] = message
                     }
+                    self.messages = Array(self.messageDicationary.values).sorted(by: { message1, message2 in
+                        return message1.Date > message2.Date
+                    })
                     DispatchQueue.main.async {
                         self.tableView.reloadData()
                     }
@@ -303,9 +309,6 @@ class MainViewController: UITableViewController {
                             }
                         }.resume()
                         self.users.append(user)
-//                        DispatchQueue.main.async {
-//                            self.tableView.reloadData()
-//                        }
                     }
                 }
             }
@@ -315,14 +318,35 @@ class MainViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return messages.count
     }
+    
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 68
+    }
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: ChatTableViewCell.identifier, for: indexPath) as! ChatTableViewCell
         let message = messages[indexPath.row]
         if let user = users.first(where: {$0.id == message.sendToID}){
             cell.profileImage.loadImagefromCacheWithURLstring(urlString: user.profileImageURL)
+            cell.userLabel.text = user.name
         }
-        cell.userLabel.text = message.sendToID
         cell.lastMessageLabel.text = message.text
+        
+        let timeOfSend = Date(timeIntervalSince1970: message.Date)
+        var calender = Calendar.current
+        calender.timeZone = TimeZone.current
+        let result = calender.compare(timeOfSend, to: .now, toGranularity: .day)
+        let dataFormatter = DateFormatter()
+        
+        if result == .orderedSame {
+            dataFormatter.dateFormat = "hh:mm a"
+            cell.timeLabel.text = dataFormatter.string(from: timeOfSend)
+            cell.timeLabel.font = UIFont.systemFont(ofSize: 12)
+        }else{
+            dataFormatter.dateFormat = "dd/MM/yyyy"
+            cell.timeLabel.text = dataFormatter.string(from: timeOfSend)
+            cell.timeLabel.font = UIFont.systemFont(ofSize: 10)
+        }
         return cell
     }
 }
