@@ -15,6 +15,7 @@ class MainViewController: UITableViewController {
 
     let db = Firestore.firestore()
     var messages: [Message] = [Message]()
+    var messageDicationary: [String : Message] = [String : Message]()
     var users: [User] = [User]()
     let imgsCache = NSCache<AnyObject, AnyObject>()
     
@@ -62,11 +63,13 @@ class MainViewController: UITableViewController {
         navigationItem.leftBarButtonItem = leftBarButtonLogOut
         navigationItem.rightBarButtonItem = rightBarButtonNewChat
         navigationController?.navigationBar.prefersLargeTitles = true
+        fetchUserMessages()
         fetchUsers()
-        fetchMessages()
+//        fetchMessages()
         
     }
     override func viewWillAppear(_ animated: Bool) {
+        tableView.reloadData()
         navigationController?.navigationBar.prefersLargeTitles = true
         guard let navBar = navigationController?
             .navigationBar else {
@@ -225,6 +228,9 @@ class MainViewController: UITableViewController {
     @objc func handeleLogOut(){
         do{
             try Auth.auth().signOut()
+            messages.removeAll()
+            messageDicationary.removeAll()
+            tableView.reloadData()
         }catch {
             print(error)
         }
@@ -246,60 +252,146 @@ class MainViewController: UITableViewController {
         present(nav, animated: true)
     }
     
-    var messageDicationary: [String : Message] = [String : Message]()
-    func fetchMessages(){
-        db.collection("messages")
-            .order(by: "Date", descending: false)
-            .addSnapshotListener { snapshots, error in
-                self.messages = []
-                self.messageDicationary = [:]
-                if error != nil{
-                    print(error!.localizedDescription)
-                    return
-                }
-                if let snaps = snapshots {
-                    for doc in snaps.documents{
-                        let safeData = doc.data()
-                        let message = Message(
-                            sendToID   : safeData["sendToID"] as! String,
-                            sendFromID : safeData["sendFromID"] as! String,
-                            Date       : safeData["Date"] as! Double,
-                            text       : safeData["text"] as! String
-                        )
-//                        self.messages.append(message)
-                        self.messageDicationary[message.sendToID] = message
-                    }
-                    self.messages = Array(self.messageDicationary.values).sorted(by: { message1, message2 in
-                        return message1.Date > message2.Date
-                    })
-                    DispatchQueue.main.async {
-                        self.tableView.reloadData()
+    func fetchUserMessages(){
+        guard let uid = Auth.auth().currentUser?.uid else {
+            return
+        }
+        self.db.collection("user-messages").document(uid)
+            .addSnapshotListener { docSnapshots, error in
+            self.messages = []
+            self.messageDicationary = [:]
+            if error != nil{
+                print(error!.localizedDescription)
+                return
+            }else{
+                let messagesRef = self.db.collection("messages")
+                
+                if let snapshots = docSnapshots?.data() {
+                    for snap in snapshots {
+                        messagesRef.document(snap.key).getDocument { docSnapshot, error in
+                            if let safeData = docSnapshot?.data(){
+                                
+                                let message = Message(
+                                    sendToID   : safeData["sendToID"] as! String,
+                                    sendFromID : safeData["sendFromID"] as! String,
+                                    Date       : safeData["Date"] as! Double,
+                                    text       : safeData["text"] as! String
+                                )
+                                self.messageDicationary[message.sendToID] = message
+                            }
+                            self.messages = self.filterMessages(
+                                messages: Array(self.messageDicationary.values).sorted(by: { message1, message2 in
+                                    return message1.Date > message2.Date
+                                })
+                            )
+                            DispatchQueue.main.async {
+                                self.tableView.reloadData()
+                            }
+                        }
                     }
                 }
             }
+        }
     }
+
+    func filterMessages(messages: [Message]) -> [Message] {
+        var filteredMessages: [Message] = []
+
+        for i in 0..<messages.count {
+            var isDuplicate = false
+
+            for j in 0..<messages.count {
+                if i != j {
+                    if messages[i].sendToID == messages[j].sendFromID && messages[i].sendFromID == messages[j].sendToID {
+                        // The messages have a reciprocal relationship
+                        if messages[i].Date < messages[j].Date {
+                            // Keep the message with the latest Date
+                            isDuplicate = true
+                            break
+                        }
+                    }
+                }
+            }
+
+            if !isDuplicate {
+                filteredMessages.append(messages[i])
+            }
+        }
+
+        return filteredMessages
+    }
+//    func fetchMessages(){
+//        db.collection("messages")
+//            .order(by: "Date", descending: false)
+//            .addSnapshotListener { snapshots, error in
+//
+//                self.messages = []
+//                self.messageDicationary = [:]
+//
+//                if error != nil{
+//                    print(error!.localizedDescription)
+//                    return
+//                }
+//
+//                if let snaps = snapshots {
+//
+//                    for doc in snaps.documents{
+//                        let safeData = doc.data()
+//
+//                        let message = Message(
+//                            sendToID   : safeData["sendToID"] as! String,
+//                            sendFromID : safeData["sendFromID"] as! String,
+//                            Date       : safeData["Date"] as! Double,
+//                            text       : safeData["text"] as! String
+//                        )
+//                        self.messageDicationary[message.sendToID] = message
+//                    }
+//                    self.messages = self.filterMessages(
+//                        messages: Array(self.messageDicationary.values).sorted(by: { message1, message2 in
+//                            return message1.Date > message2.Date
+//                        })
+//                    )
+//                    dump(self.messages)
+//
+//                    DispatchQueue.main.async {
+//                        self.tableView.reloadData()
+//                    }
+//                }
+//            }
+//    }
     
     func fetchUsers(){
         db.collection("users").addSnapshotListener { snapshot, error in
+            
             self.users = []
+            
             if error != nil {
                 print("\(error?.localizedDescription ?? "error")")
             } else {
+                
                 if let docs = snapshot?.documents {
+                    
                     for doc in docs {
+                        
                         let userData = doc.data()
+                        
                         let user = User(
                             id             : doc.documentID ,
                             name           : userData["name"] as! String,
                             email          : userData["email"] as! String,
                             profileImageURL: userData["profileImageURL"] as! String
                         )
+                        
                         URLSession.shared.dataTask(
                             with: URL(string: userData["profileImageURL"] as! String)!
                         ) { data, response, error in
+                            
                             if let d = data {
+                                
                                 DispatchQueue.main.sync {
+                                    
                                     if let downloadedImage = UIImage(data: d) {
+                                        
                                         self.imgsCache.setObject(
                                             downloadedImage,
                                             forKey: NSString(string: userData["profileImageURL"] as! String)
@@ -308,6 +400,7 @@ class MainViewController: UITableViewController {
                                 }
                             }
                         }.resume()
+                        
                         self.users.append(user)
                     }
                 }
@@ -326,10 +419,22 @@ class MainViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: ChatTableViewCell.identifier, for: indexPath) as! ChatTableViewCell
         let message = messages[indexPath.row]
-        if let user = users.first(where: {$0.id == message.sendToID}){
-            cell.profileImage.loadImagefromCacheWithURLstring(urlString: user.profileImageURL)
-            cell.userLabel.text = user.name
+
+        var chatPartnerID: String?
+        
+        if message.sendFromID == Auth.auth().currentUser?.uid {
+            chatPartnerID = message.sendToID
+        }else{
+            chatPartnerID = message.sendFromID
         }
+        
+        if let id = chatPartnerID {
+            if let user = users.first(where: {$0.id == id}){
+                cell.profileImage.loadImagefromCacheWithURLstring(urlString: user.profileImageURL)
+                cell.userLabel.text = user.name
+            }
+        }
+        
         cell.lastMessageLabel.text = message.text
         
         let timeOfSend = Date(timeIntervalSince1970: message.Date)

@@ -7,7 +7,14 @@
 
 import Foundation
 
-struct Message {
+protocol MessageBody {
+    var sendToID   : String { get set }
+    var sendFromID : String { get set }
+    var Date       : Double { get set }
+    var text       : String { get set }
+}
+
+struct Message: MessageBody {
     var sendToID   : String
     var sendFromID : String
     var Date       : Double

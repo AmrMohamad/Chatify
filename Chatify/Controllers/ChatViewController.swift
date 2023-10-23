@@ -93,7 +93,8 @@ class ChatViewController: UIViewController,
         if let sender = Auth.auth().currentUser?.uid,
            let text   = writeMessageTextField.text {
             if text != "" {
-                db.collection("messages")
+                var ref: DocumentReference? = nil
+                ref = db.collection("messages")
                     .addDocument(
                         data: [
                             "sendFromID"   : sender,
@@ -106,6 +107,24 @@ class ChatViewController: UIViewController,
                             print(error!.localizedDescription)
                         }else{
                             print("send data successfully")
+                            if let messageRef = ref {
+                                let messageID = messageRef.documentID
+                                
+                                let se = self.db.collection("user-messages").document(sender)
+                                se.updateData([messageID:1]) { error in
+                                    if error != nil {
+                                        se.setData([messageID:1])
+                                    }
+                                }
+                                
+                                let re = self.db.collection("user-messages").document(self.user!.id)
+                                re.updateData([messageID:1]) { error in
+                                    if error != nil {
+                                        re.setData([messageID:1])
+                                    }
+                                }
+                                    
+                            }
                             DispatchQueue.main.async {
                                 self.writeMessageTextField.text = ""
                             }
