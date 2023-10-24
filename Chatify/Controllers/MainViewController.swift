@@ -69,7 +69,6 @@ class MainViewController: UITableViewController {
         
     }
     override func viewWillAppear(_ animated: Bool) {
-        tableView.reloadData()
         navigationController?.navigationBar.prefersLargeTitles = true
         guard let navBar = navigationController?
             .navigationBar else {
@@ -258,40 +257,51 @@ class MainViewController: UITableViewController {
         }
         self.db.collection("user-messages").document(uid)
             .addSnapshotListener { docSnapshots, error in
-            self.messages = []
-            self.messageDicationary = [:]
-            if error != nil{
-                print(error!.localizedDescription)
-                return
-            }else{
-                let messagesRef = self.db.collection("messages")
-                
-                if let snapshots = docSnapshots?.data() {
-                    for snap in snapshots {
-                        messagesRef.document(snap.key).getDocument { docSnapshot, error in
-                            if let safeData = docSnapshot?.data(){
-                                
-                                let message = Message(
-                                    sendToID   : safeData["sendToID"] as! String,
-                                    sendFromID : safeData["sendFromID"] as! String,
-                                    Date       : safeData["Date"] as! Double,
-                                    text       : safeData["text"] as! String
+                self.messages = []
+                self.messageDicationary = [:]
+                if error != nil{
+                    print(error!.localizedDescription)
+                    return
+                }else{
+                    let messagesRef = self.db.collection("messages")
+                    
+                    if let snapshots = docSnapshots?.data()?.sorted(
+                        by: { $0.value as! Double > $1.value as! Double}
+                    ) {
+                        for snap in snapshots {
+
+                            messagesRef.document(snap.key).getDocument { docSnapshot, error in
+                                if let safeData = docSnapshot?.data(),
+                                   let sendToID = safeData["sendToID"] as? String,
+                                   let sendFromID = safeData["sendFromID"] as? String,
+                                   let date = safeData["Date"] as? Double,
+                                   let text = safeData["text"] as? String {
+                                    let message = Message(
+                                        sendToID   : sendToID,
+                                        sendFromID : sendFromID,
+                                        Date       : date,
+                                        text       : text
+                                    )
+                                    
+                                    if self.messageDicationary.contains(where: {$0.key == message.sendToID}){
+                                        self.messageDicationary[message.sendFromID] = message
+                                    }else{
+                                        self.messageDicationary[message.sendToID] = message
+                                    }
+                                }
+                                self.messages = self.filterMessages(
+                                    messages: Array(self.messageDicationary.values).sorted(by: { message1, message2 in
+                                        return message1.Date > message2.Date
+                                    })
                                 )
-                                self.messageDicationary[message.sendToID] = message
-                            }
-                            self.messages = self.filterMessages(
-                                messages: Array(self.messageDicationary.values).sorted(by: { message1, message2 in
-                                    return message1.Date > message2.Date
-                                })
-                            )
-                            DispatchQueue.main.async {
-                                self.tableView.reloadData()
+                                DispatchQueue.main.async {
+                                    self.tableView.reloadData()
+                                }
                             }
                         }
                     }
                 }
             }
-        }
     }
 
     func filterMessages(messages: [Message]) -> [Message] {
@@ -320,46 +330,7 @@ class MainViewController: UITableViewController {
 
         return filteredMessages
     }
-//    func fetchMessages(){
-//        db.collection("messages")
-//            .order(by: "Date", descending: false)
-//            .addSnapshotListener { snapshots, error in
-//
-//                self.messages = []
-//                self.messageDicationary = [:]
-//
-//                if error != nil{
-//                    print(error!.localizedDescription)
-//                    return
-//                }
-//
-//                if let snaps = snapshots {
-//
-//                    for doc in snaps.documents{
-//                        let safeData = doc.data()
-//
-//                        let message = Message(
-//                            sendToID   : safeData["sendToID"] as! String,
-//                            sendFromID : safeData["sendFromID"] as! String,
-//                            Date       : safeData["Date"] as! Double,
-//                            text       : safeData["text"] as! String
-//                        )
-//                        self.messageDicationary[message.sendToID] = message
-//                    }
-//                    self.messages = self.filterMessages(
-//                        messages: Array(self.messageDicationary.values).sorted(by: { message1, message2 in
-//                            return message1.Date > message2.Date
-//                        })
-//                    )
-//                    dump(self.messages)
-//
-//                    DispatchQueue.main.async {
-//                        self.tableView.reloadData()
-//                    }
-//                }
-//            }
-//    }
-    
+
     func fetchUsers(){
         db.collection("users").addSnapshotListener { snapshot, error in
             

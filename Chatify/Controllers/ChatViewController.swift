@@ -94,13 +94,14 @@ class ChatViewController: UIViewController,
            let text   = writeMessageTextField.text {
             if text != "" {
                 var ref: DocumentReference? = nil
+                let currentTime = Date().timeIntervalSince1970
                 ref = db.collection("messages")
                     .addDocument(
                         data: [
                             "sendFromID"   : sender,
                             "sendToID"     : user!.id,
                             "text"         : text,
-                            "Date"         : Date().timeIntervalSince1970
+                            "Date"         : currentTime
                         ]
                     ) { error in
                         if error != nil {
@@ -111,16 +112,16 @@ class ChatViewController: UIViewController,
                                 let messageID = messageRef.documentID
                                 
                                 let se = self.db.collection("user-messages").document(sender)
-                                se.updateData([messageID:1]) { error in
+                                se.updateData([messageID:currentTime]) { error in
                                     if error != nil {
-                                        se.setData([messageID:1])
+                                        se.setData([messageID:currentTime])
                                     }
                                 }
                                 
                                 let re = self.db.collection("user-messages").document(self.user!.id)
-                                re.updateData([messageID:1]) { error in
+                                re.updateData([messageID:currentTime]) { error in
                                     if error != nil {
-                                        re.setData([messageID:1])
+                                        re.setData([messageID:currentTime])
                                     }
                                 }
                                     
