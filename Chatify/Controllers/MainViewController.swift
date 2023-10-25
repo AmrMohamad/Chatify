@@ -425,5 +425,14 @@ class MainViewController: UITableViewController {
         }
         return cell
     }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let message = messages[indexPath.row]
+        let chatPartnerID = message.chatPartnerID()
+        if var user = users.first(where: {$0.id == chatPartnerID}){
+            user.id = chatPartnerID
+            handleNavigationToChat(of: user)
+        }
+    }
 }
 

@@ -6,17 +6,15 @@
 //
 
 import Foundation
+import FirebaseAuth
 
-protocol MessageBody {
-    var sendToID   : String { get set }
-    var sendFromID : String { get set }
-    var Date       : Double { get set }
-    var text       : String { get set }
-}
-
-struct Message: MessageBody {
+struct Message {
     var sendToID   : String
     var sendFromID : String
     var Date       : Double
     var text       : String
+    
+    func chatPartnerID() -> String {
+        return self.sendFromID == Auth.auth().currentUser?.uid ? self.sendToID : self.sendFromID
+    }
 }

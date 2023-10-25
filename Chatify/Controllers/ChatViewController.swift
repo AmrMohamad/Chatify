@@ -18,8 +18,10 @@ class ChatViewController: UIViewController,
     var user: User? {
         didSet{
             navigationItem.title = user!.name
+            fetchUserMessages()
         }
     }
+    var messages: [Message] = [Message]()
     
     lazy var containerTypingArea: UIView = {
         let view = UIView()
@@ -57,6 +59,53 @@ class ChatViewController: UIViewController,
         chatLogTableView.delegate   = self
         setupMessagingContianerView()
         sendMessageButton.addTarget(self, action: #selector(handleSendingMessage), for: .touchUpInside)
+    }
+    
+    func fetchUserMessages(){
+        guard let uid = Auth.auth().currentUser?.uid else {
+            return
+        }
+        self.db.collection("user-messages").document(uid)
+            .addSnapshotListener { docSnapshots, error in
+                if error != nil{
+                    print(error!.localizedDescription)
+                    return
+                }else{
+                    self.messages = []
+                    let messagesRef = self.db.collection("messages")
+                    
+                    if let snapshots = docSnapshots?.data()?.sorted(
+                        by: { $0.value as! Double > $1.value as! Double}
+                    ) {
+                        for snap in snapshots {
+
+                            messagesRef.document(snap.key).getDocument { docSnapshot, error in
+                                if let safeData = docSnapshot?.data(),
+                                   let sendToID = safeData["sendToID"] as? String,
+                                   let sendFromID = safeData["sendFromID"] as? String,
+                                   let date = safeData["Date"] as? Double,
+                                   let text = safeData["text"] as? String {
+                                    let message = Message(
+                                        sendToID   : sendToID,
+                                        sendFromID : sendFromID,
+                                        Date       : date,
+                                        text       : text
+                                    )
+                                    if message.chatPartnerID() == self.user?.id{
+                                        self.messages.append(message)
+                                        self.messages.sort { m1, m2 in
+                                            return m1.Date < m2.Date
+                                        }
+                                        DispatchQueue.main.async {
+                                            self.chatLogTableView.reloadData()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
     }
     
     func setupMessagingContianerView(){
@@ -136,11 +185,16 @@ class ChatViewController: UIViewController,
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 25
+        return messages.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell()
+        let message = messages[indexPath.row]
+        let time = Date(timeIntervalSince1970: message.Date)
+        let dataFormatter = DateFormatter()
+        dataFormatter.dateFormat = "hh:mm:ss a"
+        cell.textLabel?.text = "\(message.text) \(dataFormatter.string(from: time)) From:\(message.sendFromID)"
         return cell
     }
     
