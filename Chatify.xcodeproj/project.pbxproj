@@ -16,6 +16,7 @@
 		2D6C07552AA65AFF0036E273 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2D6C07532AA65AFF0036E273 /* LaunchScreen.storyboard */; };
 		2D77BDB62AB0C47F007D62E5 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2D77BDB52AB0C47F007D62E5 /* GoogleService-Info.plist */; };
 		2D8963352AC3225F00F5E73F /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8963342AC3225F00F5E73F /* Extensions.swift */; };
+		2D8CE8242AEB0A8700F67783 /* MessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8CE8232AEB0A8700F67783 /* MessageTableViewCell.swift */; };
 		2DA155082AAE0C540012AFCD /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA155072AAE0C540012AFCD /* LoginViewController.swift */; };
 		2DACA5E92AD6D49F0093EBF4 /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DACA5E82AD6D49E0093EBF4 /* ChatViewController.swift */; };
 		2DB4360B2ABB1C9300BF1A60 /* NewMeesageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB4360A2ABB1C9300BF1A60 /* NewMeesageViewController.swift */; };
@@ -39,6 +40,7 @@
 		2D6C07562AA65AFF0036E273 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2D77BDB52AB0C47F007D62E5 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		2D8963342AC3225F00F5E73F /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		2D8CE8232AEB0A8700F67783 /* MessageTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageTableViewCell.swift; sourceTree = "<group>"; };
 		2DA155072AAE0C540012AFCD /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		2DACA5E82AD6D49E0093EBF4 /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		2DB4360A2ABB1C9300BF1A60 /* NewMeesageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewMeesageViewController.swift; sourceTree = "<group>"; };
@@ -143,6 +145,7 @@
 				2DD054D12AE173E10086664F /* VariableBlurUI */,
 				2DB4360C2ABB2BE300BF1A60 /* AddNewUserCell.swift */,
 				2D5A1B322ADAB64D00456C3E /* ChatTableViewCell.swift */,
+				2D8CE8232AEB0A8700F67783 /* MessageTableViewCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -287,6 +290,7 @@
 				2D6C07492AA65AFD0036E273 /* AppDelegate.swift in Sources */,
 				2D6C074B2AA65AFD0036E273 /* SceneDelegate.swift in Sources */,
 				2DD054D32AE174160086664F /* VariableBlurUIView.swift in Sources */,
+				2D8CE8242AEB0A8700F67783 /* MessageTableViewCell.swift in Sources */,
 				2D5E141F2AD99A47009CBE98 /* Message.swift in Sources */,
 				2DCC3FFD2AC05AAE00156346 /* LoginViewController+Handlers.swift in Sources */,
 				2DB4360D2ABB2BE300BF1A60 /* AddNewUserCell.swift in Sources */,

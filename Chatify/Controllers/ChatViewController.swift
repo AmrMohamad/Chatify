@@ -29,8 +29,11 @@ class ChatViewController: UIViewController,
         view.backgroundColor = .white.withAlphaComponent(0.79)
         return view
     }()
-    let chatLogTableView: UITableView = {
+    lazy var chatLogTableView: UITableView = {
         let table = UITableView()
+        table.translatesAutoresizingMaskIntoConstraints = false
+        table.register(MessageTableViewCell.self, forCellReuseIdentifier: MessageTableViewCell.identifier)
+        table.separatorStyle = .none
         return table
     }()
     
@@ -52,11 +55,19 @@ class ChatViewController: UIViewController,
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        view.addSubview(chatLogTableView)
-        chatLogTableView.frame = view.frame
         chatLogTableView.dataSource = self
         chatLogTableView.delegate   = self
+        
+        view.addSubview(chatLogTableView)
+        NSLayoutConstraint.activate([
+            chatLogTableView.topAnchor.constraint(equalTo: view.topAnchor),
+            chatLogTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            chatLogTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            chatLogTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        chatLogTableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 60, right: 0)
+        chatLogTableView.scrollIndicatorInsets = UIEdgeInsets(top: 1, left: 0, bottom: 50, right: 0)
+        
         setupMessagingContianerView()
         sendMessageButton.addTarget(self, action: #selector(handleSendingMessage), for: .touchUpInside)
     }
@@ -98,6 +109,11 @@ class ChatViewController: UIViewController,
                                         }
                                         DispatchQueue.main.async {
                                             self.chatLogTableView.reloadData()
+                                            self.chatLogTableView.scrollToRow(
+                                                at: IndexPath(row: self.messages.count - 1, section: 0),
+                                                at: .none,
+                                                animated: false
+                                            )
                                         }
                                     }
                                 }
@@ -189,12 +205,9 @@ class ChatViewController: UIViewController,
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell()
-        let message = messages[indexPath.row]
-        let time = Date(timeIntervalSince1970: message.Date)
-        let dataFormatter = DateFormatter()
-        dataFormatter.dateFormat = "hh:mm:ss a"
-        cell.textLabel?.text = "\(message.text) \(dataFormatter.string(from: time)) From:\(message.sendFromID)"
+        let cell = tableView.dequeueReusableCell(withIdentifier: MessageTableViewCell.identifier, for: indexPath) as! MessageTableViewCell
+        cell.selectionStyle = .none
+        cell.messageTextContent.text = messages[indexPath.row].text
         return cell
     }
     

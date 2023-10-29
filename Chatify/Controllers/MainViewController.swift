@@ -385,7 +385,11 @@ class MainViewController: UITableViewController {
             }
         }
         
-        cell.lastMessageLabel.text = message.text
+        if message.sendFromID == Auth.auth().currentUser?.uid {
+            cell.lastMessageLabel.text = "You: \(message.text)"
+        }else{
+            cell.lastMessageLabel.text = message.text
+        }
         
         let timeOfSend = Date(timeIntervalSince1970: message.Date)
         var calender = Calendar.current
