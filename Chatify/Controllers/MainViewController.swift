@@ -18,6 +18,7 @@ class MainViewController: UITableViewController {
     var messageDictionary: [String : Message] = [String : Message]()
     var users: [User] = [User]()
     let imgsCache = NSCache<AnyObject, AnyObject>()
+    var timer: Timer?
     
     let userNameLabel: UILabel = {
         let label = UILabel()
@@ -300,13 +301,24 @@ class MainViewController: UITableViewController {
                             self.messages = Array(self.messageDictionary.values).sorted(by: { m1, m2 in
                                 return m1.Date > m2.Date
                             })
-                            DispatchQueue.main.async {
-                                self.tableView.reloadData()
-                            }
+                            self.timer?.invalidate()
+                            self.timer = Timer.scheduledTimer(
+                                timeInterval: 0.1,
+                                target: self,
+                                selector: #selector(self.handleReloadTable),
+                                userInfo: nil,
+                                repeats: false
+                            )
+                            
                         }
                     }
                 }
             }
+        }
+    }
+    @objc func handleReloadTable(){
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
         }
     }
     

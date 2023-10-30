@@ -31,25 +31,42 @@ class MessageTableViewCell: UITableViewCell {
         view.layer.masksToBounds = true
         return view
     }()
+    let timeOfSend: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 0
+        label.text = "10:10 pm"
+        label.font = UIFont.systemFont(ofSize: 9.5, weight: .bold)
+        label.textColor = .lightText
+        return label
+    }()
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?){
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        contentView.addSubview(bubbleView)
+        addSubview(bubbleView)
         NSLayoutConstraint.activate([
-            bubbleView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
-            bubbleView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant:-10),
-            bubbleView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
-            bubbleView.widthAnchor.constraint(lessThanOrEqualTo: contentView.widthAnchor, multiplier: 0.85),
+            bubbleView.topAnchor.constraint(equalTo: self.topAnchor, constant: 4),
+            bubbleView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant:-10),
+            bubbleView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -4),
+            bubbleView.widthAnchor.constraint(lessThanOrEqualTo: self.widthAnchor, multiplier: 0.85),
             bubbleView.heightAnchor.constraint(greaterThanOrEqualToConstant: 34)
         ])
         bubbleView.addSubview(messageTextContent)
         NSLayoutConstraint.activate([
             messageTextContent.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 4),
-            messageTextContent.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant:-14),
+            messageTextContent.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant:-50),
             messageTextContent.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -4),
             messageTextContent.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 14),
             messageTextContent.widthAnchor.constraint(greaterThanOrEqualToConstant: 34)
         ])
+        bubbleView.addSubview(timeOfSend)
+        NSLayoutConstraint.activate([
+            timeOfSend.leadingAnchor.constraint(equalTo: messageTextContent.trailingAnchor),
+            timeOfSend.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -3),
+            timeOfSend.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -3),
+            timeOfSend.heightAnchor.constraint(equalToConstant: 10)
+        ])
+        
     }
     
     required init?(coder: NSCoder) {

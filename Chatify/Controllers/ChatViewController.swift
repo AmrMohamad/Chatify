@@ -21,7 +21,14 @@ class ChatViewController: UIViewController,
             fetchUserMessages()
         }
     }
-    var messages: [Message] = [Message]()
+    var messages: [Message] = [Message](){
+        didSet{
+            messages.sort { m1, m2 in
+                return m1.Date < m2.Date
+            }
+        }
+    }
+    var timer: Timer?
     
     lazy var containerTypingArea: UIView = {
         let view = UIView()
@@ -52,6 +59,8 @@ class ChatViewController: UIViewController,
     }()
     
     let db = Firestore.firestore()
+    let settings = FirestoreSettings()
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -72,49 +81,55 @@ class ChatViewController: UIViewController,
         sendMessageButton.addTarget(self, action: #selector(handleSendingMessage), for: .touchUpInside)
     }
     
+    func fetchMessageWith(
+        id: String,
+        completionHandler: @escaping (Message?) -> Void
+    ) {
+        let messagesRef = db.collection("messages")
+        messagesRef.document(id).getDocument { docSnapshot, error in
+            if let mssgData   = docSnapshot,
+               let sendToID   = mssgData["sendToID"] as? String,
+               let sendFromID = mssgData["sendFromID"] as? String,
+               let date       = mssgData["Date"] as? Double,
+               let text       = mssgData["text"] as? String {
+                let message = Message(
+                    sendToID   : sendToID,
+                    sendFromID : sendFromID,
+                    Date       : date,
+                    text       : text
+                )
+                completionHandler(message)
+            }else{
+                completionHandler(nil)
+            }
+        }
+    }
+    
     func fetchUserMessages(){
         guard let uid = Auth.auth().currentUser?.uid else {
             return
         }
         self.db.collection("user-messages").document(uid)
             .addSnapshotListener { docSnapshots, error in
+                self.messages = []
                 if error != nil{
                     print(error!.localizedDescription)
                     return
                 }else{
-                    self.messages = []
-                    let messagesRef = self.db.collection("messages")
-                    
-                    if let snapshots = docSnapshots?.data()?.sorted(
-                        by: { $0.value as! Double > $1.value as! Double}
-                    ) {
-                        for snap in snapshots {
-
-                            messagesRef.document(snap.key).getDocument { docSnapshot, error in
-                                if let safeData = docSnapshot?.data(),
-                                   let sendToID = safeData["sendToID"] as? String,
-                                   let sendFromID = safeData["sendFromID"] as? String,
-                                   let date = safeData["Date"] as? Double,
-                                   let text = safeData["text"] as? String {
-                                    let message = Message(
-                                        sendToID   : sendToID,
-                                        sendFromID : sendFromID,
-                                        Date       : date,
-                                        text       : text
-                                    )
+                    if let snapshots = docSnapshots?.data()?.sorted(by: {$0.value as! Double > $1.value as! Double}){
+                        snapshots.forEach { key,_ in
+                            self.fetchMessageWith(id: key) { message in
+                                if let message = message {
                                     if message.chatPartnerID() == self.user?.id{
                                         self.messages.append(message)
-                                        self.messages.sort { m1, m2 in
-                                            return m1.Date < m2.Date
-                                        }
-                                        DispatchQueue.main.async {
-                                            self.chatLogTableView.reloadData()
-                                            self.chatLogTableView.scrollToRow(
-                                                at: IndexPath(row: self.messages.count - 1, section: 0),
-                                                at: .none,
-                                                animated: false
-                                            )
-                                        }
+                                        self.timer?.invalidate()
+                                        self.timer = Timer.scheduledTimer(
+                                            timeInterval: 0.1,
+                                            target: self,
+                                            selector: #selector(self.handleReloadTable),
+                                            userInfo: nil,
+                                            repeats: false
+                                        )
                                     }
                                 }
                             }
@@ -122,6 +137,16 @@ class ChatViewController: UIViewController,
                     }
                 }
             }
+    }
+    @objc func handleReloadTable(){
+        DispatchQueue.main.async {
+            self.chatLogTableView.reloadData()
+            self.chatLogTableView.scrollToRow(
+                at: IndexPath(row: self.messages.count - 1 , section: 0),
+                at: .bottom,
+                animated: true
+            )
+        }
     }
     
     func setupMessagingContianerView(){
@@ -207,7 +232,12 @@ class ChatViewController: UIViewController,
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: MessageTableViewCell.identifier, for: indexPath) as! MessageTableViewCell
         cell.selectionStyle = .none
-        cell.messageTextContent.text = messages[indexPath.row].text
+        let message = messages[indexPath.row]
+        cell.messageTextContent.text = message.text
+        let timeOfSend = Date(timeIntervalSince1970: message.Date)
+        let dataFormatter = DateFormatter()
+        dataFormatter.dateFormat = "hh:mm a"
+        cell.timeOfSend.text = dataFormatter.string(from: timeOfSend)
         return cell
     }
     
