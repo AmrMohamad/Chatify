@@ -15,6 +15,7 @@ class ChatViewController: UIViewController,
                           UITableViewDelegate,
                           UITextFieldDelegate {
 
+    let messagesCache = NSCache<NSString, NSArray>()
     var user: User? {
         didSet{
             navigationItem.title = user!.name
@@ -26,16 +27,21 @@ class ChatViewController: UIViewController,
             messages.sort { m1, m2 in
                 return m1.Date < m2.Date
             }
+//            if let id = user?.id{
+//                print("didSet")
+//                messagesCache.setObject(NSArray(array: messages), forKey: NSString(string: id))
+//                dump(messagesCache.object(forKey: NSString(string: id)))
+//            }
         }
     }
     var timer: Timer?
     
-    lazy var containerTypingArea: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .white.withAlphaComponent(0.79)
-        return view
-    }()
+//    lazy var containerTypingArea: UIView = {
+//        let view = UIView()
+//        view.translatesAutoresizingMaskIntoConstraints = false
+//        view.backgroundColor = .white.withAlphaComponent(0.90)
+//        return view
+//    }()
     lazy var chatLogTableView: UITableView = {
         let table = UITableView()
         table.translatesAutoresizingMaskIntoConstraints = false
@@ -77,9 +83,100 @@ class ChatViewController: UIViewController,
         chatLogTableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 60, right: 0)
         chatLogTableView.scrollIndicatorInsets = UIEdgeInsets(top: 1, left: 0, bottom: 50, right: 0)
         
-        setupMessagingContianerView()
+//        setupMessagingContianerView()
         sendMessageButton.addTarget(self, action: #selector(handleSendingMessage), for: .touchUpInside)
+        //There are two ways to handle the keyboard
+        //First one:
+//        handleSetupOfObservingKB()
+        //Second:
+        chatLogTableView.keyboardDismissMode = .interactive
+        
     }
+    
+    
+    //There are two ways to handle the keyboard
+    //Second way:
+    override var canBecomeFirstResponder: Bool {
+        return true
+    }
+    override var inputAccessoryView: UIView?{
+        get{
+            return inputContainerView
+        }
+    }
+    lazy var inputContainerView: UIView = {
+        let containerTypingArea = UIView()
+        containerTypingArea.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 65)
+        containerTypingArea.backgroundColor = .white.withAlphaComponent(0.95)
+//        containerTypingArea.translatesAutoresizingMaskIntoConstraints = false
+//        containerTypingArea.bottomAnchor.constraint(equalTo: self.view.bottomAnchor,constant: 0).isActive = true
+//        containerTypingArea.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 0).isActive = true
+//        containerTypingArea.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: 0).isActive = true
+//        containerTypingArea.heightAnchor.constraint(equalToConstant: 85).isActive = true
+        
+        containerTypingArea.addSubview(writeMessageTextField)
+        containerTypingArea.addSubview(sendMessageButton)
+        
+        NSLayoutConstraint.activate([
+            writeMessageTextField.topAnchor.constraint(equalTo: containerTypingArea.topAnchor, constant: 8),
+            writeMessageTextField.leadingAnchor.constraint(equalTo: containerTypingArea.leadingAnchor, constant: 12),
+            writeMessageTextField.widthAnchor.constraint(equalTo: containerTypingArea.widthAnchor, multiplier: 0.80),
+            writeMessageTextField.heightAnchor.constraint(equalTo: containerTypingArea.heightAnchor, multiplier: 0.70)
+            ]
+        )
+        
+        NSLayoutConstraint.activate([
+            sendMessageButton.centerYAnchor.constraint(equalTo: writeMessageTextField.centerYAnchor),
+            sendMessageButton.leadingAnchor.constraint(equalTo: writeMessageTextField.trailingAnchor, constant: 10),
+            sendMessageButton.topAnchor.constraint(equalTo: writeMessageTextField.topAnchor),
+            sendMessageButton.bottomAnchor.constraint(equalTo: writeMessageTextField.bottomAnchor),
+            sendMessageButton.trailingAnchor.constraint(equalTo: containerTypingArea.trailingAnchor, constant: -10)
+            ]
+        )
+        return containerTypingArea
+    }()
+    //First one:
+//    override func viewDidDisappear(_ animated: Bool) {
+//        super.viewDidDisappear(animated)
+//        NotificationCenter.default.removeObserver(self)
+//    }
+//    var containerTypingAreabottomAnchor : NSLayoutConstraint?
+//    func handleSetupOfObservingKB(){
+//        NotificationCenter.default.addObserver(self, selector: #selector(showKeyboard), name: UIResponder.keyboardWillShowNotification, object: nil)
+//        NotificationCenter.default.addObserver(self, selector: #selector(hideKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
+//    }
+//    @objc func showKeyboard(notification: Notification){
+//        let kbFrameSize = notification.userInfo?["UIKeyboardFrameEndUserInfoKey"] as? CGRect
+//        let kbDuration =  notification.userInfo?["UIKeyboardAnimationDurationUserInfoKey"] as? Double
+//
+//        if let heightOfKB = kbFrameSize?.height,
+//           let durationOfKB = kbDuration{
+//            containerTypingAreabottomAnchor?.constant = -heightOfKB
+//            UIView.animate(withDuration: durationOfKB) {
+//                self.view.layoutIfNeeded()
+//            }
+//            chatLogTableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 60 + heightOfKB, right: 0)
+//            let lastVisibleCell = chatLogTableView.visibleCells.last as? MessageTableViewCell
+//            if lastVisibleCell?.messageTextContent.text == messages[self.messages.count - 1].text{
+//                chatLogTableView.scrollToRow(
+//                    at: IndexPath(row: self.messages.count - 1 , section: 0),
+//                    at: .bottom,
+//                    animated: true
+//                )
+//            }
+//        }
+//    }
+//    @objc func hideKeyboard(notification: Notification){
+//        let kbDuration =  notification.userInfo?["UIKeyboardAnimationDurationUserInfoKey"] as? Double
+//        if let durationOfKB = kbDuration{
+//            containerTypingAreabottomAnchor?.constant = 0
+//            UIView.animate(withDuration: durationOfKB) {
+//                self.view.layoutIfNeeded()
+//            }
+//            chatLogTableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 60, right: 0)
+//        }
+//    }
+//
     
     func fetchMessageWith(
         id: String,
@@ -104,80 +201,97 @@ class ChatViewController: UIViewController,
             }
         }
     }
-    
     func fetchUserMessages(){
-        guard let uid = Auth.auth().currentUser?.uid else {
-            return
+        if let userID = user?.id{
+            dump(messagesCache.object(forKey: NSString(string: userID)) as? [Message])
         }
-        self.db.collection("user-messages").document(uid)
-            .addSnapshotListener { docSnapshots, error in
-                self.messages = []
-                if error != nil{
-                    print(error!.localizedDescription)
-                    return
-                }else{
-                    if let snapshots = docSnapshots?.data()?.sorted(by: {$0.value as! Double > $1.value as! Double}){
-                        snapshots.forEach { key,_ in
-                            self.fetchMessageWith(id: key) { message in
-                                if let message = message {
-                                    if message.chatPartnerID() == self.user?.id{
-                                        self.messages.append(message)
-                                        self.timer?.invalidate()
-                                        self.timer = Timer.scheduledTimer(
-                                            timeInterval: 0.1,
-                                            target: self,
-                                            selector: #selector(self.handleReloadTable),
-                                            userInfo: nil,
-                                            repeats: false
-                                        )
+        if let userID = user?.id,
+           let messages = messagesCache.object(forKey: NSString(string: userID)) as? [Message]{
+            print("STORED")
+            self.messages = messages
+        }else {
+            print("Not STORED")
+            guard let uid = Auth.auth().currentUser?.uid else {
+                return
+            }
+            self.db.collection("user-messages").document(uid)
+                .addSnapshotListener { docSnapshots, error in
+                    self.messages = []
+                    if error != nil{
+                        print(error!.localizedDescription)
+                        return
+                    }else{
+                        if let snapshots = docSnapshots?.data()?.sorted(by: {$0.value as! Double > $1.value as! Double}){
+                            snapshots.forEach { key,_ in
+                                self.fetchMessageWith(id: key) { message in
+                                    if let message = message {
+                                        if message.chatPartnerID() == self.user?.id{
+                                            self.messages.append(message)
+                                            self.timer?.invalidate()
+                                            self.timer = Timer.scheduledTimer(
+                                                timeInterval: 0.8,
+                                                target: self,
+                                                selector: #selector(self.handleReloadTable),
+                                                userInfo: nil,
+                                                repeats: false
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
-            }
+        }
     }
     @objc func handleReloadTable(){
         DispatchQueue.main.async {
+            self.messagesCache
+                .setObject(
+                    NSArray(array: self.messages),
+                    forKey: NSString(string: self.user!.id)
+                )
             self.chatLogTableView.reloadData()
             self.chatLogTableView.scrollToRow(
                 at: IndexPath(row: self.messages.count - 1 , section: 0),
                 at: .bottom,
-                animated: true
+                animated: false
             )
         }
     }
     
-    func setupMessagingContianerView(){
-        view.addSubview(containerTypingArea)
-        NSLayoutConstraint.activate([
-            containerTypingArea.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: 0),
-            containerTypingArea.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 0),
-            containerTypingArea.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: 0),
-            containerTypingArea.heightAnchor.constraint(equalToConstant: 85)
-        ])
-        
-        containerTypingArea.addSubview(writeMessageTextField)
-        containerTypingArea.addSubview(sendMessageButton)
-        
-        NSLayoutConstraint.activate([
-            writeMessageTextField.topAnchor.constraint(equalTo: containerTypingArea.topAnchor, constant: 8),
-            writeMessageTextField.leadingAnchor.constraint(equalTo: containerTypingArea.leadingAnchor, constant: 12),
-            writeMessageTextField.widthAnchor.constraint(equalTo: containerTypingArea.widthAnchor, multiplier: 0.80),
-            writeMessageTextField.heightAnchor.constraint(equalTo: containerTypingArea.heightAnchor, multiplier: 0.70)
-            ]
-        )
-        
-        NSLayoutConstraint.activate([
-            sendMessageButton.centerYAnchor.constraint(equalTo: writeMessageTextField.centerYAnchor),
-            sendMessageButton.leadingAnchor.constraint(equalTo: writeMessageTextField.trailingAnchor, constant: 10),
-            sendMessageButton.topAnchor.constraint(equalTo: writeMessageTextField.topAnchor),
-            sendMessageButton.bottomAnchor.constraint(equalTo: writeMessageTextField.bottomAnchor),
-            sendMessageButton.trailingAnchor.constraint(equalTo: containerTypingArea.trailingAnchor, constant: -10)
-            ]
-        )
-    }
+//    func setupMessagingContianerView(){
+//        view.addSubview(containerTypingArea)
+//        //handle the keyboard, First way:
+//        /*
+//        containerTypingAreabottomAnchor = containerTypingArea.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: 0)
+//        containerTypingAreabottomAnchor?.isActive = true
+//        */
+//        containerTypingArea.bottomAnchor.constraint(equalTo: self.view.bottomAnchor,constant: 0).isActive = true
+//        containerTypingArea.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 0).isActive = true
+//        containerTypingArea.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: 0).isActive = true
+//        containerTypingArea.heightAnchor.constraint(equalToConstant: 85).isActive = true
+//
+//        containerTypingArea.addSubview(writeMessageTextField)
+//        containerTypingArea.addSubview(sendMessageButton)
+//
+//        NSLayoutConstraint.activate([
+//            writeMessageTextField.topAnchor.constraint(equalTo: containerTypingArea.topAnchor, constant: 8),
+//            writeMessageTextField.leadingAnchor.constraint(equalTo: containerTypingArea.leadingAnchor, constant: 12),
+//            writeMessageTextField.widthAnchor.constraint(equalTo: containerTypingArea.widthAnchor, multiplier: 0.80),
+//            writeMessageTextField.heightAnchor.constraint(equalTo: containerTypingArea.heightAnchor, multiplier: 0.70)
+//            ]
+//        )
+//
+//        NSLayoutConstraint.activate([
+//            sendMessageButton.centerYAnchor.constraint(equalTo: writeMessageTextField.centerYAnchor),
+//            sendMessageButton.leadingAnchor.constraint(equalTo: writeMessageTextField.trailingAnchor, constant: 10),
+//            sendMessageButton.topAnchor.constraint(equalTo: writeMessageTextField.topAnchor),
+//            sendMessageButton.bottomAnchor.constraint(equalTo: writeMessageTextField.bottomAnchor),
+//            sendMessageButton.trailingAnchor.constraint(equalTo: containerTypingArea.trailingAnchor, constant: -10)
+//            ]
+//        )
+//    }
     
     @objc func handleSendingMessage(){
         if let sender = Auth.auth().currentUser?.uid,

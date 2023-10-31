@@ -303,7 +303,7 @@ class MainViewController: UITableViewController {
                             })
                             self.timer?.invalidate()
                             self.timer = Timer.scheduledTimer(
-                                timeInterval: 0.1,
+                                timeInterval: 0.8,
                                 target: self,
                                 selector: #selector(self.handleReloadTable),
                                 userInfo: nil,
