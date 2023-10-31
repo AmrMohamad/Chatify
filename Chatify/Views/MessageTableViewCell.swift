@@ -22,11 +22,12 @@ class MessageTableViewCell: UITableViewCell {
         
         return tv
     }()
-    
+    static let blueColor = UIColor(red: 0, green: 137/255, blue: 249/255, alpha: 1)
+    static let grayColor = UIColor(red: 198/225, green: 198/225, blue: 198/225, alpha: 1)
     let bubbleView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = UIColor(red: 0, green: 137/225, blue: 249/225, alpha: 1)
+        view.backgroundColor = blueColor
         view.layer.cornerRadius = 11.3333
         view.layer.masksToBounds = true
         return view
@@ -36,33 +37,68 @@ class MessageTableViewCell: UITableViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.text = "10:10 pm"
-        label.font = UIFont.systemFont(ofSize: 9.5, weight: .bold)
-        label.textColor = .lightText
+        label.font = UIFont.systemFont(ofSize: 9.2, weight: .semibold)
+        label.textColor = .white
         return label
     }()
+    let imageProfileOfChatPartner: UIImageView = {
+        let image = UIImageView(image: UIImage(systemName: "person"))
+        image.translatesAutoresizingMaskIntoConstraints = false
+        image.backgroundColor = .lightGray
+        image.layer.cornerRadius = 16
+        image.layer.masksToBounds = true
+        image.contentMode = .scaleAspectFill
+        return image
+    }()
+    var bubbleViewTrailingAnchor : NSLayoutConstraint?
+    var bubbleViewLeadingAnchor : NSLayoutConstraint?
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?){
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        addSubview(bubbleView)
+        addSubview(imageProfileOfChatPartner)
         NSLayoutConstraint.activate([
-            bubbleView.topAnchor.constraint(equalTo: self.topAnchor, constant: 4),
-            bubbleView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant:-10),
-            bubbleView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -4),
-            bubbleView.widthAnchor.constraint(lessThanOrEqualTo: self.widthAnchor, multiplier: 0.85),
-            bubbleView.heightAnchor.constraint(greaterThanOrEqualToConstant: 34)
+            imageProfileOfChatPartner.leadingAnchor
+                .constraint(equalTo: self.leadingAnchor, constant: 10),
+            imageProfileOfChatPartner.bottomAnchor
+                .constraint(equalTo: self.bottomAnchor, constant: -4),
+            imageProfileOfChatPartner.heightAnchor
+                .constraint(equalToConstant: 34.5),
+            imageProfileOfChatPartner.widthAnchor
+                .constraint(equalToConstant: 32)
         ])
+        
+        addSubview(bubbleView)
+        bubbleView.topAnchor
+            .constraint(equalTo: self.topAnchor, constant: 4)
+            .isActive = true
+        bubbleViewTrailingAnchor = bubbleView.trailingAnchor
+            .constraint(equalTo: self.trailingAnchor, constant:-10)
+        bubbleViewTrailingAnchor?.isActive = true
+        bubbleViewLeadingAnchor = bubbleView.leadingAnchor
+            .constraint(equalTo: imageProfileOfChatPartner.trailingAnchor, constant: 8)
+        bubbleViewLeadingAnchor?.isActive = false
+        bubbleView.bottomAnchor
+            .constraint(equalTo: self.bottomAnchor, constant: -4)
+            .isActive = true
+        bubbleView.widthAnchor
+            .constraint(lessThanOrEqualTo: self.widthAnchor, multiplier: 0.85)
+            .isActive = true
+        bubbleView.heightAnchor
+            .constraint(greaterThanOrEqualToConstant: 34)
+            .isActive = true
+        
         bubbleView.addSubview(messageTextContent)
         NSLayoutConstraint.activate([
             messageTextContent.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 4),
-            messageTextContent.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant:-50),
+            messageTextContent.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant:-54),
             messageTextContent.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -4),
             messageTextContent.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 14),
             messageTextContent.widthAnchor.constraint(greaterThanOrEqualToConstant: 34)
         ])
         bubbleView.addSubview(timeOfSend)
         NSLayoutConstraint.activate([
-            timeOfSend.leadingAnchor.constraint(equalTo: messageTextContent.trailingAnchor),
-            timeOfSend.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -3),
+            timeOfSend.leadingAnchor.constraint(equalTo: messageTextContent.trailingAnchor, constant: 1),
+            timeOfSend.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -6),
             timeOfSend.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -3),
             timeOfSend.heightAnchor.constraint(equalToConstant: 10)
         ])

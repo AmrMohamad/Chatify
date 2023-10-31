@@ -229,10 +229,34 @@ class ChatViewController: UIViewController,
         return messages.count
     }
     
+    private func handleSetupOfMessageCell(cell: MessageTableViewCell, message: Message){
+        if let profileImageURL = self.user?.profileImageURL{
+            cell.imageProfileOfChatPartner.loadImagefromCacheWithURLstring(urlString: profileImageURL)
+        }
+        if message.sendFromID == Auth.auth().currentUser?.uid {
+            //Blue
+            cell.bubbleView.backgroundColor = MessageTableViewCell.blueColor
+            cell.messageTextContent.textColor = .white
+            cell.timeOfSend.textColor = .white
+            cell.bubbleViewLeadingAnchor?.isActive = false
+            cell.bubbleViewTrailingAnchor?.isActive = true
+            cell.imageProfileOfChatPartner.isHidden = true
+        }else{
+            //Gray
+            cell.bubbleView.backgroundColor = MessageTableViewCell.grayColor
+            cell.messageTextContent.textColor = .black
+            cell.timeOfSend.textColor = .black
+            cell.bubbleViewLeadingAnchor?.isActive = true
+            cell.bubbleViewTrailingAnchor?.isActive = false
+            cell.imageProfileOfChatPartner.isHidden = false
+        }
+    }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: MessageTableViewCell.identifier, for: indexPath) as! MessageTableViewCell
         cell.selectionStyle = .none
         let message = messages[indexPath.row]
+        handleSetupOfMessageCell(cell: cell, message: message)
         cell.messageTextContent.text = message.text
         let timeOfSend = Date(timeIntervalSince1970: message.Date)
         let dataFormatter = DateFormatter()
