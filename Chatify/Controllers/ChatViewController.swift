@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import DeviceKit
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseCore
@@ -15,6 +16,17 @@ class ChatViewController: UIViewController,
                           UITableViewDelegate,
                           UITextFieldDelegate {
 
+    let groupOfAllowedDevices: [Device] = [
+        .iPhone8,
+        .iPhoneSE2,
+        .iPhoneSE3,
+        .iPhoneSE,
+        .simulator(.iPhone8),
+        .simulator(.iPhoneSE2),
+        .simulator(.iPhoneSE2),
+        .simulator(.iPhoneSE3),
+    ]
+    let device = Device.current
     let messagesCache = NSCache<NSString, NSArray>()
     var user: User? {
         didSet{
@@ -63,6 +75,8 @@ class ChatViewController: UIViewController,
         button.setTitle("Send", for: .normal)
         return button
     }()
+    var chatLogTableViewContentInsetBotton: CGFloat = 0.0
+    var chatLogTableViewScrollIndicatorInsetsBotton: CGFloat = 0.0
     
     let db = Firestore.firestore()
     let settings = FirestoreSettings()
@@ -80,22 +94,21 @@ class ChatViewController: UIViewController,
             chatLogTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             chatLogTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
-        chatLogTableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 60, right: 0)
-        chatLogTableView.scrollIndicatorInsets = UIEdgeInsets(top: 1, left: 0, bottom: 50, right: 0)
+        chatLogTableView.contentInset = UIEdgeInsets(
+            top: 8, left: 0,
+            bottom: chatLogTableViewContentInsetBotton, right: 0
+        )
+        chatLogTableView.scrollIndicatorInsets = UIEdgeInsets(
+            top: 1, left: 0,
+            bottom: chatLogTableViewScrollIndicatorInsetsBotton, right: 0
+        )
         
-//        setupMessagingContianerView()
         sendMessageButton.addTarget(self, action: #selector(handleSendingMessage), for: .touchUpInside)
-        //There are two ways to handle the keyboard
-        //First one:
-//        handleSetupOfObservingKB()
-        //Second:
+
         chatLogTableView.keyboardDismissMode = .interactive
-        
+        handleSetupOfObservingKB()
     }
     
-    
-    //There are two ways to handle the keyboard
-    //Second way:
     override var canBecomeFirstResponder: Bool {
         return true
     }
@@ -106,19 +119,22 @@ class ChatViewController: UIViewController,
     }
     lazy var inputContainerView: UIView = {
         let containerTypingArea = UIView()
-        containerTypingArea.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 65)
-        containerTypingArea.backgroundColor = .white.withAlphaComponent(0.95)
-//        containerTypingArea.translatesAutoresizingMaskIntoConstraints = false
-//        containerTypingArea.bottomAnchor.constraint(equalTo: self.view.bottomAnchor,constant: 0).isActive = true
-//        containerTypingArea.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 0).isActive = true
-//        containerTypingArea.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: 0).isActive = true
-//        containerTypingArea.heightAnchor.constraint(equalToConstant: 85).isActive = true
+        let height = UIScreen.main.bounds.height
+        containerTypingArea.frame = CGRect(
+            x: 0,
+            y: 0,
+            width: view.frame.width,
+            height: CGFloat(height * (7.5/100.0))
+        )
+        chatLogTableViewContentInsetBotton = containerTypingArea.frame.height - 12.0
+        chatLogTableViewScrollIndicatorInsetsBotton = containerTypingArea.frame.height + 8.5
+        containerTypingArea.backgroundColor = .systemGroupedBackground.withAlphaComponent(0.95)
         
         containerTypingArea.addSubview(writeMessageTextField)
         containerTypingArea.addSubview(sendMessageButton)
         
         NSLayoutConstraint.activate([
-            writeMessageTextField.topAnchor.constraint(equalTo: containerTypingArea.topAnchor, constant: 8),
+            writeMessageTextField.topAnchor.constraint(equalTo: containerTypingArea.topAnchor, constant: 2),
             writeMessageTextField.leadingAnchor.constraint(equalTo: containerTypingArea.leadingAnchor, constant: 12),
             writeMessageTextField.widthAnchor.constraint(equalTo: containerTypingArea.widthAnchor, multiplier: 0.80),
             writeMessageTextField.heightAnchor.constraint(equalTo: containerTypingArea.heightAnchor, multiplier: 0.70)
@@ -135,49 +151,76 @@ class ChatViewController: UIViewController,
         )
         return containerTypingArea
     }()
-    //First one:
-//    override func viewDidDisappear(_ animated: Bool) {
-//        super.viewDidDisappear(animated)
-//        NotificationCenter.default.removeObserver(self)
-//    }
-//    var containerTypingAreabottomAnchor : NSLayoutConstraint?
-//    func handleSetupOfObservingKB(){
-//        NotificationCenter.default.addObserver(self, selector: #selector(showKeyboard), name: UIResponder.keyboardWillShowNotification, object: nil)
-//        NotificationCenter.default.addObserver(self, selector: #selector(hideKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
-//    }
-//    @objc func showKeyboard(notification: Notification){
-//        let kbFrameSize = notification.userInfo?["UIKeyboardFrameEndUserInfoKey"] as? CGRect
-//        let kbDuration =  notification.userInfo?["UIKeyboardAnimationDurationUserInfoKey"] as? Double
-//
-//        if let heightOfKB = kbFrameSize?.height,
-//           let durationOfKB = kbDuration{
-//            containerTypingAreabottomAnchor?.constant = -heightOfKB
-//            UIView.animate(withDuration: durationOfKB) {
-//                self.view.layoutIfNeeded()
-//            }
-//            chatLogTableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 60 + heightOfKB, right: 0)
-//            let lastVisibleCell = chatLogTableView.visibleCells.last as? MessageTableViewCell
-//            if lastVisibleCell?.messageTextContent.text == messages[self.messages.count - 1].text{
-//                chatLogTableView.scrollToRow(
-//                    at: IndexPath(row: self.messages.count - 1 , section: 0),
-//                    at: .bottom,
-//                    animated: true
-//                )
-//            }
-//        }
-//    }
-//    @objc func hideKeyboard(notification: Notification){
-//        let kbDuration =  notification.userInfo?["UIKeyboardAnimationDurationUserInfoKey"] as? Double
-//        if let durationOfKB = kbDuration{
-//            containerTypingAreabottomAnchor?.constant = 0
-//            UIView.animate(withDuration: durationOfKB) {
-//                self.view.layoutIfNeeded()
-//            }
-//            chatLogTableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 60, right: 0)
-//        }
-//    }
-//
     
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        NotificationCenter.default.removeObserver(self)
+    }
+    func handleSetupOfObservingKB(){
+        NotificationCenter.default
+            .addObserver(self,
+                         selector: #selector(showKeyboard),
+                         name: UIResponder.keyboardWillShowNotification,
+                         object: nil
+            )
+        NotificationCenter.default
+            .addObserver(self,
+                         selector: #selector(hideKeyboard),
+                         name: UIResponder.keyboardWillHideNotification,
+                         object: nil
+            )
+    }
+    @objc func showKeyboard(notification: Notification){
+        let kbFrameSize = notification.userInfo?["UIKeyboardFrameEndUserInfoKey"] as? CGRect
+        if let heightOfKB = kbFrameSize?.height{
+            if device.isOneOf(groupOfAllowedDevices){
+                chatLogTableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: heightOfKB, right: 0)
+                chatLogTableView.scrollIndicatorInsets = UIEdgeInsets(top: 1, left: 0, bottom: heightOfKB + 6 , right: 0)
+            }else{
+                chatLogTableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: heightOfKB - 20, right: 0)
+                chatLogTableView.scrollIndicatorInsets = UIEdgeInsets(top: 1, left: 0, bottom: heightOfKB - 16 , right: 0)
+            }
+            if let lastVisibleCell = chatLogTableView.visibleCells.last as? MessageTableViewCell {
+                if lastVisibleCell.messageTextContent.text == messages[self.messages.count - 1].text{
+                    chatLogTableView.scrollToRow(
+                        at: IndexPath(row: self.messages.count - 1 , section: 0),
+                        at: .bottom,
+                        animated: true
+                    )
+                }
+            }
+        }
+    }
+    @objc func hideKeyboard(notification: Notification){
+        if device.isOneOf(groupOfAllowedDevices){
+            chatLogTableView.contentInset = UIEdgeInsets(
+                top: 8,
+                left: 0,
+                bottom: chatLogTableViewContentInsetBotton + 12,
+                right: 0
+            )
+            chatLogTableView.scrollIndicatorInsets = UIEdgeInsets(
+                top: 1,
+                left: 0,
+                bottom: chatLogTableViewScrollIndicatorInsetsBotton + 14,
+                right: 0
+            )
+        }else{
+            chatLogTableView.contentInset = UIEdgeInsets(
+                top: 8,
+                left: 0,
+                bottom: chatLogTableViewContentInsetBotton,
+                right: 0
+            )
+            chatLogTableView.scrollIndicatorInsets = UIEdgeInsets(
+                top: 1,
+                left: 0,
+                bottom: chatLogTableViewScrollIndicatorInsetsBotton,
+                right: 0
+            )
+        }
+    }
+
     func fetchMessageWith(
         id: String,
         completionHandler: @escaping (Message?) -> Void
@@ -259,39 +302,6 @@ class ChatViewController: UIViewController,
             )
         }
     }
-    
-//    func setupMessagingContianerView(){
-//        view.addSubview(containerTypingArea)
-//        //handle the keyboard, First way:
-//        /*
-//        containerTypingAreabottomAnchor = containerTypingArea.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: 0)
-//        containerTypingAreabottomAnchor?.isActive = true
-//        */
-//        containerTypingArea.bottomAnchor.constraint(equalTo: self.view.bottomAnchor,constant: 0).isActive = true
-//        containerTypingArea.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 0).isActive = true
-//        containerTypingArea.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: 0).isActive = true
-//        containerTypingArea.heightAnchor.constraint(equalToConstant: 85).isActive = true
-//
-//        containerTypingArea.addSubview(writeMessageTextField)
-//        containerTypingArea.addSubview(sendMessageButton)
-//
-//        NSLayoutConstraint.activate([
-//            writeMessageTextField.topAnchor.constraint(equalTo: containerTypingArea.topAnchor, constant: 8),
-//            writeMessageTextField.leadingAnchor.constraint(equalTo: containerTypingArea.leadingAnchor, constant: 12),
-//            writeMessageTextField.widthAnchor.constraint(equalTo: containerTypingArea.widthAnchor, multiplier: 0.80),
-//            writeMessageTextField.heightAnchor.constraint(equalTo: containerTypingArea.heightAnchor, multiplier: 0.70)
-//            ]
-//        )
-//
-//        NSLayoutConstraint.activate([
-//            sendMessageButton.centerYAnchor.constraint(equalTo: writeMessageTextField.centerYAnchor),
-//            sendMessageButton.leadingAnchor.constraint(equalTo: writeMessageTextField.trailingAnchor, constant: 10),
-//            sendMessageButton.topAnchor.constraint(equalTo: writeMessageTextField.topAnchor),
-//            sendMessageButton.bottomAnchor.constraint(equalTo: writeMessageTextField.bottomAnchor),
-//            sendMessageButton.trailingAnchor.constraint(equalTo: containerTypingArea.trailingAnchor, constant: -10)
-//            ]
-//        )
-//    }
     
     @objc func handleSendingMessage(){
         if let sender = Auth.auth().currentUser?.uid,
