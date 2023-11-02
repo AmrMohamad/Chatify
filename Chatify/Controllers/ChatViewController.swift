@@ -39,21 +39,10 @@ class ChatViewController: UIViewController,
             messages.sort { m1, m2 in
                 return m1.Date < m2.Date
             }
-//            if let id = user?.id{
-//                print("didSet")
-//                messagesCache.setObject(NSArray(array: messages), forKey: NSString(string: id))
-//                dump(messagesCache.object(forKey: NSString(string: id)))
-//            }
         }
     }
     var timer: Timer?
     
-//    lazy var containerTypingArea: UIView = {
-//        let view = UIView()
-//        view.translatesAutoresizingMaskIntoConstraints = false
-//        view.backgroundColor = .white.withAlphaComponent(0.90)
-//        return view
-//    }()
     lazy var chatLogTableView: UITableView = {
         let table = UITableView()
         table.translatesAutoresizingMaskIntoConstraints = false
@@ -258,13 +247,15 @@ class ChatViewController: UIViewController,
                 return
             }
             self.db.collection("user-messages").document(uid)
+                .collection("chats").document(user!.id)
+                .collection("chatContent").document("messagesID")
                 .addSnapshotListener { docSnapshots, error in
                     self.messages = []
                     if error != nil{
                         print(error!.localizedDescription)
                         return
                     }else{
-                        if let snapshots = docSnapshots?.data()?.sorted(by: {$0.value as! Double > $1.value as! Double}){
+                        if let snapshots = docSnapshots?.data()/*?.sorted(by: {$0.value as! Double > $1.value as! Double})*/{
                             snapshots.forEach { key,_ in
                                 self.fetchMessageWith(id: key) { message in
                                     if let message = message {
@@ -272,7 +263,7 @@ class ChatViewController: UIViewController,
                                             self.messages.append(message)
                                             self.timer?.invalidate()
                                             self.timer = Timer.scheduledTimer(
-                                                timeInterval: 0.8,
+                                                timeInterval: 0.3,
                                                 target: self,
                                                 selector: #selector(self.handleReloadTable),
                                                 userInfo: nil,
@@ -324,27 +315,46 @@ class ChatViewController: UIViewController,
                             print("send data successfully")
                             if let messageRef = ref {
                                 let messageID = messageRef.documentID
-                                
-                                let se = self.db.collection("user-messages").document(sender)
-                                se.updateData([messageID:currentTime]) { error in
-                                    if error != nil {
-                                        se.setData([messageID:currentTime])
-                                    }
+                                if let userID = self.user?.id{
+                                    self.sendMessageToDB(messageID: messageID,
+                                                         currentTime: currentTime,
+                                                         sender: sender,
+                                                         receiver: userID
+                                    )
                                 }
-                                
-                                let re = self.db.collection("user-messages").document(self.user!.id)
-                                re.updateData([messageID:currentTime]) { error in
-                                    if error != nil {
-                                        re.setData([messageID:currentTime])
-                                    }
-                                }
-                                    
                             }
                             DispatchQueue.main.async {
                                 self.writeMessageTextField.text = ""
                             }
                         }
                     }
+            }
+        }
+    }
+    private func sendMessageToDB(messageID: String, currentTime: TimeInterval,sender sendFromID: String,receiver sendToID: String){
+        let se = self.db.collection("user-messages").document(sendFromID)
+            .collection("chats").document(self.user!.id)
+            .collection("chatContent").document("messagesID")
+        
+        se.updateData([messageID:currentTime]) { error in
+            self.db.collection("user-messages").document(sendFromID).setData(["hasChats":true])
+            self.db.collection("user-messages").document(sendFromID)
+                .collection("chats").document(sendToID).setData(["lastMessage":messageID])
+            if error != nil {
+                se.setData([messageID:currentTime])
+            }
+        }
+        
+        let re = self.db.collection("user-messages").document(self.user!.id)
+            .collection("chats").document(sendFromID)
+            .collection("chatContent").document("messagesID")
+        
+        re.updateData([messageID:currentTime]) { error in
+            self.db.collection("user-messages").document(sendToID).setData(["hasChats":true])
+            self.db.collection("user-messages").document(sendToID)
+                .collection("chats").document(sendFromID).setData(["lastMessage":messageID])
+            if error != nil {
+                re.setData([messageID:currentTime])
             }
         }
     }

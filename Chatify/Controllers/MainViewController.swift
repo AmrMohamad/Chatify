@@ -280,46 +280,51 @@ class MainViewController: UITableViewController {
         guard let uid = Auth.auth().currentUser?.uid else {
             return
         }
-        db.collection("user-messages").document(uid).addSnapshotListener { docSnapshot, error in
-            if let userMessagesID = docSnapshot?.data()?.sorted(by: {$1.value as! Double > $0.value as! Double}){
-                self.messages = []
-                self.messageDictionary = [:]
-                for snap in userMessagesID {
-                    self.fetchMessageWith(id: snap.key) { message in
-                        if let m = message{
-                            if m.chatPartnerID() == m.sendFromID || m.chatPartnerID() == m.sendToID{
-                                if let existMessage = self.messageDictionary[m.chatPartnerID()] {
-                                    if existMessage.Date > m.Date {
-                                        
+        db.collection("user-messages").document(uid).collection("chats").addSnapshotListener { qS, error in
+            if let chats = qS?.documents {
+                for chat in chats{
+                    let lastMessage = chat.data()
+                    if let lastMessageID = lastMessage["lastMessage"] as? String{
+                        self.fetchMessageWith(id: lastMessageID) { message in
+                            if let m = message{
+                                if m.chatPartnerID() == m.sendFromID || m.chatPartnerID() == m.sendToID{
+                                    if let existMessage = self.messageDictionary[m.chatPartnerID()] {
+                                        if existMessage.Date > m.Date {
+
+                                        }else{
+                                            self.messageDictionary[m.chatPartnerID()] = m
+                                        }
                                     }else{
                                         self.messageDictionary[m.chatPartnerID()] = m
                                     }
-                                }else{
-                                    self.messageDictionary[m.chatPartnerID()] = m
                                 }
+                                self.reloadOfChatsTable()
                             }
-                            self.messages = Array(self.messageDictionary.values).sorted(by: { m1, m2 in
-                                return m1.Date > m2.Date
-                            })
-                            self.timer?.invalidate()
-                            self.timer = Timer.scheduledTimer(
-                                timeInterval: 0.8,
-                                target: self,
-                                selector: #selector(self.handleReloadTable),
-                                userInfo: nil,
-                                repeats: false
-                            )
-                            
                         }
                     }
                 }
             }
         }
     }
+    
     @objc func handleReloadTable(){
+        self.messages = Array(self.messageDictionary.values).sorted(by: { m1, m2 in
+            return m1.Date > m2.Date
+        })
         DispatchQueue.main.async {
             self.tableView.reloadData()
         }
+    }
+    
+    func reloadOfChatsTable() {
+        self.timer?.invalidate()
+        self.timer = Timer.scheduledTimer(
+            timeInterval: 0.45,
+            target: self,
+            selector: #selector(self.handleReloadTable),
+            userInfo: nil,
+            repeats: false
+        )
     }
     
     func fetchUsers(){
