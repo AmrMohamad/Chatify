@@ -1,9 +1,11 @@
 # Chatify a Chat App with Firebase
 
 ## Project Overview
+
 This is a simple iOS chat application built using Firebase Firestore as the backend. It allows users to send messages to other users in real-time.
 
 ## Table of Contents
+
 - [Features](#features)
 - [Demo](#demo)
 - [Usage](#usage)
@@ -22,6 +24,8 @@ This is a simple iOS chat application built using Firebase Firestore as the back
 - [ ] Offline support for messaging.
 
 ## Demo
+
+<img src="./Docs/demo.gif" width="744px">
 
 ## Getting Started
 
