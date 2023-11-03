@@ -29,21 +29,38 @@ This is a simple iOS chat application built using Firebase Firestore as the back
 
 ## Getting Started
 
+1. Clone the repository:
+
 ```bash
-# Clone the repository
-git clone https://github.com/AmrMohamad/Chatify.git
+git clone https://github.com/yourusername/chat-app.git
+cd chat-app
+```
 
-# Install CocoaPods (if not already installed)
-gem install cocoapods
+2. Install the required dependencies using Cocoapods:
 
-# Navigate to the project directory
-cd Chatify
-
-# Install project dependencies using CocoaPods
+```bash
 pod install
+```
 
-# Open the Xcode workspace
-open Chatify.xcworkspace
+3. Open the `ChatApp.xcworkspace` file in Xcode.
+
+4. Set up Firebase in your project:
+   - Create a new Firebase project on the [Firebase Console](https://console.firebase.google.com/).
+   - Follow the instructions to add your iOS app to the project.
+   - Download the `GoogleService-Info.plist` file and add it to your Xcode project.
+
+5. Enable Google Sign-In in the Firebase Console:
+   - Go to the Authentication section and enable Google as a sign-in method.
+
+6. Run the app in the simulator or on a physical device.
+
+### Firebase Configuration
+
+This app uses Firebase for real-time messaging. The necessary Firebase configurations can be found in the `AppDelegate.swift` file. Make sure to replace the placeholders with your own Firebase credentials.
+
+```swift
+FirebaseApp.configure()
+let db = Firestore.firestore()
 ```
 
 ## Usage
@@ -58,7 +75,6 @@ open Chatify.xcworkspace
 
 Copyright © 2023, [Amr Mohamad](https://github.com/AmrMohamad).
 Released under the [MIT License](./LICENSE.txt).
-
 
 <!--
 This is a simple iOS chat application built using Firebase as the backend. It allows users to sign in with their Google accounts and send messages to other users in real-time.
