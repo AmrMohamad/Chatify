@@ -7,13 +7,20 @@ This is a simple iOS chat application built using Firebase Firestore as the back
 - [Features](#features)
 - [Demo](#demo)
 - [Usage](#usage)
-- [Usage Examples](#usage-examples)
 - [Testing](#testing)
 - [License](#license)
 
 ## Features
 
-- [x] tesk
+- [x] User create an account with email.
+- [ ] User authentication with Google Sign-In.
+- [x] Real-time chat with another User.
+- [x] Show timestamp of the message.
+- [ ] Send Image and Video.
+- [ ] Send Location.
+- [ ] Group chat functionality.
+- [ ] Push notifications.
+- [ ] Offline support for messaging.
 
 ## Demo
 
@@ -36,10 +43,18 @@ pod install
 open Chatify.xcworkspace
 ```
 
+## Usage
 
+1. Launch the app on your iOS device or simulator.
+1. Sign in with your Google account(coming soon) or Create an account.
+1. Start sending and receiving messages in real-time.
 
+## License
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+Copyright © 2023, [Amr Mohamad](https://github.com/AmrMohamad).
+Released under the [MIT License](./LICENSE.txt).
 
 
 <!--
