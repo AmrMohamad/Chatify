@@ -13,8 +13,11 @@ import FirebaseCore
 
 class MainViewController: UITableViewController {
 
+    ///The reference of the DataBase FirebaseFirestore
     let db = Firestore.firestore()
+    ///messages is a array of Message datatype
     var messages: [Message] = [Message]()
+    /// messageDictionary is used to avoid messages/chats duplication
     var messageDictionary: [String : Message] = [String : Message]()
     var users: [User] = [User]()
     let imgsCache = NSCache<AnyObject, AnyObject>()

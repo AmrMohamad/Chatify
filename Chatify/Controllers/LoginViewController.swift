@@ -126,13 +126,6 @@ class LoginViewController: UIViewController {
         setuploginRegisterSegmentedConrtolConstraints()
         
         registerAndLoginButton.addTarget(self, action: #selector(registerAndLoginActionHandler), for: .touchUpInside)
-        
-//        addImageProfile.addGestureRecognizer(
-//            UITapGestureRecognizer(
-//                target: self,
-//                action: #selector(handleAddImageGesture)
-//            )
-//        )
     }
     
     public var textFieldsStack: UIStackView?
@@ -146,8 +139,11 @@ class LoginViewController: UIViewController {
             .constraint(equalTo: view.centerXAnchor)
             .isActive = true
         icon.topAnchor
-            .constraint(equalToSystemSpacingBelow: view.safeAreaLayoutGuide.topAnchor, multiplier: 1/2)
+            .constraint(greaterThanOrEqualTo: view.topAnchor, constant: 25)
             .isActive = true
+//        icon.bottomAnchor
+//            .constraint(equalTo: loginRegisterSegmentedConrtol.topAnchor, constant: -12)
+//            .isActive = true
         icon.widthAnchor
             .constraint(equalTo: view.widthAnchor, multiplier: 0.80)
             .isActive = true
@@ -234,7 +230,7 @@ class LoginViewController: UIViewController {
             .constraint(equalTo: inputsContainer.topAnchor, constant: -12)
             .isActive = true
         loginRegisterSegmentedConrtol.heightAnchor
-            .constraint(equalToConstant: 50)
+            .constraint(equalTo: view.heightAnchor, multiplier: 0.054)
             .isActive = true
         loginRegisterSegmentedConrtol.widthAnchor
             .constraint(equalTo: inputsContainer.widthAnchor, multiplier: 0.7)

@@ -25,6 +25,14 @@ extension LoginViewController: UIImagePickerControllerDelegate, UINavigationCont
         textFieldsStack?.arrangedSubviews[0]
             .isHidden = loginRegisterSegmentedConrtol
             .selectedSegmentIndex == 0 ? true : false
+        if loginRegisterSegmentedConrtol.selectedSegmentIndex == 0 {
+            emailTextField.text = ""
+            passwordTextField.text = ""
+        }
+        if loginRegisterSegmentedConrtol.selectedSegmentIndex == 1 {
+            emailTextField.text = ""
+            passwordTextField.text = ""
+        }
         textFieldsStack?.arrangedSubviews[1]
             .isHidden = loginRegisterSegmentedConrtol
             .selectedSegmentIndex == 0 ? true : false
