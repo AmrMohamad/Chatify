@@ -12,7 +12,9 @@ This is a simple iOS chat application built using Firebase Firestore as the back
 - [License](#license)
 
 ## Features
-*[x] tesk
+
+- [x] tesk
+
 ## Demo
 
 ## Getting Started
