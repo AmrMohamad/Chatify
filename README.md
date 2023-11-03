@@ -7,7 +7,6 @@ This is a simple iOS chat application built using Firebase Firestore as the back
 - [Features](#features)
 - [Demo](#demo)
 - [Usage](#usage)
-- [Testing](#testing)
 - [License](#license)
 
 ## Features
