@@ -48,6 +48,8 @@ class LoginViewController: UIViewController {
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.placeholder = "Email Address"
         tf.autocapitalizationType = .none
+        tf.textContentType = .username
+        tf.isSecureTextEntry = false
 //        tf.textContentType = .emailAddress
         tf.keyboardType = .emailAddress
         tf.font = UIFont.systemFont(ofSize: 22, weight: .regular)
@@ -61,6 +63,8 @@ class LoginViewController: UIViewController {
         tf.font = UIFont.systemFont(ofSize: 22, weight: .regular)
         tf.isSecureTextEntry = true
         tf.textContentType = .password
+        tf.autocorrectionType = .no
+        tf.autocapitalizationType = .none
         return tf
     }()
     
@@ -112,14 +116,38 @@ class LoginViewController: UIViewController {
         return sc
     }()
     
+    lazy var containerStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+    
+    var containerStackViewTopAnchor: NSLayoutConstraint?
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(red: 61/255, green: 91/255, blue: 151/255, alpha: 1)
         
-        view.addSubview(icon)
-        view.addSubview(loginRegisterSegmentedConrtol)
-        view.addSubview(inputsContainer)
-        view.addSubview(registerAndLoginButton)
+//        view.addSubview(icon)
+//        view.addSubview(loginRegisterSegmentedConrtol)
+//        view.addSubview(inputsContainer)
+//        view.addSubview(registerAndLoginButton)
+        view.addSubview(containerStackView)
+        containerStackView.axis = .vertical
+        containerStackView.spacing = 5
+        containerStackView.alignment = .center
+        containerStackView.distribution = .fill
+        
+        NSLayoutConstraint.activate([
+            containerStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            containerStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 15),
+            containerStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15)
+        ])
+        containerStackViewTopAnchor = containerStackView.topAnchor.constraint(greaterThanOrEqualTo: view.safeAreaLayoutGuide.topAnchor)
+        containerStackViewTopAnchor?.isActive = true
+        containerStackView.insertArrangedSubview(icon, at: 0)
+        containerStackView.insertArrangedSubview(loginRegisterSegmentedConrtol, at: 1)
+        containerStackView.insertArrangedSubview(inputsContainer, at: 2)
+        containerStackView.insertArrangedSubview(registerAndLoginButton, at: 3)
         
         
         setupInputsContainerConstraints()
@@ -129,6 +157,7 @@ class LoginViewController: UIViewController {
         
         registerAndLoginButton.addTarget(self, action: #selector(registerAndLoginActionHandler), for: .touchUpInside)
         handleSetupOfObservingKB()
+        initializeHideKeyboard()
     }
     
     public var textFieldsStack: UIStackView?
@@ -138,15 +167,7 @@ class LoginViewController: UIViewController {
     let db = Firestore.firestore()
     
     func setupIconConstraints() {
-        icon.centerXAnchor
-            .constraint(equalTo: inputsContainer.centerXAnchor)
-            .isActive = true
-//        icon.topAnchor
-//            .constraint(greaterThanOrEqualTo: view.topAnchor, constant: 25)
-//            .isActive = true
-        icon.bottomAnchor
-            .constraint(equalTo: loginRegisterSegmentedConrtol.topAnchor, constant: -20)
-            .isActive = true
+
         icon.widthAnchor
             .constraint(equalTo: view.widthAnchor, multiplier: 0.80)
             .isActive = true
@@ -160,16 +181,15 @@ class LoginViewController: UIViewController {
         // Postion of InputsContainer
         inputsContainer.centerXAnchor
             .constraint(equalTo: view.centerXAnchor).isActive = true
-//        inputsContainer.centerYAnchor
-//            .constraint(equalTo: view.centerYAnchor).isActive = true
-        inputsContainer.topAnchor
-            .constraint(lessThanOrEqualToSystemSpacingBelow: view.topAnchor, multiplier: 26.5)
-            .isActive = true
+
         // Size of InputsContainer
         inputsContainerHeightConstraint = inputsContainer.heightAnchor
             .constraint(equalToConstant: 250)
         inputsContainerHeightConstraint?.isActive = true
-        inputsContainer.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.85).isActive = true
+        inputsContainerHeightConstraint?.priority = .required
+        inputsContainer.widthAnchor
+            .constraint(equalTo: view.widthAnchor, multiplier: 0.85)
+            .isActive = true
         // Stack catch inputs of account data
         textFieldsStack = UIStackView(
             arrangedSubviews: [
@@ -203,20 +223,21 @@ class LoginViewController: UIViewController {
         textFieldsStack?.trailingAnchor
             .constraint(equalTo: inputsContainer.trailingAnchor, constant: -2)
             .isActive = true
-        let height = inputsContainer.frame.height * 0.25
-//        nameTextField.heightAnchor
-//            .constraint(equalToConstant: height)
-//            .isActive = true
-//        addImageProfile.heightAnchor
-//            .constraint(equalToConstant: height)
-//            .isActive = true
+//        let nameTextFieldHeightAnchor: NSLayoutConstraint = nameTextField.heightAnchor.constraint(equalToConstant: 62.5)
+//        nameTextFieldHeightAnchor.isActive = true
+//        let emailTextFieldHeightAnchor: NSLayoutConstraint = emailTextField.heightAnchor.constraint(equalToConstant: 62.5)
+//        emailTextFieldHeightAnchor.isActive = true
+//        let passwordTextFieldHeightAnchor: NSLayoutConstraint = passwordTextField.heightAnchor.constraint(equalToConstant: 62.5)
+//        passwordTextFieldHeightAnchor.isActive = true
+//        let addImageProfileHeightAnchor: NSLayoutConstraint = addImageProfile.heightAnchor.constraint(equalToConstant: 62.5)
+//        addImageProfileHeightAnchor.isActive = true
         NSLayoutConstraint.activate([
-            nameTextField.heightAnchor
-                .constraint(equalToConstant: height),
-            addImageProfile.heightAnchor
-                .constraint(equalToConstant: height)
-            
+            nameTextField.heightAnchor.constraint(equalToConstant: 62.5),
+            emailTextField.heightAnchor.constraint(equalToConstant: 62.5),
+            passwordTextField.heightAnchor.constraint(equalToConstant: 62.5),
+            addImageProfile.heightAnchor.constraint(equalToConstant: 62.5)
         ])
+        
         
     }
     
@@ -268,26 +289,34 @@ class LoginViewController: UIViewController {
             name: UIResponder.keyboardWillHideNotification,
             object: nil
         )
-        initializeHideKeyboard()
     }
-    var registerAndLoginButtonBottomAnchor: NSLayoutConstraint?
+    
+    lazy var containerStackViewBottomAnchor: NSLayoutConstraint = containerStackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0)
+    
     @objc func showKeyboard(notification: Notification){
         let kbFrameSize = notification.userInfo?["UIKeyboardFrameEndUserInfoKey"] as? CGRect
         let kbDuration =  notification.userInfo?["UIKeyboardAnimationDurationUserInfoKey"] as? Double
         
         if let heightOfKB = kbFrameSize?.height,
            let duration = kbDuration{
-            registerAndLoginButtonBottomAnchor = registerAndLoginButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -heightOfKB)
-            registerAndLoginButtonBottomAnchor?.isActive = true
+            containerStackViewBottomAnchor.constant = -heightOfKB
+            containerStackViewBottomAnchor.isActive = true
+            containerStackViewTopAnchor?.isActive = false
             UIView.animate(withDuration: duration) {
                 self.view.layoutIfNeeded()
             }
         }
     }
+    
     @objc func hideKeyboard(notification: Notification){
         let kbDuration =  notification.userInfo?["UIKeyboardAnimationDurationUserInfoKey"] as? Double
+        
         if let durationOfKB = kbDuration{
-            registerAndLoginButtonBottomAnchor?.isActive = false
+            if let topConstraint = containerStackViewTopAnchor{
+                containerStackViewBottomAnchor.isActive = false
+                containerStackView.removeConstraint(containerStackViewBottomAnchor)
+                containerStackViewTopAnchor?.isActive = true
+            }
             UIView.animate(withDuration: durationOfKB) {
                 self.view.layoutIfNeeded()
             }
@@ -305,10 +334,6 @@ class LoginViewController: UIViewController {
         //endEditing causes the view (or one of its embedded text fields) to resign the first responder status.
         //In short- Dismiss the active keyboard.
         view.endEditing(true)
-        registerAndLoginButtonBottomAnchor?.isActive = false
-        UIView.animate(withDuration: 0.25) {
-            self.view.layoutIfNeeded()
-        }
     }
 
 }
