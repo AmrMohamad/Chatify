@@ -64,6 +64,12 @@ class ChatViewController: UIViewController,
         button.setTitle("Send", for: .normal)
         return button
     }()
+    lazy var sendImageButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(systemName: "photo.on.rectangle.angled"), for: .normal)
+        return button
+    }()
     var chatLogTableViewContentInsetBotton: CGFloat = 0.0
     var chatLogTableViewScrollIndicatorInsetsBotton: CGFloat = 0.0
     
@@ -119,23 +125,30 @@ class ChatViewController: UIViewController,
         chatLogTableViewScrollIndicatorInsetsBotton = containerTypingArea.frame.height + 8.5
         containerTypingArea.backgroundColor = .systemGroupedBackground.withAlphaComponent(0.95)
         
+        containerTypingArea.addSubview(sendImageButton)
         containerTypingArea.addSubview(writeMessageTextField)
         containerTypingArea.addSubview(sendMessageButton)
         
         NSLayoutConstraint.activate([
+            sendImageButton.leadingAnchor.constraint(equalTo: containerTypingArea.leadingAnchor, constant: 12),
+            sendImageButton.centerYAnchor.constraint(equalTo: containerTypingArea.centerYAnchor),
+            sendImageButton.heightAnchor.constraint(equalToConstant: 44),
+            sendImageButton.widthAnchor.constraint(equalToConstant: 44)
+        ])
+        
+        NSLayoutConstraint.activate([
             writeMessageTextField.topAnchor.constraint(equalTo: containerTypingArea.topAnchor, constant: 2),
-            writeMessageTextField.leadingAnchor.constraint(equalTo: containerTypingArea.leadingAnchor, constant: 12),
-            writeMessageTextField.widthAnchor.constraint(equalTo: containerTypingArea.widthAnchor, multiplier: 0.80),
-            writeMessageTextField.heightAnchor.constraint(equalTo: containerTypingArea.heightAnchor, multiplier: 0.70)
+            writeMessageTextField.leadingAnchor.constraint(equalTo: sendImageButton.trailingAnchor, constant: 10),
+            writeMessageTextField.trailingAnchor.constraint(equalTo: sendMessageButton.leadingAnchor, constant: -10)
             ]
         )
         
         NSLayoutConstraint.activate([
-            sendMessageButton.centerYAnchor.constraint(equalTo: writeMessageTextField.centerYAnchor),
-            sendMessageButton.leadingAnchor.constraint(equalTo: writeMessageTextField.trailingAnchor, constant: 10),
-            sendMessageButton.topAnchor.constraint(equalTo: writeMessageTextField.topAnchor),
-            sendMessageButton.bottomAnchor.constraint(equalTo: writeMessageTextField.bottomAnchor),
-            sendMessageButton.trailingAnchor.constraint(equalTo: containerTypingArea.trailingAnchor, constant: -10)
+            sendMessageButton.centerYAnchor.constraint(equalTo: containerTypingArea.centerYAnchor),
+            sendMessageButton.topAnchor.constraint(equalTo: sendImageButton.topAnchor),
+            sendMessageButton.bottomAnchor.constraint(equalTo: sendImageButton.bottomAnchor),
+            sendMessageButton.trailingAnchor.constraint(equalTo: containerTypingArea.trailingAnchor, constant: -10),
+            sendMessageButton.widthAnchor.constraint(equalToConstant: 44)
             ]
         )
         return containerTypingArea
