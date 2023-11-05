@@ -261,18 +261,35 @@ class MainViewController: UITableViewController {
     ) {
         let messagesRef = db.collection("messages")
         messagesRef.document(id).getDocument { docSnapshot, error in
-            if let mssgData   = docSnapshot,
-               let sendToID   = mssgData["sendToID"] as? String,
-               let sendFromID = mssgData["sendFromID"] as? String,
-               let date       = mssgData["Date"] as? Double,
-               let text       = mssgData["text"] as? String {
-                let message = Message(
-                    sendToID   : sendToID,
-                    sendFromID : sendFromID,
-                    Date       : date,
-                    text       : text
-                )
-                completionHandler(message)
+            if let massgeData = docSnapshot{
+                
+                if let sendToID   = massgeData["sendToID"] as? String,
+                   let sendFromID = massgeData["sendFromID"] as? String,
+                   let date       = massgeData["Date"] as? Double,
+                   let text       = massgeData["text"] as? String {
+                    let message = Message(
+                        sendToID   : sendToID,
+                        sendFromID : sendFromID,
+                        Date       : date,
+                        text       : text,
+                        imageURL   : ""
+                    )
+                    completionHandler(message)
+                }
+                
+                if let sendToID   = massgeData["sendToID"] as? String,
+                   let sendFromID = massgeData["sendFromID"] as? String,
+                   let date       = massgeData["Date"] as? Double,
+                   let imageURL   = massgeData["imageURL"] as? String {
+                    let message = Message(
+                        sendToID   : sendToID,
+                        sendFromID : sendFromID,
+                        Date       : date,
+                        text       : "",
+                        imageURL   : imageURL
+                    )
+                    completionHandler(message)
+                }
             }else{
                 completionHandler(nil)
             }
@@ -404,11 +421,14 @@ class MainViewController: UITableViewController {
                 cell.userLabel.text = user.name
             }
         }
-        
-        if message.sendFromID == Auth.auth().currentUser?.uid {
-            cell.lastMessageLabel.text = "You: \(message.text)"
+        if message.text != "" {
+            if message.sendFromID == Auth.auth().currentUser?.uid {
+                cell.lastMessageLabel.text = "You: \(message.text)"
+            }else{
+                cell.lastMessageLabel.text = message.text
+            }
         }else{
-            cell.lastMessageLabel.text = message.text
+            cell.lastMessageLabel.text = "📸"
         }
         
         let timeOfSend = Date(timeIntervalSince1970: message.Date)

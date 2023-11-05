@@ -50,6 +50,17 @@ class MessageTableViewCell: UITableViewCell {
         image.contentMode = .scaleAspectFill
         return image
     }()
+    let imageMessageView: UIImageView = {
+        let image = UIImageView()
+        image.translatesAutoresizingMaskIntoConstraints = false
+        image.backgroundColor = .brown
+        image.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        image.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        image.contentMode = .scaleAspectFill
+        return image
+    }()
+    
+    
     var bubbleViewTrailingAnchor : NSLayoutConstraint?
     var bubbleViewLeadingAnchor : NSLayoutConstraint?
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?){
@@ -95,6 +106,14 @@ class MessageTableViewCell: UITableViewCell {
             messageTextContent.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 14),
             messageTextContent.widthAnchor.constraint(greaterThanOrEqualToConstant: 34)
         ])
+        bubbleView.addSubview(imageMessageView)
+        NSLayoutConstraint.activate([
+            imageMessageView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor),
+            imageMessageView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor),
+            imageMessageView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor),
+            imageMessageView.topAnchor.constraint(equalTo: bubbleView.topAnchor)
+        ])
+        
         bubbleView.addSubview(timeOfSend)
         NSLayoutConstraint.activate([
             timeOfSend.leadingAnchor.constraint(equalTo: messageTextContent.trailingAnchor, constant: 1),

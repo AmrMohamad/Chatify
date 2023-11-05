@@ -10,11 +10,14 @@ import DeviceKit
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseCore
+import FirebaseStorage
 
 class ChatViewController: UIViewController,
                           UITableViewDataSource,
                           UITableViewDelegate,
-                          UITextFieldDelegate {
+                          UITextFieldDelegate,
+                          UIImagePickerControllerDelegate,
+                          UINavigationControllerDelegate {
 
     let groupOfAllowedDevices: [Device] = [
         .iPhone8,
@@ -74,7 +77,7 @@ class ChatViewController: UIViewController,
     var chatLogTableViewScrollIndicatorInsetsBotton: CGFloat = 0.0
     
     let db = Firestore.firestore()
-    let settings = FirestoreSettings()
+    let storage = Storage.storage()
 
     
     override func viewDidLoad() {
@@ -99,7 +102,8 @@ class ChatViewController: UIViewController,
         )
         
         sendMessageButton.addTarget(self, action: #selector(handleSendingMessage), for: .touchUpInside)
-
+        sendImageButton.addTarget(self, action: #selector(handleSendingImageMessage), for: .touchUpInside)
+        
         chatLogTableView.keyboardDismissMode = .interactive
         handleSetupOfObservingKB()
     }
@@ -229,18 +233,35 @@ class ChatViewController: UIViewController,
     ) {
         let messagesRef = db.collection("messages")
         messagesRef.document(id).getDocument { docSnapshot, error in
-            if let mssgData   = docSnapshot,
-               let sendToID   = mssgData["sendToID"] as? String,
-               let sendFromID = mssgData["sendFromID"] as? String,
-               let date       = mssgData["Date"] as? Double,
-               let text       = mssgData["text"] as? String {
-                let message = Message(
-                    sendToID   : sendToID,
-                    sendFromID : sendFromID,
-                    Date       : date,
-                    text       : text
-                )
-                completionHandler(message)
+            if let massgeData = docSnapshot{
+                
+                if let sendToID   = massgeData["sendToID"] as? String,
+                   let sendFromID = massgeData["sendFromID"] as? String,
+                   let date       = massgeData["Date"] as? Double,
+                   let text       = massgeData["text"] as? String {
+                    let message = Message(
+                        sendToID   : sendToID,
+                        sendFromID : sendFromID,
+                        Date       : date,
+                        text       : text,
+                        imageURL   : ""
+                    )
+                    completionHandler(message)
+                }
+                
+                if let sendToID   = massgeData["sendToID"] as? String,
+                   let sendFromID = massgeData["sendFromID"] as? String,
+                   let date       = massgeData["Date"] as? Double,
+                   let imageURL   = massgeData["imageURL"] as? String {
+                    let message = Message(
+                        sendToID   : sendToID,
+                        sendFromID : sendFromID,
+                        Date       : date,
+                        text       : "",
+                        imageURL   : imageURL
+                    )
+                    completionHandler(message)
+                }
             }else{
                 completionHandler(nil)
             }
@@ -302,8 +323,95 @@ class ChatViewController: UIViewController,
             self.chatLogTableView.scrollToRow(
                 at: IndexPath(row: self.messages.count - 1 , section: 0),
                 at: .bottom,
-                animated: false
+                animated: true
             )
+        }
+    }
+    
+    @objc func handleSendingImageMessage(){
+        let imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
+        imagePicker.allowsEditing = true
+        present(imagePicker, animated: true)
+    }
+    func imagePickerController(
+        _ picker: UIImagePickerController,
+        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
+    ) {
+        var selectedImageFromPicker: UIImage?
+        
+        if let editedImage = info[
+            UIImagePickerController
+                .InfoKey(rawValue: "UIImagePickerControllerEditedImage")
+        ] as? UIImage {
+           selectedImageFromPicker = editedImage
+            
+        }
+        else if let selectedOriginalImage = info[
+            UIImagePickerController
+                .InfoKey(rawValue: "UIImagePickerControllerOriginalImage")
+        ] as? UIImage{
+           selectedImageFromPicker = selectedOriginalImage
+        }
+        
+        if let selectedImage = selectedImageFromPicker {
+           uploadImageToFirebaseStorage(selectedImage)
+        }
+        dismiss(animated: true)
+    }
+    
+    private func uploadImageToFirebaseStorage(_ image: UIImage ){
+        guard let uid = Auth.auth().currentUser?.uid else {return}
+        let uploadImage = image.jpegData(compressionQuality: 0.1)
+        let storageRec = storage.reference()
+            .child("chat_images")
+            .child(uid)
+            .child("\(UUID().uuidString).jpeg")
+        if let safeImage = uploadImage {
+            let uploadTask = storageRec.putData(safeImage, metadata: nil) { storageMetaData, error in
+                if error != nil {
+                    print("error with uploading image:\n\(error!.localizedDescription)")
+                    return
+                }
+                storageRec.downloadURL { url, error in
+                    if let safeURL = url {
+                        self.sendMessageWithImageURL(safeURL)
+                    }
+                }
+            }
+            uploadTask.resume()
+        }
+    }
+    
+    private func sendMessageWithImageURL(_ imageURL:URL){
+        if let sender = Auth.auth().currentUser?.uid {
+            let currentTime = Date().timeIntervalSince1970
+            var ref: DocumentReference? = nil
+            ref = db.collection("messages")
+                .addDocument(
+                    data: [
+                        "sendFromID"   : sender,
+                        "sendToID"     : user!.id,
+                        "imageURL"     : imageURL.absoluteString,
+                        "Date"         : currentTime
+                    ]
+                ) { error in
+                    if error != nil {
+                        print("error with saving message wit image:\n\(error!.localizedDescription)")
+                        return
+                    }
+                    
+                    if let messageRef = ref {
+                        let messageID = messageRef.documentID
+                        if let userID = self.user?.id{
+                            self.sendMessageToDB(messageID: messageID,
+                                                 currentTime: currentTime,
+                                                 sender: sender,
+                                                 receiver: userID
+                            )
+                        }
+                    }
+                }
         }
     }
     
@@ -377,6 +485,7 @@ class ChatViewController: UIViewController,
     }
     
     private func handleSetupOfMessageCell(cell: MessageTableViewCell, message: Message){
+
         if let profileImageURL = self.user?.profileImageURL{
             cell.imageProfileOfChatPartner.loadImagefromCacheWithURLstring(urlString: profileImageURL)
         }
@@ -397,6 +506,15 @@ class ChatViewController: UIViewController,
             cell.bubbleViewTrailingAnchor?.isActive = false
             cell.imageProfileOfChatPartner.isHidden = false
         }
+        if message.text == ""{
+            cell.imageMessageView.loadImagefromCacheWithURLstring(urlString: message.imageURL)
+            cell.imageMessageView.isHidden = false
+            cell.messageTextContent.isHidden = true
+        }else {
+            cell.messageTextContent.text = message.text
+            cell.imageMessageView.isHidden = true
+            cell.messageTextContent.isHidden = false
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -404,7 +522,6 @@ class ChatViewController: UIViewController,
         cell.selectionStyle = .none
         let message = messages[indexPath.row]
         handleSetupOfMessageCell(cell: cell, message: message)
-        cell.messageTextContent.text = message.text
         let timeOfSend = Date(timeIntervalSince1970: message.Date)
         let dataFormatter = DateFormatter()
         dataFormatter.dateFormat = "hh:mm a"
