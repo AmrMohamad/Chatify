@@ -272,7 +272,7 @@ class MainViewController: UITableViewController {
                         sendFromID : sendFromID,
                         Date       : date,
                         text       : text,
-                        imageURL   : ""
+                        imageInfo  : [:]
                     )
                     completionHandler(message)
                 }
@@ -280,13 +280,13 @@ class MainViewController: UITableViewController {
                 if let sendToID   = massgeData["sendToID"] as? String,
                    let sendFromID = massgeData["sendFromID"] as? String,
                    let date       = massgeData["Date"] as? Double,
-                   let imageURL   = massgeData["imageURL"] as? String {
+                   let imageInfo   = massgeData["imageInfo"] as? [String:Any] {
                     let message = Message(
                         sendToID   : sendToID,
                         sendFromID : sendFromID,
                         Date       : date,
                         text       : "",
-                        imageURL   : imageURL
+                        imageInfo  : imageInfo
                     )
                     completionHandler(message)
                 }

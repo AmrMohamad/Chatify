@@ -244,7 +244,7 @@ class ChatViewController: UIViewController,
                         sendFromID : sendFromID,
                         Date       : date,
                         text       : text,
-                        imageURL   : ""
+                        imageInfo  : [:]
                     )
                     completionHandler(message)
                 }
@@ -252,13 +252,13 @@ class ChatViewController: UIViewController,
                 if let sendToID   = massgeData["sendToID"] as? String,
                    let sendFromID = massgeData["sendFromID"] as? String,
                    let date       = massgeData["Date"] as? Double,
-                   let imageURL   = massgeData["imageURL"] as? String {
+                   let imageInfo   = massgeData["imageInfo"] as? [String:Any] {
                     let message = Message(
                         sendToID   : sendToID,
                         sendFromID : sendFromID,
                         Date       : date,
                         text       : "",
-                        imageURL   : imageURL
+                        imageInfo  : imageInfo
                     )
                     completionHandler(message)
                 }
@@ -284,11 +284,11 @@ class ChatViewController: UIViewController,
                 .collection("chats").document(user!.id)
                 .collection("chatContent").document("messagesID")
                 .addSnapshotListener { docSnapshots, error in
-                    self.messages = []
                     if error != nil{
                         print(error!.localizedDescription)
                         return
                     }else{
+                        self.messages = []
                         if let snapshots = docSnapshots?.data()/*?.sorted(by: {$0.value as! Double > $1.value as! Double})*/{
                             snapshots.forEach { key,_ in
                                 self.fetchMessageWith(id: key) { message in
@@ -297,7 +297,7 @@ class ChatViewController: UIViewController,
                                             self.messages.append(message)
                                             self.timer?.invalidate()
                                             self.timer = Timer.scheduledTimer(
-                                                timeInterval: 0.3,
+                                                timeInterval: 0.49,
                                                 target: self,
                                                 selector: #selector(self.handleReloadTable),
                                                 userInfo: nil,
@@ -362,7 +362,7 @@ class ChatViewController: UIViewController,
     
     private func uploadImageToFirebaseStorage(_ image: UIImage ){
         guard let uid = Auth.auth().currentUser?.uid else {return}
-        let uploadImage = image.jpegData(compressionQuality: 0.1)
+        let uploadImage = image.jpegData(compressionQuality: 0.08)
         let storageRec = storage.reference()
             .child("chat_images")
             .child(uid)
@@ -375,7 +375,7 @@ class ChatViewController: UIViewController,
                 }
                 storageRec.downloadURL { url, error in
                     if let safeURL = url {
-                        self.sendMessageWithImageURL(safeURL)
+                        self.sendMessageWithImageURL(safeURL,image)
                     }
                 }
             }
@@ -383,7 +383,7 @@ class ChatViewController: UIViewController,
         }
     }
     
-    private func sendMessageWithImageURL(_ imageURL:URL){
+    private func sendMessageWithImageURL(_ imageURL:URL, _ image:UIImage){
         if let sender = Auth.auth().currentUser?.uid {
             let currentTime = Date().timeIntervalSince1970
             var ref: DocumentReference? = nil
@@ -392,7 +392,11 @@ class ChatViewController: UIViewController,
                     data: [
                         "sendFromID"   : sender,
                         "sendToID"     : user!.id,
-                        "imageURL"     : imageURL.absoluteString,
+                        "imageInfo"    : [
+                            "imageURL"    : imageURL.absoluteString,
+                            "imageHeight" : image.size.height,
+                            "imageWidth"  : image.size.width
+                        ] as [String : Any],
                         "Date"         : currentTime
                     ]
                 ) { error in
@@ -489,6 +493,10 @@ class ChatViewController: UIViewController,
         if let profileImageURL = self.user?.profileImageURL{
             cell.imageProfileOfChatPartner.loadImagefromCacheWithURLstring(urlString: profileImageURL)
         }
+        
+        if let uploadImageURL = message.imageInfo["imageURL"] as? String{
+            cell.imageMessageView.loadImagefromCacheWithURLstring(urlString: uploadImageURL)
+        }
         if message.sendFromID == Auth.auth().currentUser?.uid {
             //Blue
             cell.bubbleView.backgroundColor = MessageTableViewCell.blueColor
@@ -506,42 +514,21 @@ class ChatViewController: UIViewController,
             cell.bubbleViewTrailingAnchor?.isActive = false
             cell.imageProfileOfChatPartner.isHidden = false
         }
-        if message.text == ""{
-            cell.imageMessageView.loadImagefromCacheWithURLstring(urlString: message.imageURL)
-            
-            cell.bubbleViewWidthAnchor?.isActive = false
-            cell.bubbleViewWidthAnchor = cell.bubbleView.widthAnchor.constraint(equalToConstant: 150)
-            cell.bubbleViewWidthAnchor?.isActive = true
-            
-            cell.bubbleViewHeightAnchor?.isActive = false
-            cell.bubbleViewHeightAnchor = cell.bubbleView.heightAnchor.constraint(equalToConstant: 150)
-            cell.bubbleViewHeightAnchor?.isActive = true
-            
-            cell.imageMessageView.isHidden = false
-            cell.messageTextContent.isHidden = true
-        }else {
-            let sizeOfText = NSString(string: message.text).boundingRect(
-                with: CGSize(width: 200, height: 1000),
-                options: NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin),
-                attributes: [
-                    .font : UIFont.systemFont(ofSize: 16)
-                ],
-                context: nil
-            )
-            let width = UIScreen.main.bounds.width * 0.20
-            print(sizeOfText)
-            cell.bubbleViewWidthAnchor?.isActive = false
-            cell.bubbleViewWidthAnchor = cell.bubbleView.widthAnchor.constraint(lessThanOrEqualToConstant: sizeOfText.width + width)
-            cell.bubbleViewWidthAnchor?.isActive = true
-            
-            cell.bubbleViewHeightAnchor?.isActive = false
-            cell.bubbleViewHeightAnchor = cell.bubbleView.heightAnchor.constraint(equalToConstant: sizeOfText.height + 26)
-            cell.bubbleViewHeightAnchor?.isActive = true
-            
-            cell.messageTextContent.text = message.text
-            cell.imageMessageView.isHidden = true
-            cell.messageTextContent.isHidden = false
-        }
+    }
+    
+    private func handleMessageContainImage(cell: MessageTableViewCell, message: Message){
+        
+    }
+    
+    private func sizeOfText(_ text: String) -> CGRect {
+        return NSString(string: text).boundingRect(
+            with: CGSize(width: 200, height: 1000),
+            options: NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin),
+            attributes: [
+                .font : UIFont.systemFont(ofSize: 16)
+            ],
+            context: nil
+        )
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -549,6 +536,32 @@ class ChatViewController: UIViewController,
         cell.selectionStyle = .none
         let message = messages[indexPath.row]
         handleSetupOfMessageCell(cell: cell, message: message)
+        if message.imageInfo.isEmpty {
+            cell.messageTextContent.text = message.text
+            cell.imageMessageView.isHidden = true
+            cell.messageTextContent.isHidden = false
+            cell.bubbleViewHeightAnchor?.isActive = false
+            cell.bubbleViewHeightAnchor = cell.bubbleView.heightAnchor.constraint(equalToConstant: CGFloat((sizeOfText(message.text).height * 0.832) + 30.4))
+            cell.bubbleViewHeightAnchor?.isActive = true
+            
+            cell.bubbleViewWidthAnchor?.isActive = false
+            cell.bubbleViewWidthAnchor = cell.bubbleView.widthAnchor.constraint(equalToConstant: CGFloat(sizeOfText(message.text).width + 80.0))
+            cell.bubbleViewWidthAnchor?.isActive = true
+        }else{
+            cell.bubbleViewHeightAnchor?.isActive = false
+            cell.bubbleViewWidthAnchor?.isActive = false
+            if let height = message.imageInfo["imageHeight"] as? CGFloat,
+               let width = message.imageInfo["imageWidth"] as? CGFloat{
+                cell.bubbleViewHeightAnchor = cell.bubbleView.heightAnchor.constraint(equalToConstant: CGFloat(height * 0.34))
+                cell.bubbleViewHeightAnchor?.isActive = true
+                
+                cell.bubbleViewWidthAnchor = cell.bubbleView.widthAnchor.constraint(equalToConstant: CGFloat(width * 0.34))
+                cell.bubbleViewWidthAnchor?.isActive = true
+            }
+            cell.bubbleView.backgroundColor = .clear
+            cell.imageMessageView.isHidden = false
+            cell.messageTextContent.isHidden = true
+        }
         let timeOfSend = Date(timeIntervalSince1970: message.Date)
         let dataFormatter = DateFormatter()
         dataFormatter.dateFormat = "hh:mm a"

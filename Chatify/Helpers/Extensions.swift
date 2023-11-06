@@ -13,7 +13,7 @@ extension UIImageView {
     
     ///For loading images of profiles and if it's downloaded befor, it will be cached and fetching it from the cache
     ///- Parameter urlString: its for getting a URL for download the image from Firebase storage and for used as a key when come to store the downloaded image into cache ``imagesCache``
-    func loadImagefromCacheWithURLstring(urlString: String){
+    func loadImagefromCacheWithURLstring(urlString: String, imageSize getSizeOfImage: ((UIImage?)->Void)? = nil){
         //For clear imageview of the previous cell because UITableViewController reuse the unseen cells
         self.image = nil
         
@@ -23,6 +23,9 @@ extension UIImageView {
         ) as? UIImage {
             DispatchQueue.main.async {
                 self.image = cachedImage
+                if let imageAssigned = getSizeOfImage {
+                    imageAssigned(cachedImage)
+                }
             }
             return
         }
@@ -35,6 +38,9 @@ extension UIImageView {
                     if let downloadedImage = UIImage(data: d) {
                         imagesCache.setObject(downloadedImage, forKey: NSString(string: urlString))
                         self.image = downloadedImage
+                        if let imageAssigned = getSizeOfImage {
+                            imageAssigned(downloadedImage)
+                        }
                     }
                 }
             }

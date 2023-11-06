@@ -14,7 +14,7 @@ struct Message {
     var sendFromID : String
     var Date       : Double
     var text       : String
-    var imageURL   : String
+    var imageInfo   : [String : Any]
     
 //    init(sendToID: String, sendFromID: String, Date: Double, text: String) {
 //        self.sendToID = sendToID
