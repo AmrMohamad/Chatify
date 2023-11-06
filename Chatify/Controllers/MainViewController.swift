@@ -428,7 +428,7 @@ class MainViewController: UITableViewController {
                 cell.lastMessageLabel.text = message.text
             }
         }else{
-            cell.lastMessageLabel.text = "📸"
+            cell.lastMessageLabel.text = "📸 Photo"
         }
         
         let timeOfSend = Date(timeIntervalSince1970: message.Date)

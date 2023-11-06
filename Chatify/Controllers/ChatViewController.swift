@@ -508,9 +508,36 @@ class ChatViewController: UIViewController,
         }
         if message.text == ""{
             cell.imageMessageView.loadImagefromCacheWithURLstring(urlString: message.imageURL)
+            
+            cell.bubbleViewWidthAnchor?.isActive = false
+            cell.bubbleViewWidthAnchor = cell.bubbleView.widthAnchor.constraint(equalToConstant: 150)
+            cell.bubbleViewWidthAnchor?.isActive = true
+            
+            cell.bubbleViewHeightAnchor?.isActive = false
+            cell.bubbleViewHeightAnchor = cell.bubbleView.heightAnchor.constraint(equalToConstant: 150)
+            cell.bubbleViewHeightAnchor?.isActive = true
+            
             cell.imageMessageView.isHidden = false
             cell.messageTextContent.isHidden = true
         }else {
+            let sizeOfText = NSString(string: message.text).boundingRect(
+                with: CGSize(width: 200, height: 1000),
+                options: NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin),
+                attributes: [
+                    .font : UIFont.systemFont(ofSize: 16)
+                ],
+                context: nil
+            )
+            let width = UIScreen.main.bounds.width * 0.20
+            print(sizeOfText)
+            cell.bubbleViewWidthAnchor?.isActive = false
+            cell.bubbleViewWidthAnchor = cell.bubbleView.widthAnchor.constraint(lessThanOrEqualToConstant: sizeOfText.width + width)
+            cell.bubbleViewWidthAnchor?.isActive = true
+            
+            cell.bubbleViewHeightAnchor?.isActive = false
+            cell.bubbleViewHeightAnchor = cell.bubbleView.heightAnchor.constraint(equalToConstant: sizeOfText.height + 26)
+            cell.bubbleViewHeightAnchor?.isActive = true
+            
             cell.messageTextContent.text = message.text
             cell.imageMessageView.isHidden = true
             cell.messageTextContent.isHidden = false

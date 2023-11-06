@@ -54,15 +54,21 @@ class MessageTableViewCell: UITableViewCell {
         let image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
         image.backgroundColor = .brown
-        image.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        image.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
-        image.contentMode = .scaleAspectFill
+        image.contentMode = .scaleAspectFit
         return image
     }()
     
     
     var bubbleViewTrailingAnchor : NSLayoutConstraint?
     var bubbleViewLeadingAnchor : NSLayoutConstraint?
+    var bubbleViewHeightAnchor : NSLayoutConstraint?
+    var bubbleViewWidthAnchor : NSLayoutConstraint?
+    
+    lazy var bubbleViewWidthAnchorDefault = bubbleView.widthAnchor
+        .constraint(lessThanOrEqualTo: self.widthAnchor, multiplier: 0.85)
+    lazy var bubbleViewHeightAnchorDefault = bubbleView.heightAnchor
+        .constraint(greaterThanOrEqualToConstant: 34)
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?){
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -91,19 +97,19 @@ class MessageTableViewCell: UITableViewCell {
         bubbleView.bottomAnchor
             .constraint(equalTo: self.bottomAnchor, constant: -4)
             .isActive = true
-        bubbleView.widthAnchor
+        bubbleViewWidthAnchor = bubbleView.widthAnchor
             .constraint(lessThanOrEqualTo: self.widthAnchor, multiplier: 0.85)
-            .isActive = true
-        bubbleView.heightAnchor
+        bubbleViewWidthAnchor?.isActive = true
+        bubbleViewHeightAnchor = bubbleView.heightAnchor
             .constraint(greaterThanOrEqualToConstant: 34)
-            .isActive = true
+        bubbleViewHeightAnchor?.isActive = true
         
         bubbleView.addSubview(messageTextContent)
         NSLayoutConstraint.activate([
-            messageTextContent.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 4),
+            messageTextContent.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 2),
             messageTextContent.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant:-54),
-            messageTextContent.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -4),
-            messageTextContent.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 14),
+            messageTextContent.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -2),
+            messageTextContent.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 12),
             messageTextContent.widthAnchor.constraint(greaterThanOrEqualToConstant: 34)
         ])
         bubbleView.addSubview(imageMessageView)
