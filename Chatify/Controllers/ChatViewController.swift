@@ -17,7 +17,8 @@ class ChatViewController: UIViewController,
                           UITableViewDelegate,
                           UITextFieldDelegate,
                           UIImagePickerControllerDelegate,
-                          UINavigationControllerDelegate {
+                          UINavigationControllerDelegate,
+                          UITextViewDelegate {
 
     let groupOfAllowedDevices: [Device] = [
         .iPhone8,
@@ -54,10 +55,13 @@ class ChatViewController: UIViewController,
         return table
     }()
     
-    lazy var writeMessageTextField: UITextField = {
-        let tf = UITextField()
+    lazy var writeMessageTextView: UITextView = {
+        let tf = UITextView()
         tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.placeholder = "Enter Message ..."
+        tf.backgroundColor = .clear
+        tf.font = UIFont.systemFont(ofSize: 15, weight: .medium)
+        tf.text = "Enter Message ...."
+        tf.textColor = UIColor.lightGray
         tf.delegate = self
         return tf
     }()
@@ -130,7 +134,7 @@ class ChatViewController: UIViewController,
         containerTypingArea.backgroundColor = .systemGroupedBackground.withAlphaComponent(0.95)
         
         containerTypingArea.addSubview(sendImageButton)
-        containerTypingArea.addSubview(writeMessageTextField)
+        containerTypingArea.addSubview(writeMessageTextView)
         containerTypingArea.addSubview(sendMessageButton)
         
         NSLayoutConstraint.activate([
@@ -141,9 +145,10 @@ class ChatViewController: UIViewController,
         ])
         
         NSLayoutConstraint.activate([
-            writeMessageTextField.topAnchor.constraint(equalTo: containerTypingArea.topAnchor, constant: 2),
-            writeMessageTextField.leadingAnchor.constraint(equalTo: sendImageButton.trailingAnchor, constant: 10),
-            writeMessageTextField.trailingAnchor.constraint(equalTo: sendMessageButton.leadingAnchor, constant: -10)
+            writeMessageTextView.topAnchor.constraint(equalTo: containerTypingArea.topAnchor, constant: 2),
+            writeMessageTextView.bottomAnchor.constraint(equalTo: containerTypingArea.bottomAnchor, constant: -2),
+            writeMessageTextView.leadingAnchor.constraint(equalTo: sendImageButton.trailingAnchor, constant: 10),
+            writeMessageTextView.trailingAnchor.constraint(equalTo: sendMessageButton.leadingAnchor, constant: -10)
             ]
         )
         
@@ -224,6 +229,18 @@ class ChatViewController: UIViewController,
                 bottom: chatLogTableViewScrollIndicatorInsetsBotton,
                 right: 0
             )
+        }
+    }
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.textColor == UIColor.lightGray {
+            textView.text = nil
+            textView.textColor = UIColor.black
+        }
+    }
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.isEmpty {
+            textView.text = "Enter Message ...."
+            textView.textColor = UIColor.lightGray
         }
     }
 
@@ -421,7 +438,7 @@ class ChatViewController: UIViewController,
     
     @objc func handleSendingMessage(){
         if let sender = Auth.auth().currentUser?.uid,
-           let text   = writeMessageTextField.text {
+           let text   = writeMessageTextView.text {
             if text != "" {
                 var ref: DocumentReference? = nil
                 let currentTime = Date().timeIntervalSince1970
@@ -449,7 +466,7 @@ class ChatViewController: UIViewController,
                                 }
                             }
                             DispatchQueue.main.async {
-                                self.writeMessageTextField.text = ""
+                                self.writeMessageTextView.text = ""
                             }
                         }
                     }
