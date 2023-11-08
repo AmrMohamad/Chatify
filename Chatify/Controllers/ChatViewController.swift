@@ -31,7 +31,7 @@ class ChatViewController: UIViewController,
         .simulator(.iPhoneSE3),
     ]
     let device = Device.current
-    let messagesCache = NSCache<NSString, NSArray>()
+    let messagesCache = NSCache<AnyObject, AnyObject>()
     var user: User? {
         didSet{
             navigationItem.title = user!.name
@@ -401,72 +401,62 @@ class ChatViewController: UIViewController,
     }
     
     private func sendMessageWithImageURL(_ imageURL:URL, _ image:UIImage){
-        if let sender = Auth.auth().currentUser?.uid {
-            let currentTime = Date().timeIntervalSince1970
-            var ref: DocumentReference? = nil
-            ref = db.collection("messages")
-                .addDocument(
-                    data: [
-                        "sendFromID"   : sender,
-                        "sendToID"     : user!.id,
-                        "imageInfo"    : [
-                            "imageURL"    : imageURL.absoluteString,
-                            "imageHeight" : image.size.height,
-                            "imageWidth"  : image.size.width
-                        ] as [String : Any],
-                        "Date"         : currentTime
-                    ]
-                ) { error in
-                    if error != nil {
-                        print("error with saving message wit image:\n\(error!.localizedDescription)")
-                        return
-                    }
-                    
-                    if let messageRef = ref {
-                        let messageID = messageRef.documentID
-                        if let userID = self.user?.id{
-                            self.sendMessageToDB(messageID: messageID,
-                                                 currentTime: currentTime,
-                                                 sender: sender,
-                                                 receiver: userID
-                            )
-                        }
-                    }
-                }
-        }
+        sendMessage(
+            withProperties: [
+                "imageInfo" : [
+                    "imageURL"    : imageURL.absoluteString,
+                    "imageHeight" : image.size.height,
+                    "imageWidth"  : image.size.width
+                ] as [String : Any]
+            ]
+        )
     }
     
     @objc func handleSendingMessage(){
-        if let sender = Auth.auth().currentUser?.uid,
-           let text   = writeMessageTextView.text {
-            if text != "" {
-                var ref: DocumentReference? = nil
+        
+        if let text = writeMessageTextView.text{
+            if text != "" && text != "Enter Message ...." {
+                sendMessage(
+                    withProperties: [
+                        "text" : text
+                    ]
+                )
+                DispatchQueue.main.async {
+                    self.writeMessageTextView.text = ""
+                }
+            }
+        }
+    }
+    private func sendMessage(
+        withProperties properties: [String: Any]
+    ){
+        if properties.isEmpty{
+            return
+        }else {
+            if let sender = Auth.auth().currentUser?.uid{
                 let currentTime = Date().timeIntervalSince1970
+                var values: [String: Any] = [
+                    "sendFromID"   : sender,
+                    "sendToID"     : user!.id,
+                    "Date"         : currentTime
+                ]
+                properties.forEach({values[$0] = $1})
+                var ref: DocumentReference? = nil
                 ref = db.collection("messages")
-                    .addDocument(
-                        data: [
-                            "sendFromID"   : sender,
-                            "sendToID"     : user!.id,
-                            "text"         : text,
-                            "Date"         : currentTime
-                        ]
-                    ) { error in
+                    .addDocument(data: values) { error in
                         if error != nil {
-                            print(error!.localizedDescription)
-                        }else{
-                            print("send data successfully")
-                            if let messageRef = ref {
-                                let messageID = messageRef.documentID
-                                if let userID = self.user?.id{
-                                    self.sendMessageToDB(messageID: messageID,
-                                                         currentTime: currentTime,
-                                                         sender: sender,
-                                                         receiver: userID
-                                    )
-                                }
-                            }
-                            DispatchQueue.main.async {
-                                self.writeMessageTextView.text = ""
+                            print("error with sending message: \(error!.localizedDescription)")
+                            return
+                        }
+                        if let messageRef = ref {
+                            let messageID = messageRef.documentID
+                            if let userID = self.user?.id{
+                                self.sendMessageToDB(
+                                    messageID: messageID,
+                                    currentTime: currentTime,
+                                    sender: sender,
+                                    receiver: userID
+                                )
                             }
                         }
                     }
