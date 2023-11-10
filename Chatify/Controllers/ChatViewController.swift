@@ -540,6 +540,7 @@ class ChatViewController: UIViewController,
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: MessageTableViewCell.identifier, for: indexPath) as! MessageTableViewCell
+        cell.chatVC = self
         cell.selectionStyle = .none
         let message = messages[indexPath.row]
         handleSetupOfMessageCell(cell: cell, message: message)
@@ -579,5 +580,34 @@ class ChatViewController: UIViewController,
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         handleSendingMessage()
         return true
+    }
+    
+    func performZoomInTapGestureForUIImageViewOfImageMessage(_ imageView: UIImageView,currentCell cell:MessageTableViewCell){
+        let startFrame = imageView.convert(imageView.frame, to: nil)
+        dump(startFrame)
+        let zoomingView = UIImageView(
+            frame: startFrame
+        )
+        zoomingView.image = imageView.image
+        zoomingView.backgroundColor = .yellow
+        if let keyWindow = self.view.window?.windowScene?.keyWindow{
+            let backgroundView = UIVisualEffectView(frame: keyWindow.frame)
+            backgroundView.effect = UIBlurEffect(style: .systemUltraThinMaterial)
+            backgroundView.alpha = 0
+            keyWindow.addSubview(backgroundView)
+            keyWindow.addSubview(zoomingView)
+            UIView.animate(
+                withDuration: 0.5,
+                delay: 0,
+                options: .curveEaseOut,
+                animations: {
+                    zoomingView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: CGFloat(startFrame.height/startFrame.width * keyWindow.frame.width))
+                    backgroundView.alpha = 1
+                    self.inputAccessoryView?.alpha = 0
+                    zoomingView.center = keyWindow.center
+                },
+                completion: nil
+            )
+        }
     }
 }

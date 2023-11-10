@@ -11,6 +11,8 @@ class MessageTableViewCell: UITableViewCell {
     
     static let identifier = "MessageCell"
     
+    var chatVC: ChatViewController?
+    
     let messageTextContent: UILabel = {
         let tv = UILabel()
         tv.backgroundColor = .clear
@@ -55,13 +57,20 @@ class MessageTableViewCell: UITableViewCell {
         image.contentMode = .scaleAspectFill
         return image
     }()
-    let imageMessageView: UIImageView = {
+    lazy var imageMessageView: UIImageView = {
         let image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
 //        image.backgroundColor = .lightGray
         image.layer.cornerRadius = 16
         image.layer.masksToBounds = true
         image.contentMode = .scaleAspectFill
+        image.addGestureRecognizer(
+            UITapGestureRecognizer(
+                target: self,
+                action: #selector(handleOpenImageMessage)
+            )
+        )
+        image.isUserInteractionEnabled = true
         return image
     }()
     
@@ -74,32 +83,32 @@ class MessageTableViewCell: UITableViewCell {
     var imageMessageViewWidthAnchor : NSLayoutConstraint?
     var imageMessageViewHeightAnchor : NSLayoutConstraint?
     
-    lazy var bubbleViewWidthAnchorDefault = bubbleView.widthAnchor.constraint(lessThanOrEqualTo: self.widthAnchor, multiplier: 0.75)
+    lazy var bubbleViewWidthAnchorDefault = bubbleView.widthAnchor.constraint(lessThanOrEqualTo: contentView.widthAnchor, multiplier: 0.75)
     lazy var bubbleViewHeightAnchorDefault = bubbleView.heightAnchor.constraint(greaterThanOrEqualToConstant: 34)
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?){
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        addSubview(imageProfileOfChatPartner)
+        contentView.addSubview(imageProfileOfChatPartner)
         NSLayoutConstraint.activate([
             imageProfileOfChatPartner.leadingAnchor
-                .constraint(equalTo: self.leadingAnchor, constant: 10),
+                .constraint(equalTo: contentView.leadingAnchor, constant: 10),
             imageProfileOfChatPartner.bottomAnchor
-                .constraint(equalTo: self.bottomAnchor, constant: -4),
+                .constraint(equalTo: contentView.bottomAnchor, constant: -4),
             imageProfileOfChatPartner.heightAnchor
                 .constraint(equalToConstant: 34.5),
             imageProfileOfChatPartner.widthAnchor
                 .constraint(equalToConstant: 32)
         ])
         
-        addSubview(bubbleView)
-        bubbleView.topAnchor.constraint(equalTo: self.topAnchor, constant: 4)
+        contentView.addSubview(bubbleView)
+        bubbleView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4)
             .isActive = true
-        bubbleViewTrailingAnchor = bubbleView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant:-10)
+        bubbleViewTrailingAnchor = bubbleView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant:-10)
         bubbleViewTrailingAnchor?.isActive = true
         bubbleViewLeadingAnchor = bubbleView.leadingAnchor.constraint(equalTo: imageProfileOfChatPartner.trailingAnchor, constant: 8)
         bubbleViewLeadingAnchor?.isActive = false
-        bubbleView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -4)
+        bubbleView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4)
             .isActive = true
         
         bubbleViewWidthAnchor = bubbleViewWidthAnchorDefault
@@ -140,4 +149,9 @@ class MessageTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    @objc func handleOpenImageMessage(tapGesture: UITapGestureRecognizer){
+        if let imageView = tapGesture.view as? UIImageView {
+            self.chatVC?.performZoomInTapGestureForUIImageViewOfImageMessage(imageView, currentCell: self)
+        }
+    }
 }
