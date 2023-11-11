@@ -581,33 +581,61 @@ class ChatViewController: UIViewController,
         handleSendingMessage()
         return true
     }
-    
+    var startFrame : CGRect?
+    var backgroundView : UIVisualEffectView?
     func performZoomInTapGestureForUIImageViewOfImageMessage(_ imageView: UIImageView,currentCell cell:MessageTableViewCell){
-        let startFrame = imageView.convert(imageView.frame, to: nil)
+        self.startFrame = imageView.convert(imageView.frame, to: nil)
         dump(startFrame)
         let zoomingView = UIImageView(
-            frame: startFrame
+            frame: startFrame!
         )
         zoomingView.image = imageView.image
-        zoomingView.backgroundColor = .yellow
+        zoomingView.isUserInteractionEnabled = true
+        zoomingView.addGestureRecognizer(
+            UITapGestureRecognizer(
+                target: self,
+                action: #selector(performZoomOutTapGestureForUIImageViewOfImageMessage)
+            )
+        )
         if let keyWindow = self.view.window?.windowScene?.keyWindow{
-            let backgroundView = UIVisualEffectView(frame: keyWindow.frame)
-            backgroundView.effect = UIBlurEffect(style: .systemUltraThinMaterial)
-            backgroundView.alpha = 0
-            keyWindow.addSubview(backgroundView)
+            self.backgroundView = UIVisualEffectView(frame: keyWindow.frame)
+            self.backgroundView!.effect = UIBlurEffect(style: .systemUltraThinMaterial)
+            self.backgroundView!.alpha = 0
+            keyWindow.addSubview(self.backgroundView!)
             keyWindow.addSubview(zoomingView)
             UIView.animate(
                 withDuration: 0.5,
                 delay: 0,
                 options: .curveEaseOut,
                 animations: {
-                    zoomingView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: CGFloat(startFrame.height/startFrame.width * keyWindow.frame.width))
-                    backgroundView.alpha = 1
+                    zoomingView.frame = CGRect(
+                        x: 0, y: 0,
+                        width: self.view.frame.width,
+                        height: CGFloat(self.startFrame!.height/self.startFrame!.width * keyWindow.frame.width)
+                    )
+                    self.backgroundView!.alpha = 1
                     self.inputAccessoryView?.alpha = 0
                     zoomingView.center = keyWindow.center
                 },
                 completion: nil
             )
+        }
+    }
+    
+    @objc func performZoomOutTapGestureForUIImageViewOfImageMessage(tapGesture: UITapGestureRecognizer){
+        if let zoomingOutView = tapGesture.view as? UIImageView{
+            UIView.animate(
+                withDuration: 0.5,
+                delay: 0,
+                options: .curveEaseIn) {
+                    zoomingOutView.frame = self.startFrame!
+                    self.backgroundView?.alpha = 0
+                    self.inputAccessoryView?.alpha = 1
+                } completion: { complete in
+                    print(complete)
+                    zoomingOutView.removeFromSuperview()
+                }
+
         }
     }
 }
