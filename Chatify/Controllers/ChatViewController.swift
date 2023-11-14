@@ -581,17 +581,22 @@ class ChatViewController: UIViewController,
         handleSendingMessage()
         return true
     }
-    var startFrame : CGRect?
-    var backgroundView : UIVisualEffectView?
+    
+    var startFrame        : CGRect?
+    var backgroundView    : UIVisualEffectView?
+    var startingImageView : UIImageView?
+    var zoomingView       : UIImageView?
+    
     func performZoomInTapGestureForUIImageViewOfImageMessage(_ imageView: UIImageView,currentCell cell:MessageTableViewCell){
-        self.startFrame = imageView.convert(imageView.frame, to: nil)
+        startingImageView = imageView
+        self.startFrame = startingImageView!.convert(imageView.frame, to: nil)
         dump(startFrame)
-        let zoomingView = UIImageView(
+        self.zoomingView = UIImageView(
             frame: startFrame!
         )
-        zoomingView.image = imageView.image
-        zoomingView.isUserInteractionEnabled = true
-        zoomingView.addGestureRecognizer(
+        zoomingView!.image = startingImageView!.image
+        zoomingView!.isUserInteractionEnabled = true
+        zoomingView!.addGestureRecognizer(
             UITapGestureRecognizer(
                 target: self,
                 action: #selector(performZoomOutTapGestureForUIImageViewOfImageMessage)
@@ -599,23 +604,31 @@ class ChatViewController: UIViewController,
         )
         if let keyWindow = self.view.window?.windowScene?.keyWindow{
             self.backgroundView = UIVisualEffectView(frame: keyWindow.frame)
+            self.backgroundView!.translatesAutoresizingMaskIntoConstraints = false
             self.backgroundView!.effect = UIBlurEffect(style: .systemUltraThinMaterial)
             self.backgroundView!.alpha = 0
             keyWindow.addSubview(self.backgroundView!)
-            keyWindow.addSubview(zoomingView)
+            NSLayoutConstraint.activate([
+                self.backgroundView!.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+                self.backgroundView!.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+                self.backgroundView!.topAnchor.constraint(equalTo: self.view.topAnchor),
+                self.backgroundView!.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
+            ])
+            keyWindow.addSubview(zoomingView!)
             UIView.animate(
                 withDuration: 0.5,
                 delay: 0,
+                usingSpringWithDamping: 1,
+                initialSpringVelocity: 1,
                 options: .curveEaseOut,
                 animations: {
-                    zoomingView.frame = CGRect(
-                        x: 0, y: 0,
-                        width: self.view.frame.width,
-                        height: CGFloat(self.startFrame!.height/self.startFrame!.width * keyWindow.frame.width)
-                    )
+                    self.checkOrientationForSetupZoomingView(keyWindow: keyWindow)
+                    self.startingImageView?.alpha = 0
                     self.backgroundView!.alpha = 1
                     self.inputAccessoryView?.alpha = 0
-                    zoomingView.center = keyWindow.center
+                    self.inputAccessoryView?.isHidden = true
+                    self.zoomingView!.center = self.backgroundView!.center
+                    
                 },
                 completion: nil
             )
@@ -627,15 +640,61 @@ class ChatViewController: UIViewController,
             UIView.animate(
                 withDuration: 0.5,
                 delay: 0,
+                usingSpringWithDamping: 1,
+                initialSpringVelocity: 1,
                 options: .curveEaseIn) {
                     zoomingOutView.frame = self.startFrame!
+                    zoomingOutView.layer.cornerRadius = 16
+                    zoomingOutView.layer.masksToBounds = true
                     self.backgroundView?.alpha = 0
                     self.inputAccessoryView?.alpha = 1
+                    self.inputAccessoryView?.isHidden = false
+//                    cell.bubbleView.alpha = 1
                 } completion: { complete in
                     print(complete)
                     zoomingOutView.removeFromSuperview()
+                    self.startingImageView?.alpha = 1
+                    self.backgroundView?.removeFromSuperview()
                 }
-
+        }
+    }
+    override func viewWillLayoutSubviews() {
+        if let bgView = backgroundView {
+            if let keyWindow = self.view.window?.windowScene?.keyWindow{
+                checkOrientationForSetupZoomingView(keyWindow: keyWindow)
+                self.zoomingView!.center = bgView.center
+                self.inputAccessoryView?.alpha = 0.0
+                self.inputAccessoryView?.isHidden = true
+            }
+        }
+    }
+    
+    private func checkOrientationForSetupZoomingView(keyWindow: UIWindow){
+        switch UIDevice.current.orientation {
+        case .portrait :
+            self.zoomingView!.frame = CGRect(
+                x: 0, y: 0,
+                width: self.view.frame.width,
+                height: CGFloat(self.startFrame!.height/self.startFrame!.width * keyWindow.frame.width)
+            )
+            self.inputAccessoryView!.alpha = 0.0
+            self.inputAccessoryView?.isHidden = true
+        case .landscapeLeft, .landscapeRight :
+            self.zoomingView!.frame = CGRect(
+                x: 0, y: 0,
+                width: self.view.frame.width * 0.50,
+                height: CGFloat(self.startFrame!.height/self.startFrame!.width * (keyWindow.frame.width * 0.50))
+            )
+            self.inputAccessoryView!.alpha = 0.0
+            self.inputAccessoryView?.isHidden = true
+        default:
+            self.zoomingView!.frame = CGRect(
+                x: 0, y: 0,
+                width: self.view.frame.width,
+                height: CGFloat(self.startFrame!.height/self.startFrame!.width * keyWindow.frame.width)
+            )
+            self.inputAccessoryView?.alpha = 0.0
+            self.inputAccessoryView?.isHidden = true
         }
     }
 }
