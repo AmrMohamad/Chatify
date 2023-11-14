@@ -655,6 +655,7 @@ class ChatViewController: UIViewController,
                     zoomingOutView.removeFromSuperview()
                     self.startingImageView?.alpha = 1
                     self.backgroundView?.removeFromSuperview()
+                    self.backgroundView = nil
                 }
         }
     }
