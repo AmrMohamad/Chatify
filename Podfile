@@ -13,6 +13,7 @@ target 'Chatify' do
   use_frameworks!
 
   # Pods for Chatify
+
 pod 'DeviceKit', '~> 5.1'
 pod 'FirebaseAuth'
 pod 'FirebaseFirestore'

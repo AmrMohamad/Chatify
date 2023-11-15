@@ -11,6 +11,8 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseCore
 import FirebaseStorage
+import MobileCoreServices
+import AVFoundation
 
 class ChatViewController: UIViewController,
                           UITableViewDataSource,
@@ -71,11 +73,35 @@ class ChatViewController: UIViewController,
         button.setTitle("Send", for: .normal)
         return button
     }()
-    lazy var sendImageButton: UIButton = {
+    lazy var sendMediaButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(systemName: "photo.on.rectangle.angled"), for: .normal)
         return button
+    }()
+    
+    lazy var progressOfUploadVideoView : UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .systemBackground
+        return view
+    }()
+    var progressOfUploadVideoViewHeight: NSLayoutConstraint?
+    
+    var progressBar : UIProgressView = {
+        let bar = UIProgressView(progressViewStyle: .bar)
+        bar.translatesAutoresizingMaskIntoConstraints = false
+        bar.progress = 0.0
+        bar.trackTintColor = .gray
+        return bar
+    }()
+    let NameOfUploadVideoLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 1
+        label.text = "Video"
+        label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
+        return label
     }()
     var chatLogTableViewContentInsetBotton: CGFloat = 0.0
     var chatLogTableViewScrollIndicatorInsetsBotton: CGFloat = 0.0
@@ -106,10 +132,39 @@ class ChatViewController: UIViewController,
         )
         
         sendMessageButton.addTarget(self, action: #selector(handleSendingMessage), for: .touchUpInside)
-        sendImageButton.addTarget(self, action: #selector(handleSendingImageMessage), for: .touchUpInside)
+        sendMediaButton.addTarget(self, action: #selector(handleSendingMediaMessage), for: .touchUpInside)
         
         chatLogTableView.keyboardDismissMode = .interactive
         handleSetupOfObservingKB()
+    }
+    
+    override func viewWillLayoutSubviews() {
+        handleZoomingViewWhanUpdateLayoutOfChatView()
+    }
+    override func viewDidLayoutSubviews() {
+        if let navBar = navigationController?.navigationBar{
+            view.addSubview(progressOfUploadVideoView)
+            progressOfUploadVideoView.topAnchor.constraint(equalTo: navBar.bottomAnchor).isActive = true
+            progressOfUploadVideoView.leadingAnchor.constraint(equalTo: navBar.leadingAnchor).isActive = true
+            progressOfUploadVideoView.trailingAnchor.constraint(equalTo: navBar.trailingAnchor).isActive = true
+            progressOfUploadVideoViewHeight =  progressOfUploadVideoView.heightAnchor.constraint(equalTo: navBar.heightAnchor, multiplier: 0.9)
+            progressOfUploadVideoViewHeight?.constant = 0
+            progressOfUploadVideoViewHeight?.isActive = true
+            progressOfUploadVideoView.addSubview(progressBar)
+            NSLayoutConstraint.activate([
+                progressBar.centerXAnchor.constraint(equalTo: progressOfUploadVideoView.centerXAnchor),
+                progressBar.bottomAnchor.constraint(equalTo: progressOfUploadVideoView.bottomAnchor, constant: -12),
+                progressBar.widthAnchor.constraint(equalTo: progressOfUploadVideoView.widthAnchor, multiplier: 0.88),
+                progressBar.heightAnchor.constraint(equalTo: progressOfUploadVideoView.heightAnchor, multiplier: 0.10)
+            ])
+            progressOfUploadVideoView.addSubview(NameOfUploadVideoLabel)
+            NSLayoutConstraint.activate([
+                NameOfUploadVideoLabel.leadingAnchor.constraint(equalTo: progressOfUploadVideoView.leadingAnchor, constant: 4),
+                NameOfUploadVideoLabel.topAnchor.constraint(equalTo: progressOfUploadVideoView.topAnchor, constant: 4)
+            ])
+            progressOfUploadVideoView.isHidden = true
+            
+        }
     }
     
     override var canBecomeFirstResponder: Bool {
@@ -133,29 +188,29 @@ class ChatViewController: UIViewController,
         chatLogTableViewScrollIndicatorInsetsBotton = containerTypingArea.frame.height + 8.5
         containerTypingArea.backgroundColor = .systemGroupedBackground.withAlphaComponent(0.95)
         
-        containerTypingArea.addSubview(sendImageButton)
+        containerTypingArea.addSubview(sendMediaButton)
         containerTypingArea.addSubview(writeMessageTextView)
         containerTypingArea.addSubview(sendMessageButton)
         
         NSLayoutConstraint.activate([
-            sendImageButton.leadingAnchor.constraint(equalTo: containerTypingArea.leadingAnchor, constant: 12),
-            sendImageButton.centerYAnchor.constraint(equalTo: containerTypingArea.centerYAnchor),
-            sendImageButton.heightAnchor.constraint(equalToConstant: 44),
-            sendImageButton.widthAnchor.constraint(equalToConstant: 44)
+            sendMediaButton.leadingAnchor.constraint(equalTo: containerTypingArea.leadingAnchor, constant: 12),
+            sendMediaButton.centerYAnchor.constraint(equalTo: containerTypingArea.centerYAnchor),
+            sendMediaButton.heightAnchor.constraint(equalToConstant: 44),
+            sendMediaButton.widthAnchor.constraint(equalToConstant: 44)
         ])
         
         NSLayoutConstraint.activate([
             writeMessageTextView.topAnchor.constraint(equalTo: containerTypingArea.topAnchor, constant: 2),
             writeMessageTextView.bottomAnchor.constraint(equalTo: containerTypingArea.bottomAnchor, constant: -2),
-            writeMessageTextView.leadingAnchor.constraint(equalTo: sendImageButton.trailingAnchor, constant: 10),
+            writeMessageTextView.leadingAnchor.constraint(equalTo: sendMediaButton.trailingAnchor, constant: 10),
             writeMessageTextView.trailingAnchor.constraint(equalTo: sendMessageButton.leadingAnchor, constant: -10)
             ]
         )
         
         NSLayoutConstraint.activate([
             sendMessageButton.centerYAnchor.constraint(equalTo: containerTypingArea.centerYAnchor),
-            sendMessageButton.topAnchor.constraint(equalTo: sendImageButton.topAnchor),
-            sendMessageButton.bottomAnchor.constraint(equalTo: sendImageButton.bottomAnchor),
+            sendMessageButton.topAnchor.constraint(equalTo: sendMediaButton.topAnchor),
+            sendMessageButton.bottomAnchor.constraint(equalTo: sendMediaButton.bottomAnchor),
             sendMessageButton.trailingAnchor.constraint(equalTo: containerTypingArea.trailingAnchor, constant: -10),
             sendMessageButton.widthAnchor.constraint(equalToConstant: 44)
             ]
@@ -345,73 +400,6 @@ class ChatViewController: UIViewController,
         }
     }
     
-    @objc func handleSendingImageMessage(){
-        let imagePicker = UIImagePickerController()
-        imagePicker.delegate = self
-        imagePicker.allowsEditing = true
-        present(imagePicker, animated: true)
-    }
-    func imagePickerController(
-        _ picker: UIImagePickerController,
-        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
-    ) {
-        var selectedImageFromPicker: UIImage?
-        
-        if let editedImage = info[
-            UIImagePickerController
-                .InfoKey(rawValue: "UIImagePickerControllerEditedImage")
-        ] as? UIImage {
-           selectedImageFromPicker = editedImage
-            
-        }
-        else if let selectedOriginalImage = info[
-            UIImagePickerController
-                .InfoKey(rawValue: "UIImagePickerControllerOriginalImage")
-        ] as? UIImage{
-           selectedImageFromPicker = selectedOriginalImage
-        }
-        
-        if let selectedImage = selectedImageFromPicker {
-           uploadImageToFirebaseStorage(selectedImage)
-        }
-        dismiss(animated: true)
-    }
-    
-    private func uploadImageToFirebaseStorage(_ image: UIImage ){
-        guard let uid = Auth.auth().currentUser?.uid else {return}
-        let uploadImage = image.jpegData(compressionQuality: 0.08)
-        let storageRec = storage.reference()
-            .child("chat_images")
-            .child(uid)
-            .child("\(UUID().uuidString).jpeg")
-        if let safeImage = uploadImage {
-            let uploadTask = storageRec.putData(safeImage, metadata: nil) { storageMetaData, error in
-                if error != nil {
-                    print("error with uploading image:\n\(error!.localizedDescription)")
-                    return
-                }
-                storageRec.downloadURL { url, error in
-                    if let safeURL = url {
-                        self.sendMessageWithImageURL(safeURL,image)
-                    }
-                }
-            }
-            uploadTask.resume()
-        }
-    }
-    
-    private func sendMessageWithImageURL(_ imageURL:URL, _ image:UIImage){
-        sendMessage(
-            withProperties: [
-                "imageInfo" : [
-                    "imageURL"    : imageURL.absoluteString,
-                    "imageHeight" : image.size.height,
-                    "imageWidth"  : image.size.width
-                ] as [String : Any]
-            ]
-        )
-    }
-    
     @objc func handleSendingMessage(){
         
         if let text = writeMessageTextView.text{
@@ -427,6 +415,11 @@ class ChatViewController: UIViewController,
             }
         }
     }
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        handleSendingMessage()
+        return true
+    }
+    
     private func sendMessage(
         withProperties properties: [String: Any]
     ){
@@ -491,6 +484,149 @@ class ChatViewController: UIViewController,
         }
     }
     
+    //MARK: - Sending Video & Image
+    
+    @objc func handleSendingMediaMessage(){
+        let imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
+        imagePicker.allowsEditing = true
+        imagePicker.mediaTypes = [UTType.image.identifier,UTType.video.identifier,UTType.movie.identifier,UTType.mpeg.identifier]
+        present(imagePicker, animated: true)
+    }
+    func imagePickerController(
+        _ picker: UIImagePickerController,
+        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
+    ) {
+        if let videoURL = info[UIImagePickerController.InfoKey.mediaURL] as? URL{
+            uploadVideoToFirebaseStorage(videoURL: videoURL)
+            dismiss(animated: true) {
+                self.progressOfUploadVideoView.isHidden = false
+                UIView.animate(
+                    withDuration: 2.8,
+                    delay: 0,
+                    usingSpringWithDamping: 1.2,
+                    initialSpringVelocity: 1.2,
+                    options: .transitionCurlDown) {
+                        
+                        self.progressOfUploadVideoViewHeight!.constant = self.navigationController!.navigationBar.frame.height
+                    }
+            }
+        }else {
+            handleSelectedImageInfo(info)
+            dismiss(animated: true)
+        }
+        
+    }
+    
+    private func uploadVideoToFirebaseStorage(videoURL: URL){
+        guard let uid = Auth.auth().currentUser?.uid else {return}
+        let storageRec = storage.reference()
+            .child("chat_videos")
+            .child(uid)
+            .child("\(UUID().uuidString).mov")
+        
+        var video: Data?
+        do {
+            video = try NSData(contentsOf: videoURL) as Data
+        } catch {
+            print(error)
+            return
+        }
+        let uploadTask = storageRec.putData(video!) { storageMetaData, error in
+            if error != nil {
+                print("error with uploading image:\n\(error!.localizedDescription)")
+                return
+            }
+            storageRec.downloadURL { url, error in
+                if let safeURL = url {
+                    print(safeURL)
+                    DispatchQueue.main.async {
+                        UIView.animate(
+                            withDuration: 2.8,
+                            delay: 0,
+                            usingSpringWithDamping: 1.2,
+                            initialSpringVelocity: 1.2,
+                            options: .transitionCurlUp) {
+                                self.progressOfUploadVideoViewHeight!.constant = 0
+                            } completion: { complate in
+                                if complate {
+                                    self.progressOfUploadVideoView.isHidden = true
+                                }
+                            }
+                    }
+                }
+            }
+        }
+        uploadTask.resume()
+        
+        uploadTask.observe(.progress) { storageSnapshot in
+            let processPrentage = 100.0 * (Double(storageSnapshot.progress!.completedUnitCount)/Double(storageSnapshot.progress!.totalUnitCount))
+            self.progressBar.progress = Float(
+                (Double(storageSnapshot.progress!.completedUnitCount)/Double(storageSnapshot.progress!.totalUnitCount))
+            )
+            self.NameOfUploadVideoLabel.text = "Video Uploading: " + String(format: "%.3f", Float(processPrentage))
+            print(processPrentage)
+        }
+        
+        
+    }
+    private func handleSelectedImageInfo(_ info:[UIImagePickerController.InfoKey : Any]){
+        var selectedImageFromPicker: UIImage?
+
+        if let editedImage = info[
+            UIImagePickerController
+                .InfoKey(rawValue: "UIImagePickerControllerEditedImage")
+        ] as? UIImage {
+           selectedImageFromPicker = editedImage
+
+        }
+        else if let selectedOriginalImage = info[
+            UIImagePickerController
+                .InfoKey(rawValue: "UIImagePickerControllerOriginalImage")
+        ] as? UIImage{
+           selectedImageFromPicker = selectedOriginalImage
+        }
+
+        if let selectedImage = selectedImageFromPicker {
+           uploadImageToFirebaseStorage(selectedImage)
+        }
+    }
+    private func uploadImageToFirebaseStorage(_ image: UIImage ){
+        guard let uid = Auth.auth().currentUser?.uid else {return}
+        let uploadImage = image.jpegData(compressionQuality: 0.08)
+        let storageRec = storage.reference()
+            .child("chat_images")
+            .child(uid)
+            .child("\(UUID().uuidString).jpeg")
+        if let safeImage = uploadImage {
+            let uploadTask = storageRec.putData(safeImage, metadata: nil) { storageMetaData, error in
+                if error != nil {
+                    print("error with uploading image:\n\(error!.localizedDescription)")
+                    return
+                }
+                storageRec.downloadURL { url, error in
+                    if let safeURL = url {
+                        self.sendMessageWithImageURL(safeURL,image)
+                    }
+                }
+            }
+            uploadTask.resume()
+        }
+    }
+    
+    private func sendMessageWithImageURL(_ imageURL:URL, _ image:UIImage){
+        sendMessage(
+            withProperties: [
+                "imageInfo" : [
+                    "imageURL"    : imageURL.absoluteString,
+                    "imageHeight" : image.size.height,
+                    "imageWidth"  : image.size.width
+                ] as [String : Any]
+            ]
+        )
+    }
+    
+    //MARK: - Viewing the data of chat tableview
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return messages.count
     }
@@ -521,10 +657,6 @@ class ChatViewController: UIViewController,
             cell.bubbleViewTrailingAnchor?.isActive = false
             cell.imageProfileOfChatPartner.isHidden = false
         }
-    }
-    
-    private func handleMessageContainImage(cell: MessageTableViewCell, message: Message){
-        
     }
     
     private func sizeOfText(_ text: String) -> CGRect {
@@ -577,10 +709,7 @@ class ChatViewController: UIViewController,
         return cell
     }
     
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        handleSendingMessage()
-        return true
-    }
+    //MARK: - ZoomingView of image message
     
     var startFrame        : CGRect?
     var backgroundView    : UIVisualEffectView?
@@ -659,16 +788,6 @@ class ChatViewController: UIViewController,
                 }
         }
     }
-    override func viewWillLayoutSubviews() {
-        if let bgView = backgroundView {
-            if let keyWindow = self.view.window?.windowScene?.keyWindow{
-                checkOrientationForSetupZoomingView(keyWindow: keyWindow)
-                self.zoomingView!.center = bgView.center
-                self.inputAccessoryView?.alpha = 0.0
-                self.inputAccessoryView?.isHidden = true
-            }
-        }
-    }
     
     private func checkOrientationForSetupZoomingView(keyWindow: UIWindow){
         switch UIDevice.current.orientation {
@@ -696,6 +815,17 @@ class ChatViewController: UIViewController,
             )
             self.inputAccessoryView?.alpha = 0.0
             self.inputAccessoryView?.isHidden = true
+        }
+    }
+    
+    func handleZoomingViewWhanUpdateLayoutOfChatView(){
+        if let bgView = backgroundView {
+            if let keyWindow = self.view.window?.windowScene?.keyWindow{
+                checkOrientationForSetupZoomingView(keyWindow: keyWindow)
+                self.zoomingView!.center = bgView.center
+                self.inputAccessoryView?.alpha = 0.0
+                self.inputAccessoryView?.isHidden = true
+            }
         }
     }
 }
