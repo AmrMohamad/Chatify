@@ -316,7 +316,8 @@ class ChatViewController: UIViewController,
                         sendFromID : sendFromID,
                         Date       : date,
                         text       : text,
-                        imageInfo  : [:]
+                        imageInfo  : [:],
+                        videoInfo  : [:]
                     )
                     completionHandler(message)
                 }
@@ -330,7 +331,23 @@ class ChatViewController: UIViewController,
                         sendFromID : sendFromID,
                         Date       : date,
                         text       : "",
-                        imageInfo  : imageInfo
+                        imageInfo  : imageInfo,
+                        videoInfo  : [:]
+                    )
+                    completionHandler(message)
+                }
+                
+                if let sendToID   = massgeData["sendToID"] as? String,
+                   let sendFromID = massgeData["sendFromID"] as? String,
+                   let date       = massgeData["Date"] as? Double,
+                   let videoInfo  = massgeData["videoInfo"] as? [String:Any] {
+                    let message = Message(
+                        sendToID   : sendToID,
+                        sendFromID : sendFromID,
+                        Date       : date,
+                        text       : "",
+                        imageInfo  : [:],
+                        videoInfo  : videoInfo
                     )
                     completionHandler(message)
                 }
@@ -456,7 +473,12 @@ class ChatViewController: UIViewController,
             }
         }
     }
-    private func sendMessageToDB(messageID: String, currentTime: TimeInterval,sender sendFromID: String,receiver sendToID: String){
+    private func sendMessageToDB(
+        messageID: String,
+        currentTime: TimeInterval,
+        sender sendFromID: String,
+        receiver sendToID: String
+    ){
         let se = self.db.collection("user-messages").document(sendFromID)
             .collection("chats").document(self.user!.id)
             .collection("chatContent").document("messagesID")
@@ -518,12 +540,32 @@ class ChatViewController: UIViewController,
         
     }
     
+    private func thumbnailVideoImageForVideo(url imageURL: URL)-> UIImage?{
+        let asset = AVAsset(url: imageURL)
+        let thumbnailImageGenerator = AVAssetImageGenerator(asset: asset)
+        do{
+            let thumbnailImage = try thumbnailImageGenerator.copyCGImage(at: CMTimeMake(value: 1, timescale: 60), actualTime: nil)
+            return UIImage(cgImage: thumbnailImage)
+        }catch {
+            print(error)
+        }
+        return nil
+    }
+    
     private func uploadVideoToFirebaseStorage(videoURL: URL){
         guard let uid = Auth.auth().currentUser?.uid else {return}
-        let storageRec = storage.reference()
+        let titleVideo = UUID().uuidString
+        let storageRecVideo = storage.reference()
             .child("chat_videos")
             .child(uid)
-            .child("\(UUID().uuidString).mov")
+            .child(titleVideo)
+            .child("\(titleVideo).mov")
+        let storageRecVideoThumbnail = storage.reference()
+            .child("chat_videos")
+            .child(uid)
+            .child(titleVideo)
+            .child("\(titleVideo).jpeg")
+            
         
         var video: Data?
         do {
@@ -532,27 +574,52 @@ class ChatViewController: UIViewController,
             print(error)
             return
         }
-        let uploadTask = storageRec.putData(video!) { storageMetaData, error in
+        let uploadTask = storageRecVideo.putData(video!) { storageMetaData, error in
             if error != nil {
                 print("error with uploading image:\n\(error!.localizedDescription)")
                 return
             }
-            storageRec.downloadURL { url, error in
+            storageRecVideo.downloadURL { url, error in
                 if let safeURL = url {
                     print(safeURL)
-                    DispatchQueue.main.async {
-                        UIView.animate(
-                            withDuration: 2.8,
-                            delay: 0,
-                            usingSpringWithDamping: 1.2,
-                            initialSpringVelocity: 1.2,
-                            options: .transitionCurlUp) {
-                                self.progressOfUploadVideoViewHeight!.constant = 0
-                            } completion: { complate in
-                                if complate {
-                                    self.progressOfUploadVideoView.isHidden = true
+                    
+                    if let thumbnail = self.thumbnailVideoImageForVideo(url: videoURL) {
+                        
+                        if let thumbnailImage = thumbnail.jpegData(compressionQuality: 0.02){
+                            
+                            storageRecVideoThumbnail.putData(thumbnailImage) { storageMetaData, error in
+                                
+                                storageRecVideoThumbnail.downloadURL { url, error in
+                                    if let safeURL = url{
+                                        let properties: [String: Any] = [
+                                            "videoInfo" : [
+                                                "videoURL"           : safeURL.absoluteString,
+                                                "thumbnailVideoInfo" : [
+                                                    "thumbnailImageURL"    : safeURL.absoluteString,
+                                                    "thumbnailImageHeight" : thumbnail.size.height,
+                                                    "thumbnailImageWidth"  : thumbnail.size.width
+                                                ] as [String : Any]
+                                            ] as [String : Any]
+                                        ]
+                                        self.sendMessage(withProperties: properties)
+                                        DispatchQueue.main.async {
+                                            UIView.animate(
+                                                withDuration: 2.8,
+                                                delay: 0,
+                                                usingSpringWithDamping: 1.2,
+                                                initialSpringVelocity: 1.2,
+                                                options: .transitionCurlUp) {
+                                                    self.progressOfUploadVideoViewHeight!.constant = 0
+                                                } completion: { complate in
+                                                    if complate {
+                                                        self.progressOfUploadVideoView.isHidden = true
+                                                    }
+                                                }
+                                        }
+                                    }
                                 }
                             }
+                        }
                     }
                 }
             }
@@ -640,6 +707,11 @@ class ChatViewController: UIViewController,
         if let uploadImageURL = message.imageInfo["imageURL"] as? String{
             cell.imageMessageView.loadImagefromCacheWithURLstring(urlString: uploadImageURL)
         }
+        if let videoThumbnail = message.videoInfo["thumbnailVideoInfo"] as? [String: Any] {
+            if let thumbnailURL = videoThumbnail["thumbnailImageURL"] as? String{
+                cell.imageMessageView.loadImagefromCacheWithURLstring(urlString: thumbnailURL)
+            }
+        }
         if message.sendFromID == Auth.auth().currentUser?.uid {
             //Blue
             cell.bubbleView.backgroundColor = MessageTableViewCell.blueColor
@@ -676,7 +748,7 @@ class ChatViewController: UIViewController,
         cell.selectionStyle = .none
         let message = messages[indexPath.row]
         handleSetupOfMessageCell(cell: cell, message: message)
-        if message.imageInfo.isEmpty {
+        if message.imageInfo.isEmpty && message.videoInfo.isEmpty {
             cell.messageTextContent.text = message.text
             cell.imageMessageView.isHidden = true
             cell.messageTextContent.isHidden = false
@@ -687,7 +759,7 @@ class ChatViewController: UIViewController,
             cell.bubbleViewWidthAnchor?.isActive = false
             cell.bubbleViewWidthAnchor = cell.bubbleView.widthAnchor.constraint(equalToConstant: CGFloat(sizeOfText(message.text).width + 80.0))
             cell.bubbleViewWidthAnchor?.isActive = true
-        }else{
+        }else if !(message.imageInfo.isEmpty){
             cell.bubbleViewHeightAnchor?.isActive = false
             cell.bubbleViewWidthAnchor?.isActive = false
             if let height = message.imageInfo["imageHeight"] as? CGFloat,
@@ -701,6 +773,22 @@ class ChatViewController: UIViewController,
             cell.bubbleView.backgroundColor = .clear
             cell.imageMessageView.isHidden = false
             cell.messageTextContent.isHidden = true
+        }else {
+            cell.bubbleViewHeightAnchor?.isActive = false
+            cell.bubbleViewWidthAnchor?.isActive = false
+            if let thumbnailVideoInfo = message.videoInfo["thumbnailVideoInfo"] as? [String : Any] {
+                if let height = thumbnailVideoInfo["thumbnailImageHeight"] as? CGFloat,
+                   let width = thumbnailVideoInfo["thumbnailImageWidth"] as? CGFloat{
+                    cell.bubbleViewHeightAnchor = cell.bubbleView.heightAnchor.constraint(equalToConstant: CGFloat(height * 0.34))
+                    cell.bubbleViewHeightAnchor?.isActive = true
+                    
+                    cell.bubbleViewWidthAnchor = cell.bubbleView.widthAnchor.constraint(equalToConstant: CGFloat(width * 0.34))
+                    cell.bubbleViewWidthAnchor?.isActive = true
+                }
+                cell.bubbleView.backgroundColor = .clear
+                cell.imageMessageView.isHidden = false
+                cell.messageTextContent.isHidden = true
+            }
         }
         let timeOfSend = Date(timeIntervalSince1970: message.Date)
         let dataFormatter = DateFormatter()

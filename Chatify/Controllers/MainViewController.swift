@@ -272,7 +272,8 @@ class MainViewController: UITableViewController {
                         sendFromID : sendFromID,
                         Date       : date,
                         text       : text,
-                        imageInfo  : [:]
+                        imageInfo  : [:],
+                        videoInfo  : [:]
                     )
                     completionHandler(message)
                 }
@@ -286,7 +287,23 @@ class MainViewController: UITableViewController {
                         sendFromID : sendFromID,
                         Date       : date,
                         text       : "",
-                        imageInfo  : imageInfo
+                        imageInfo  : imageInfo,
+                        videoInfo  : [:]
+                    )
+                    completionHandler(message)
+                }
+                
+                if let sendToID   = massgeData["sendToID"] as? String,
+                   let sendFromID = massgeData["sendFromID"] as? String,
+                   let date       = massgeData["Date"] as? Double,
+                   let videoInfo  = massgeData["videoInfo"] as? [String:Any] {
+                    let message = Message(
+                        sendToID   : sendToID,
+                        sendFromID : sendFromID,
+                        Date       : date,
+                        text       : "",
+                        imageInfo  : [:],
+                        videoInfo  : videoInfo
                     )
                     completionHandler(message)
                 }
@@ -427,8 +444,10 @@ class MainViewController: UITableViewController {
             }else{
                 cell.lastMessageLabel.text = message.text
             }
-        }else{
+        }else if !(message.imageInfo.isEmpty){
             cell.lastMessageLabel.text = "📸 Photo"
+        }else {
+            cell.lastMessageLabel.text = "🎥 Video"
         }
         
         let timeOfSend = Date(timeIntervalSince1970: message.Date)

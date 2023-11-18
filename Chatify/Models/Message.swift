@@ -14,20 +14,8 @@ struct Message {
     var sendFromID : String
     var Date       : Double
     var text       : String
-    var imageInfo   : [String : Any]
-    
-//    init(sendToID: String, sendFromID: String, Date: Double, text: String) {
-//        self.sendToID = sendToID
-//        self.sendFromID = sendFromID
-//        self.Date = Date
-//        self.text = text
-//    }
-//    init(sendToID: String, sendFromID: String, Date: Double, imageURL: String) {
-//        self.sendToID = sendToID
-//        self.sendFromID = sendFromID
-//        self.Date = Date
-//        self.imageURL = imageURL
-//    }
+    var imageInfo  : [String : Any]
+    var videoInfo  : [String : Any]
     
     ///chatPartnerID is returning the ID of receiver
     func chatPartnerID() -> String {
