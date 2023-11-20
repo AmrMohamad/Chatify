@@ -17,7 +17,7 @@ This is a simple iOS chat application built using Firebase Firestore as the back
 - [ ] User authentication with Google Sign-In.
 - [x] Real-time chat with another User.
 - [x] Show timestamp of the message.
-- [ ] Send Image and Video.
+- [x] Send Image and Video.
 - [ ] Send Location.
 - [ ] Group chat functionality.
 - [ ] Push notifications.

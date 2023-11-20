@@ -268,6 +268,7 @@ class MainViewController: UITableViewController {
                    let date       = massgeData["Date"] as? Double,
                    let text       = massgeData["text"] as? String {
                     let message = Message(
+                        messageType: MessageType(rawValue: "text") ?? .text,
                         sendToID   : sendToID,
                         sendFromID : sendFromID,
                         Date       : date,
@@ -283,6 +284,7 @@ class MainViewController: UITableViewController {
                    let date       = massgeData["Date"] as? Double,
                    let imageInfo   = massgeData["imageInfo"] as? [String:Any] {
                     let message = Message(
+                        messageType: MessageType(rawValue: "image") ?? .image,
                         sendToID   : sendToID,
                         sendFromID : sendFromID,
                         Date       : date,
@@ -298,6 +300,7 @@ class MainViewController: UITableViewController {
                    let date       = massgeData["Date"] as? Double,
                    let videoInfo  = massgeData["videoInfo"] as? [String:Any] {
                     let message = Message(
+                        messageType: MessageType(rawValue: "video") ?? .video,
                         sendToID   : sendToID,
                         sendFromID : sendFromID,
                         Date       : date,

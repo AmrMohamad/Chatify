@@ -10,6 +10,7 @@ import FirebaseAuth
 
 ///Message is a value type contain the data of message
 struct Message {
+    var messageType: MessageType
     var sendToID   : String
     var sendFromID : String
     var Date       : Double
@@ -21,4 +22,10 @@ struct Message {
     func chatPartnerID() -> String {
         return self.sendFromID == Auth.auth().currentUser?.uid ? self.sendToID : self.sendFromID
     }
+}
+
+enum MessageType: String {
+    case image = "image"
+    case video = "video"
+    case text  = "text"
 }
