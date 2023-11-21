@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 import DeviceKit
 import FirebaseAuth
 import FirebaseFirestore
@@ -93,8 +94,18 @@ class ChatViewController: UIViewController,
         bar.translatesAutoresizingMaskIntoConstraints = false
         bar.progress = 0.0
         bar.trackTintColor = .gray
+        bar.layer.cornerRadius = 2.5
+        bar.clipsToBounds = true
         return bar
     }()
+    
+    let variableBlurView = VariableBlurView(
+        gradientMask: UIImage(named: "Gradient")!,
+        maxBlurRadius: 29,
+        filterType: "variableBlur"
+    )
+    lazy var hostingController = UIHostingController(rootView: variableBlurView)
+    
     let NameOfUploadVideoLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -150,6 +161,24 @@ class ChatViewController: UIViewController,
             progressOfUploadVideoViewHeight =  progressOfUploadVideoView.heightAnchor.constraint(equalTo: navBar.heightAnchor, multiplier: 0.9)
             progressOfUploadVideoViewHeight?.constant = 0
             progressOfUploadVideoViewHeight?.isActive = true
+            progressOfUploadVideoView.backgroundColor = .clear
+            
+            hostingController.view.backgroundColor = .clear
+            hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+            progressOfUploadVideoView.addSubview(hostingController.view)
+            hostingController.view
+                .topAnchor.constraint(equalTo: progressOfUploadVideoView.topAnchor)
+                .isActive = true
+            hostingController.view
+                .bottomAnchor.constraint(equalTo: progressOfUploadVideoView.bottomAnchor)
+                .isActive = true
+            hostingController.view
+                .leadingAnchor.constraint(equalTo: progressOfUploadVideoView.leadingAnchor)
+                .isActive = true
+            hostingController.view
+                .trailingAnchor.constraint(equalTo: progressOfUploadVideoView.trailingAnchor)
+                .isActive = true
+            
             progressOfUploadVideoView.addSubview(progressBar)
             NSLayoutConstraint.activate([
                 progressBar.centerXAnchor.constraint(equalTo: progressOfUploadVideoView.centerXAnchor),
@@ -305,54 +334,58 @@ class ChatViewController: UIViewController,
     ) {
         let messagesRef = db.collection("messages")
         messagesRef.document(id).getDocument { docSnapshot, error in
-            if let massgeData = docSnapshot{
-                
-                if let sendToID   = massgeData["sendToID"] as? String,
-                   let sendFromID = massgeData["sendFromID"] as? String,
-                   let date       = massgeData["Date"] as? Double,
-                   let text       = massgeData["text"] as? String {
-                    let message = Message(
-                        messageType: MessageType(rawValue: "text") ?? .text,
-                        sendToID   : sendToID,
-                        sendFromID : sendFromID,
-                        Date       : date,
-                        text       : text,
-                        imageInfo  : [:],
-                        videoInfo  : [:]
-                    )
-                    completionHandler(message)
-                }
-                
-                if let sendToID   = massgeData["sendToID"] as? String,
-                   let sendFromID = massgeData["sendFromID"] as? String,
-                   let date       = massgeData["Date"] as? Double,
-                   let imageInfo   = massgeData["imageInfo"] as? [String:Any] {
-                    let message = Message(
-                        messageType: MessageType(rawValue: "image") ?? .image,
-                        sendToID   : sendToID,
-                        sendFromID : sendFromID,
-                        Date       : date,
-                        text       : "",
-                        imageInfo  : imageInfo,
-                        videoInfo  : [:]
-                    )
-                    completionHandler(message)
-                }
-                
-                if let sendToID   = massgeData["sendToID"] as? String,
-                   let sendFromID = massgeData["sendFromID"] as? String,
-                   let date       = massgeData["Date"] as? Double,
-                   let videoInfo  = massgeData["videoInfo"] as? [String:Any] {
-                    let message = Message(
-                        messageType: MessageType(rawValue: "video") ?? .video,
-                        sendToID   : sendToID,
-                        sendFromID : sendFromID,
-                        Date       : date,
-                        text       : "",
-                        imageInfo  : [:],
-                        videoInfo  : videoInfo
-                    )
-                    completionHandler(message)
+            if let messageData = docSnapshot?.data(){
+                switch messageData["messageType"] as! String {
+                case "text":
+                    if let sendToID   = messageData["sendToID"] as? String,
+                       let sendFromID = messageData["sendFromID"] as? String,
+                       let date       = messageData["Date"] as? Double,
+                       let text       = messageData["text"] as? String {
+                        let message = Message(
+                            messageType: MessageType(rawValue: "text") ?? .text,
+                            sendToID   : sendToID,
+                            sendFromID : sendFromID,
+                            Date       : date,
+                            text       : text,
+                            imageInfo  : [:],
+                            videoInfo  : [:]
+                        )
+                        completionHandler(message)
+                    }
+                case "video":
+                    if let sendToID   = messageData["sendToID"] as? String,
+                       let sendFromID = messageData["sendFromID"] as? String,
+                       let date       = messageData["Date"] as? Double,
+                       let videoInfo  = messageData["videoInfo"] as? [String:Any] {
+                        let message = Message(
+                            messageType: MessageType(rawValue: "video") ?? .video,
+                            sendToID   : sendToID,
+                            sendFromID : sendFromID,
+                            Date       : date,
+                            text       : "",
+                            imageInfo  : [:],
+                            videoInfo  : videoInfo
+                        )
+                        completionHandler(message)
+                    }
+                case "image":
+                    if let sendToID   = messageData["sendToID"] as? String,
+                       let sendFromID = messageData["sendFromID"] as? String,
+                       let date       = messageData["Date"] as? Double,
+                       let imageInfo   = messageData["imageInfo"] as? [String:Any] {
+                        let message = Message(
+                            messageType: MessageType(rawValue: "image") ?? .image,
+                            sendToID   : sendToID,
+                            sendFromID : sendFromID,
+                            Date       : date,
+                            text       : "",
+                            imageInfo  : imageInfo,
+                            videoInfo  : [:]
+                        )
+                        completionHandler(message)
+                    }
+                default:
+                    break
                 }
             }else{
                 completionHandler(nil)
@@ -389,7 +422,7 @@ class ChatViewController: UIViewController,
                                             self.messages.append(message)
                                             self.timer?.invalidate()
                                             self.timer = Timer.scheduledTimer(
-                                                timeInterval: 0.49,
+                                                timeInterval: 0.59,
                                                 target: self,
                                                 selector: #selector(self.handleReloadTable),
                                                 userInfo: nil,
@@ -640,7 +673,7 @@ class ChatViewController: UIViewController,
             self.progressBar.progress = Float(
                 (Double(storageSnapshot.progress!.completedUnitCount)/Double(storageSnapshot.progress!.totalUnitCount))
             )
-            self.NameOfUploadVideoLabel.text = "Video Uploading: " + String(format: "%.3f", Float(processPrentage))
+            self.NameOfUploadVideoLabel.text = "Video Uploading: " + String(format: "%.2f", Float(processPrentage))
             print(processPrentage)
         }
         

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Inject
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseCore
@@ -43,9 +44,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                     )
                 }
             }
-            window?.rootViewController = UINavigationController(rootViewController: mainVC)
+            let viewController = Inject.ViewControllerHost(UINavigationController(rootViewController: mainVC))
+            window?.rootViewController = viewController
         }else{
-            window?.rootViewController = UINavigationController(rootViewController: LoginViewController())
+            let viewController = Inject.ViewControllerHost(LoginViewController())
+            window?.rootViewController = UINavigationController(rootViewController: viewController)
         }
         window?.makeKeyAndVisible()
         

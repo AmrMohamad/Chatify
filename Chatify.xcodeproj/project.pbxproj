@@ -15,6 +15,7 @@
 		2D6C074D2AA65AFD0036E273 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6C074C2AA65AFD0036E273 /* MainViewController.swift */; };
 		2D6C07522AA65AFF0036E273 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2D6C07512AA65AFF0036E273 /* Assets.xcassets */; };
 		2D6C07552AA65AFF0036E273 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2D6C07532AA65AFF0036E273 /* LaunchScreen.storyboard */; };
+		2D7E0DBE2B0D5F96009D9A3D /* Inject in Frameworks */ = {isa = PBXBuildFile; productRef = 2D7E0DBD2B0D5F96009D9A3D /* Inject */; };
 		2D8963352AC3225F00F5E73F /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8963342AC3225F00F5E73F /* Extensions.swift */; };
 		2D8CE8242AEB0A8700F67783 /* MessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8CE8232AEB0A8700F67783 /* MessageTableViewCell.swift */; };
 		2DA155082AAE0C540012AFCD /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA155072AAE0C540012AFCD /* LoginViewController.swift */; };
@@ -60,6 +61,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B5955674E0BF03A77F653F2C /* Pods_Chatify.framework in Frameworks */,
+				2D7E0DBE2B0D5F96009D9A3D /* Inject in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -186,6 +188,7 @@
 			);
 			name = Chatify;
 			packageProductDependencies = (
+				2D7E0DBD2B0D5F96009D9A3D /* Inject */,
 			);
 			productName = Chatify;
 			productReference = 2D6C07452AA65AFD0036E273 /* Chatify.app */;
@@ -216,6 +219,7 @@
 			);
 			mainGroup = 2D6C073C2AA65AFD0036E273;
 			packageReferences = (
+				2D7E0DBC2B0D5F96009D9A3D /* XCRemoteSwiftPackageReference "Inject" */,
 			);
 			productRefGroup = 2D6C07462AA65AFD0036E273 /* Products */;
 			projectDirPath = "";
@@ -372,6 +376,10 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-Xlinker",
+					"-interposable",
+				);
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -512,6 +520,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		2D7E0DBC2B0D5F96009D9A3D /* XCRemoteSwiftPackageReference "Inject" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/krzysztofzablocki/Inject.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2D7E0DBD2B0D5F96009D9A3D /* Inject */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2D7E0DBC2B0D5F96009D9A3D /* XCRemoteSwiftPackageReference "Inject" */;
+			productName = Inject;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2D6C073D2AA65AFD0036E273 /* Project object */;
 }
