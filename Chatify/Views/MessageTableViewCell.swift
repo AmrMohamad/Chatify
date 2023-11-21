@@ -6,12 +6,16 @@
 //
 
 import UIKit
+import AVFoundation
 
 class MessageTableViewCell: UITableViewCell {
     
     static let identifier = "MessageCell"
     
     var chatVC: ChatViewController?
+    var videoURL: URL?
+    var player: AVPlayer?
+    var playerLayer : AVPlayerLayer?
     
     let messageTextContent: UILabel = {
         let tv = UILabel()
@@ -74,6 +78,19 @@ class MessageTableViewCell: UITableViewCell {
         return image
     }()
     
+    lazy var playButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(systemName: "play.fill"), for: .normal)
+        button.tintColor = .white
+        button.addTarget(self, action: #selector(handlePlayingVideo), for: .touchUpInside)
+        return button
+    }()
+    let activityIndicator : UIActivityIndicatorView = {
+        let aiv = UIActivityIndicatorView(style: .whiteLarge)
+        aiv.translatesAutoresizingMaskIntoConstraints = false
+        return aiv
+    }()
     
     var bubbleViewTrailingAnchor : NSLayoutConstraint?
     var bubbleViewLeadingAnchor : NSLayoutConstraint?
@@ -143,15 +160,76 @@ class MessageTableViewCell: UITableViewCell {
 //            timeOfSend.widthAnchor.
         ])
         
+        bubbleView.addSubview(playButton)
+        NSLayoutConstraint.activate([
+            playButton.centerXAnchor.constraint(equalTo: bubbleView.centerXAnchor),
+            playButton.centerYAnchor.constraint(equalTo: bubbleView.centerYAnchor),
+            playButton.widthAnchor.constraint(equalTo: bubbleView.widthAnchor, multiplier: 0.36),
+            playButton.heightAnchor.constraint(equalTo: bubbleView.heightAnchor, multiplier: 0.36)
+        ])
+        
+        bubbleView.addSubview(activityIndicator)
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: bubbleView.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: bubbleView.centerYAnchor),
+            activityIndicator.widthAnchor.constraint(equalTo: bubbleView.widthAnchor, multiplier: 0.36),
+            activityIndicator.heightAnchor.constraint(equalTo: bubbleView.heightAnchor, multiplier: 0.36)
+        ])
+        
+        
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        playerLayer?.removeFromSuperlayer()
+        player?.pause()
+        activityIndicator.stopAnimating()
+        NotificationCenter.default.removeObserver(self,
+                                                  name: .AVPlayerItemDidPlayToEndTime,
+                                                  object: player?.currentItem)
+    }
+    
     @objc func handleOpenImageMessage(tapGesture: UITapGestureRecognizer){
+        if videoURL != nil {
+            return
+        }
         if let imageView = tapGesture.view as? UIImageView {
             self.chatVC?.performZoomInTapGestureForUIImageViewOfImageMessage(imageView, currentCell: self)
         }
+    }
+    
+    @objc func handlePlayingVideo(){
+        if let videoURL = self.videoURL {
+            print(videoURL)
+            player = AVPlayer(url: videoURL)
+            playerLayer = AVPlayerLayer(player: player)
+            playerLayer?.frame = bubbleView.bounds
+            bubbleView.layer.addSublayer(playerLayer!)
+            player?.play()
+            activityIndicator.startAnimating()
+            if activityIndicator.isAnimating {
+                playButton.isHidden = true
+            }else {
+                playButton.isHidden = false
+            }
+            NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying), name: .AVPlayerItemDidPlayToEndTime, object: player!.currentItem)
+        }
+    }
+    @objc func playerDidFinishPlaying(_ notification: Notification) {
+        print("Video playback finished")
+        // Perform any actions you want when the video finishes playing
+        
+        // Stop the activity indicator
+        activityIndicator.stopAnimating()
+
+        // Update UI based on activity indicator state
+        playButton.isHidden = activityIndicator.isAnimating
+        
+        playerLayer?.removeFromSuperlayer()
+        player?.pause()
     }
 }

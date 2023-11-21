@@ -586,8 +586,8 @@ class ChatViewController: UIViewController,
                 return
             }
             storageRecVideo.downloadURL { url, error in
-                if let safeURL = url {
-                    print(safeURL)
+                if let safeURLVideo = url {
+                    print(safeURLVideo)
                     
                     if let thumbnail = self.thumbnailVideoImageForVideo(url: videoURL) {
                         
@@ -596,12 +596,12 @@ class ChatViewController: UIViewController,
                             let uploadThumbnail = storageRecVideoThumbnail.putData(thumbnailImage) { storageMetaData, error in
                                 
                                 storageRecVideoThumbnail.downloadURL { url, error in
-                                    if let safeURL = url{
+                                    if let safeURLThumbnail = url{
                                         let properties: [String: Any] = [
                                             "videoInfo" : [
-                                                "videoURL"           : safeURL.absoluteString,
+                                                "videoURL"           : safeURLVideo.absoluteString,
                                                 "thumbnailVideoInfo" : [
-                                                    "thumbnailImageURL"    : safeURL.absoluteString,
+                                                    "thumbnailImageURL"    : safeURLThumbnail.absoluteString,
                                                     "thumbnailImageHeight" : thumbnail.size.height,
                                                     "thumbnailImageWidth"  : thumbnail.size.width
                                                 ] as [String : Any]
@@ -776,6 +776,7 @@ class ChatViewController: UIViewController,
         cell.bubbleViewWidthAnchor?.isActive = false
         cell.bubbleViewWidthAnchor = cell.bubbleView.widthAnchor.constraint(equalToConstant: CGFloat(sizeOfText(message.text).width + 80.0))
         cell.bubbleViewWidthAnchor?.isActive = true
+        cell.playButton.isHidden = true
     }
     
     private func handleSetupOfImageMessageCell(_ cell: MessageTableViewCell, withContentOf  message: Message){
@@ -795,9 +796,13 @@ class ChatViewController: UIViewController,
         cell.bubbleView.backgroundColor = .clear
         cell.imageMessageView.isHidden = false
         cell.messageTextContent.isHidden = true
+        cell.playButton.isHidden = true
     }
     
     private func handleSetupOfVideoMessageCell(_ cell: MessageTableViewCell, withContentOf  message: Message){
+        if let videoURL = message.videoInfo["videoURL"] as? String{
+            cell.videoURL = URL(string: videoURL)
+        }
         if let videoThumbnail = message.videoInfo["thumbnailVideoInfo"] as? [String: Any] {
             if let thumbnailURL = videoThumbnail["thumbnailImageURL"] as? String{
                 cell.imageMessageView.loadImagefromCacheWithURLstring(urlString: thumbnailURL)
@@ -808,15 +813,16 @@ class ChatViewController: UIViewController,
         if let thumbnailVideoInfo = message.videoInfo["thumbnailVideoInfo"] as? [String : Any] {
             if let height = thumbnailVideoInfo["thumbnailImageHeight"] as? CGFloat,
                let width = thumbnailVideoInfo["thumbnailImageWidth"] as? CGFloat{
-                cell.bubbleViewHeightAnchor = cell.bubbleView.heightAnchor.constraint(equalToConstant: CGFloat(height * 0.34))
+                cell.bubbleViewHeightAnchor = cell.bubbleView.heightAnchor.constraint(equalToConstant: CGFloat(height * 0.48))
                 cell.bubbleViewHeightAnchor?.isActive = true
                 
-                cell.bubbleViewWidthAnchor = cell.bubbleView.widthAnchor.constraint(equalToConstant: CGFloat(width * 0.34))
+                cell.bubbleViewWidthAnchor = cell.bubbleView.widthAnchor.constraint(equalToConstant: CGFloat(width * 0.48))
                 cell.bubbleViewWidthAnchor?.isActive = true
             }
             cell.bubbleView.backgroundColor = .clear
             cell.imageMessageView.isHidden = false
             cell.messageTextContent.isHidden = true
+            cell.playButton.isHidden = false
         }
     }
     
