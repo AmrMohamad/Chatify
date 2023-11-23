@@ -92,6 +92,18 @@ class MessageTableViewCell: UITableViewCell {
         return aiv
     }()
     
+    override var isHighlighted: Bool {
+        didSet {
+            if isHighlighted {
+                // Customize the appearance when the cell is highlighted
+                contentView.backgroundColor = UIColor.systemGray4
+            } else {
+                // Reset the appearance when the highlight is removed
+                contentView.backgroundColor = UIColor.white
+            }
+        }
+    }
+    
     var bubbleViewTrailingAnchor : NSLayoutConstraint?
     var bubbleViewLeadingAnchor : NSLayoutConstraint?
     var bubbleViewHeightAnchor : NSLayoutConstraint?

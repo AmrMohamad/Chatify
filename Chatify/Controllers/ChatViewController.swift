@@ -41,6 +41,8 @@ class ChatViewController: UIViewController,
             fetchUserMessages()
         }
     }
+    var messagesIDDictionary : [String:Double] = [String:Double]()
+    var messagesID : [String] = [String]()
     var messages: [Message] = [Message](){
         didSet{
             messages.sort { m1, m2 in
@@ -48,12 +50,14 @@ class ChatViewController: UIViewController,
             }
         }
     }
+    var isThereAMessageDeleted: Bool = false
     var timer: Timer?
     
     lazy var chatLogTableView: UITableView = {
         let table = UITableView()
         table.translatesAutoresizingMaskIntoConstraints = false
         table.register(MessageTableViewCell.self, forCellReuseIdentifier: MessageTableViewCell.identifier)
+        table.allowsMultipleSelectionDuringEditing = true
         table.separatorStyle = .none
         return table
     }()
@@ -415,6 +419,7 @@ class ChatViewController: UIViewController,
                     }else{
                         self.messages = []
                         if let snapshots = docSnapshots?.data()/*?.sorted(by: {$0.value as! Double > $1.value as! Double})*/{
+                            self.messagesIDDictionary = snapshots as! [String:Double]
                             snapshots.forEach { key,_ in
                                 self.fetchMessageWith(id: key) { message in
                                     if let message = message {
@@ -445,11 +450,18 @@ class ChatViewController: UIViewController,
                     forKey: NSString(string: self.user!.id)
                 )
             self.chatLogTableView.reloadData()
-            self.chatLogTableView.scrollToRow(
-                at: IndexPath(row: self.messages.count - 1 , section: 0),
-                at: .bottom,
-                animated: true
-            )
+            if self.isThereAMessageDeleted == false{
+                self.chatLogTableView.scrollToRow(
+                    at: IndexPath(row: self.messages.count - 1 , section: 0),
+                    at: .bottom,
+                    animated: true
+                )
+            }
+            self.isThereAMessageDeleted = false
+        }
+        
+        self.messagesIDDictionary.sorted(by: {$1.value > $0.value }).forEach { key,_ in
+            self.messagesID.append(key)
         }
     }
     
@@ -544,6 +556,147 @@ class ChatViewController: UIViewController,
             }
         }
     }
+    func deleteMessage(messageID: String, index: Int) {
+        print(index)
+        guard let currentUserUID = Auth.auth().currentUser?.uid else { return }
+        let currentUserMessagesID = self.db
+            .collection("user-messages").document(currentUserUID)
+            .collection("chats").document(self.user!.id)
+            .collection("chatContent").document("messagesID")
+        
+        let chatPartnerMessagesID = self.db
+            .collection("user-messages").document(self.user!.id)
+            .collection("chats").document(currentUserUID)
+            .collection("chatContent").document("messagesID")
+        
+        switch self.messages[index].messageType {
+        case .text, .image, .video:
+            self.deleteMessageAndUpdateData(
+                messageID: messageID,
+                currentUserMessagesID: currentUserMessagesID,
+                chatPartnerMessagesID: chatPartnerMessagesID,
+                index: index
+            )
+        }
+    }
+
+    func deleteMessageAndUpdateData(messageID: String, currentUserMessagesID: DocumentReference, chatPartnerMessagesID: DocumentReference, index: Int) {
+        print(index)
+        switch self.messages[index].messageType {
+        case .image:
+            self.deleteImage(messageID: messageID, index: index)
+            currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
+                guard error == nil else {
+                    print(error as Any)
+                    return
+                }
+                self.isThereAMessageDeleted = true
+            }
+            chatPartnerMessagesID.updateData([messageID: FieldValue.delete()]) { error in
+                guard error == nil else {
+                    print(error as Any)
+                    return
+                }
+                
+            }
+        case .video:
+            self.deleteVideo(messageID: messageID, index: index)
+            currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
+                guard error == nil else {
+                    print(error as Any)
+                    return
+                }
+                self.isThereAMessageDeleted = true
+            }
+            chatPartnerMessagesID.updateData([messageID: FieldValue.delete()]) { error in
+                guard error == nil else {
+                    print(error as Any)
+                    return
+                }
+                
+            }
+        case .text:
+            self.deleteText(messageID: messageID)
+            currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
+                guard error == nil else {
+                    print(error as Any)
+                    return
+                }
+                self.isThereAMessageDeleted = true
+            }
+            chatPartnerMessagesID.updateData([messageID: FieldValue.delete()]) { error in
+                guard error == nil else {
+                    print(error as Any)
+                    return
+                }
+                
+            }
+        }
+        
+    }
+
+    func deleteText(messageID: String) {
+        // Additional logic for text messages if needed
+        self.db.collection("messages").document(messageID).delete { error in
+            if let error = error {
+                print(error)
+            }
+        }
+    }
+
+    func deleteImage(messageID: String, index: Int) {
+        // Additional logic for image messages if needed
+        if let imageTitle = self.messages[index].imageInfo["imageTitle"] as? String {
+            guard let currentUserUID = Auth.auth().currentUser?.uid else {return}
+            let storageRecImage = self.storage.reference()
+                .child("chat_images")
+                .child(currentUserUID)
+                .child("\(imageTitle).jpeg")
+            storageRecImage.delete { error in
+                if let error = error {
+                    print(error)
+                }
+                self.db.collection("messages").document(messageID).delete { error in
+                    if let error = error {
+                        print(error)
+                    }
+                }
+            }
+        }
+    }
+
+    func deleteVideo(messageID: String, index: Int) {
+        // Additional logic for video messages if needed
+        if let titleVideo = self.messages[index].videoInfo["videoTitle"] as? String {
+            guard let currentUserUID = Auth.auth().currentUser?.uid else {return}
+            let storageRecVideo = self.storage.reference()
+                .child("chat_videos")
+                .child(currentUserUID)
+                .child(titleVideo)
+                .child("\(titleVideo).mov")
+            let storageRecVideoThumbnail = self.storage.reference()
+                .child("chat_videos")
+                .child(currentUserUID)
+                .child(titleVideo)
+                .child("\(titleVideo).jpeg")
+            storageRecVideo.delete { error in
+                if let error = error {
+                    print(error)
+                }
+                storageRecVideoThumbnail.delete { error in
+                    if let error = error {
+                        print(error)
+                    }
+                    self.db.collection("messages").document(messageID).delete { error in
+                        if let error = error {
+                            print(error)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     
     //MARK: - Sending Video & Image
     
@@ -632,6 +785,7 @@ class ChatViewController: UIViewController,
                                     if let safeURLThumbnail = url{
                                         let properties: [String: Any] = [
                                             "videoInfo" : [
+                                                "videoTitle"         : titleVideo,
                                                 "videoURL"           : safeURLVideo.absoluteString,
                                                 "thumbnailVideoInfo" : [
                                                     "thumbnailImageURL"    : safeURLThumbnail.absoluteString,
@@ -703,10 +857,11 @@ class ChatViewController: UIViewController,
     private func uploadImageToFirebaseStorage(_ image: UIImage ){
         guard let uid = Auth.auth().currentUser?.uid else {return}
         let uploadImage = image.jpegData(compressionQuality: 0.08)
+        let imageTitle = UUID().uuidString
         let storageRec = storage.reference()
             .child("chat_images")
             .child(uid)
-            .child("\(UUID().uuidString).jpeg")
+            .child("\(imageTitle).jpeg")
         if let safeImage = uploadImage {
             let uploadTask = storageRec.putData(safeImage, metadata: nil) { storageMetaData, error in
                 if error != nil {
@@ -715,7 +870,7 @@ class ChatViewController: UIViewController,
                 }
                 storageRec.downloadURL { url, error in
                     if let safeURL = url {
-                        self.sendMessageWithImageURL(safeURL,image)
+                        self.sendMessageWithImageURL(safeURL,image,title: imageTitle)
                     }
                 }
             }
@@ -723,10 +878,11 @@ class ChatViewController: UIViewController,
         }
     }
     
-    private func sendMessageWithImageURL(_ imageURL:URL, _ image:UIImage){
+    private func sendMessageWithImageURL(_ imageURL:URL, _ image:UIImage, title: String){
         sendMessage(
             withProperties: [
                 "imageInfo" : [
+                    "imageTitle"  : title,
                     "imageURL"    : imageURL.absoluteString,
                     "imageHeight" : image.size.height,
                     "imageWidth"  : image.size.width
@@ -734,6 +890,32 @@ class ChatViewController: UIViewController,
             ],
             typeOfMessage: .image
         )
+    }
+    //MARK: - Editing Table View
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        
+        if !(messages.isEmpty) && messages[indexPath.row].sendFromID == Auth.auth().currentUser?.uid {
+            return true
+        }else {
+            return false
+        }
+        
+    }
+//    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+//        print("delete")
+//    }
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let delete = UIContextualAction(style: .normal, title: "Delete") { action, view, completionHandler in
+            print("delete")
+            print(indexPath.row)
+            self.deleteMessage(messageID: self.messagesID[indexPath.row], index: indexPath.row)
+            completionHandler(true)
+        }
+        delete.backgroundColor = .systemRed
+        delete.image = UIImage(systemName: "trash")
+        
+        let actions = UISwipeActionsConfiguration(actions: [delete])
+        return actions
     }
     
     //MARK: - Viewing the data of chat tableview
@@ -820,10 +1002,10 @@ class ChatViewController: UIViewController,
         cell.bubbleViewWidthAnchor?.isActive = false
         if let height = message.imageInfo["imageHeight"] as? CGFloat,
            let width = message.imageInfo["imageWidth"] as? CGFloat{
-            cell.bubbleViewHeightAnchor = cell.bubbleView.heightAnchor.constraint(equalToConstant: CGFloat(height * 0.34))
+            cell.bubbleViewHeightAnchor = cell.bubbleView.heightAnchor.constraint(equalToConstant: CGFloat(height * 0.36))
             cell.bubbleViewHeightAnchor?.isActive = true
             
-            cell.bubbleViewWidthAnchor = cell.bubbleView.widthAnchor.constraint(equalToConstant: CGFloat(width * 0.34))
+            cell.bubbleViewWidthAnchor = cell.bubbleView.widthAnchor.constraint(equalToConstant: CGFloat(width * 0.36))
             cell.bubbleViewWidthAnchor?.isActive = true
         }
         cell.bubbleView.backgroundColor = .clear
@@ -979,3 +1161,96 @@ class ChatViewController: UIViewController,
         }
     }
 }
+
+
+
+//imessage edit message
+
+//long press
+// inside
+//   let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress))
+//   cell.addGestureRecognizer(longPressRecognizer)
+//@objc func didLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
+//    if gestureRecognizer.state == .began {
+//        // Handle the long-press event here
+//        guard let cell = gestureRecognizer.view as? MessageTableViewCell else {
+//            return
+//        }
+//
+//        // You can perform any actions or show additional UI here
+//        print("start Long-pressed on cell at index path: \(chatLogTableView.indexPath(for: cell)!)")
+//        print(cell.messageTextContent.text)
+//    }
+//    if gestureRecognizer.state == .ended{
+//        guard let cell = gestureRecognizer.view as? MessageTableViewCell else {
+//            return
+//        }
+//
+//        // You can perform any actions or show additional UI here
+//        print("end Long-pressed on cell at index path: \(chatLogTableView.indexPath(for: cell)!)")
+//    }
+//
+//}
+
+//var startFrameEditMessage        : CGRect?
+//var backgroundViewEditMessage    : UIVisualEffectView?
+//var startingViewEditMessage      : UIView?
+//var zoomingViewEditMessage       : UIView?
+//
+//func performZoomInTapGestureForUIViewOfMessageCell(_ messageView: UIView,currentCell cell:MessageTableViewCell){
+//    dump(messageView)
+//    startingViewEditMessage = messageView
+//    startingViewEditMessage!.constraints.forEach { layout in
+//        layout.isActive = false
+//    }
+//    startingViewEditMessage!.translatesAutoresizingMaskIntoConstraints = true
+//    self.startFrameEditMessage = startingViewEditMessage!.convert(messageView.frame, to: nil)
+//    dump(startFrameEditMessage)
+//    self.zoomingViewEditMessage = UIView(
+//        frame: startFrameEditMessage!
+//    )
+//    zoomingViewEditMessage! = startingViewEditMessage!
+//    zoomingViewEditMessage!.isUserInteractionEnabled = true
+//    zoomingViewEditMessage!.addGestureRecognizer(
+//        UITapGestureRecognizer(
+//            target: self,
+//            action: #selector(performZoomOutTapGestureForUIImageViewOfImageMessage)
+//        )
+//    )
+//    if let keyWindow = self.view.window?.windowScene?.keyWindow{
+//        self.backgroundViewEditMessage = UIVisualEffectView(frame: keyWindow.frame)
+//        self.backgroundViewEditMessage!.translatesAutoresizingMaskIntoConstraints = false
+//        self.backgroundViewEditMessage!.effect = UIBlurEffect(style: .systemUltraThinMaterial)
+//        self.backgroundViewEditMessage!.alpha = 0
+//        keyWindow.addSubview(self.backgroundViewEditMessage!)
+//        NSLayoutConstraint.activate([
+//            self.backgroundViewEditMessage!.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+//            self.backgroundViewEditMessage!.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+//            self.backgroundViewEditMessage!.topAnchor.constraint(equalTo: self.view.topAnchor),
+//            self.backgroundViewEditMessage!.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
+//        ])
+//        keyWindow.addSubview(zoomingViewEditMessage!)
+//        UIView.animate(
+//            withDuration: 0.5,
+//            delay: 0,
+//            usingSpringWithDamping: 1,
+//            initialSpringVelocity: 1,
+//            options: .curveEaseOut,
+//            animations: {
+////                    self.checkOrientationForSetupZoomingView(keyWindow: keyWindow)
+//                self.zoomingViewEditMessage!.frame = CGRect(
+//                    x: 0, y: 0,
+//                    width: self.view.frame.width,
+//                    height: CGFloat(self.startFrameEditMessage!.height/self.startFrameEditMessage!.width * keyWindow.frame.width)
+//                )
+//                self.startingViewEditMessage?.alpha = 0
+//                self.backgroundViewEditMessage!.alpha = 1
+//                self.inputAccessoryView?.alpha = 0
+//                self.inputAccessoryView?.isHidden = true
+//                self.zoomingViewEditMessage!.center = self.backgroundViewEditMessage!.center
+//
+//            },
+//            completion: nil
+//        )
+//    }
+//}
