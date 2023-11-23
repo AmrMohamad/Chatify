@@ -62,29 +62,6 @@ class ChatViewController: UIViewController,
         return table
     }()
     
-    lazy var writeMessageTextView: UITextView = {
-        let tf = UITextView()
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.backgroundColor = .clear
-        tf.font = UIFont.systemFont(ofSize: 15, weight: .medium)
-        tf.text = "Enter Message ...."
-        tf.textColor = UIColor.lightGray
-        tf.delegate = self
-        return tf
-    }()
-    lazy var sendMessageButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Send", for: .normal)
-        return button
-    }()
-    lazy var sendMediaButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(systemName: "photo.on.rectangle.angled"), for: .normal)
-        return button
-    }()
-    
     lazy var progressOfUploadVideoView : UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -146,9 +123,6 @@ class ChatViewController: UIViewController,
             bottom: chatLogTableViewScrollIndicatorInsetsBotton, right: 0
         )
         
-        sendMessageButton.addTarget(self, action: #selector(handleSendingMessage), for: .touchUpInside)
-        sendMediaButton.addTarget(self, action: #selector(handleSendingMediaMessage), for: .touchUpInside)
-        
         chatLogTableView.keyboardDismissMode = .interactive
         handleSetupOfObservingKB()
     }
@@ -208,47 +182,20 @@ class ChatViewController: UIViewController,
             return inputContainerView
         }
     }
-    lazy var inputContainerView: UIView = {
-        let containerTypingArea = UIView()
+    lazy var inputContainerView: InputMessageContainerView = {
         let height = UIScreen.main.bounds.height
-        containerTypingArea.frame = CGRect(
-            x: 0,
-            y: 0,
-            width: view.frame.width,
-            height: CGFloat(height * (7.5/100.0))
+        let inputMessageContianer = InputMessageContainerView(
+            frame: CGRect(
+                x: 0,
+                y: 0,
+                width: view.frame.width,
+                height: CGFloat(height * (7.5/100.0))
+            )
         )
-        chatLogTableViewContentInsetBotton = containerTypingArea.frame.height - 12.0
-        chatLogTableViewScrollIndicatorInsetsBotton = containerTypingArea.frame.height + 8.5
-        containerTypingArea.backgroundColor = .systemGroupedBackground.withAlphaComponent(0.95)
-        
-        containerTypingArea.addSubview(sendMediaButton)
-        containerTypingArea.addSubview(writeMessageTextView)
-        containerTypingArea.addSubview(sendMessageButton)
-        
-        NSLayoutConstraint.activate([
-            sendMediaButton.leadingAnchor.constraint(equalTo: containerTypingArea.leadingAnchor, constant: 12),
-            sendMediaButton.centerYAnchor.constraint(equalTo: containerTypingArea.centerYAnchor),
-            sendMediaButton.heightAnchor.constraint(equalToConstant: 44),
-            sendMediaButton.widthAnchor.constraint(equalToConstant: 44)
-        ])
-        
-        NSLayoutConstraint.activate([
-            writeMessageTextView.topAnchor.constraint(equalTo: containerTypingArea.topAnchor, constant: 2),
-            writeMessageTextView.bottomAnchor.constraint(equalTo: containerTypingArea.bottomAnchor, constant: -2),
-            writeMessageTextView.leadingAnchor.constraint(equalTo: sendMediaButton.trailingAnchor, constant: 10),
-            writeMessageTextView.trailingAnchor.constraint(equalTo: sendMessageButton.leadingAnchor, constant: -10)
-            ]
-        )
-        
-        NSLayoutConstraint.activate([
-            sendMessageButton.centerYAnchor.constraint(equalTo: containerTypingArea.centerYAnchor),
-            sendMessageButton.topAnchor.constraint(equalTo: sendMediaButton.topAnchor),
-            sendMessageButton.bottomAnchor.constraint(equalTo: sendMediaButton.bottomAnchor),
-            sendMessageButton.trailingAnchor.constraint(equalTo: containerTypingArea.trailingAnchor, constant: -10),
-            sendMessageButton.widthAnchor.constraint(equalToConstant: 44)
-            ]
-        )
-        return containerTypingArea
+        inputMessageContianer.chatViewControllerDelegate = self
+        chatLogTableViewContentInsetBotton = inputMessageContianer.frame.height - 12.0
+        chatLogTableViewScrollIndicatorInsetsBotton = inputMessageContianer.frame.height + 8.5
+        return inputMessageContianer
     }()
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -319,19 +266,7 @@ class ChatViewController: UIViewController,
             )
         }
     }
-    func textViewDidBeginEditing(_ textView: UITextView) {
-        if textView.textColor == UIColor.lightGray {
-            textView.text = nil
-            textView.textColor = UIColor.black
-        }
-    }
-    func textViewDidEndEditing(_ textView: UITextView) {
-        if textView.text.isEmpty {
-            textView.text = "Enter Message ...."
-            textView.textColor = UIColor.lightGray
-        }
-    }
-
+    
     func fetchMessageWith(
         id: String,
         completionHandler: @escaping (Message?) -> Void
@@ -467,7 +402,7 @@ class ChatViewController: UIViewController,
     
     @objc func handleSendingMessage(){
         
-        if let text = writeMessageTextView.text{
+        if let text = inputContainerView.writeMessageTextView.text{
             if text != "" && text != "Enter Message ...." {
                 sendMessage(
                     withProperties: [
@@ -476,7 +411,7 @@ class ChatViewController: UIViewController,
                     typeOfMessage: .text
                 )
                 DispatchQueue.main.async {
-                    self.writeMessageTextView.text = ""
+                    self.inputContainerView.writeMessageTextView.text = ""
                 }
             }
         }
@@ -1161,96 +1096,3 @@ class ChatViewController: UIViewController,
         }
     }
 }
-
-
-
-//imessage edit message
-
-//long press
-// inside
-//   let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress))
-//   cell.addGestureRecognizer(longPressRecognizer)
-//@objc func didLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
-//    if gestureRecognizer.state == .began {
-//        // Handle the long-press event here
-//        guard let cell = gestureRecognizer.view as? MessageTableViewCell else {
-//            return
-//        }
-//
-//        // You can perform any actions or show additional UI here
-//        print("start Long-pressed on cell at index path: \(chatLogTableView.indexPath(for: cell)!)")
-//        print(cell.messageTextContent.text)
-//    }
-//    if gestureRecognizer.state == .ended{
-//        guard let cell = gestureRecognizer.view as? MessageTableViewCell else {
-//            return
-//        }
-//
-//        // You can perform any actions or show additional UI here
-//        print("end Long-pressed on cell at index path: \(chatLogTableView.indexPath(for: cell)!)")
-//    }
-//
-//}
-
-//var startFrameEditMessage        : CGRect?
-//var backgroundViewEditMessage    : UIVisualEffectView?
-//var startingViewEditMessage      : UIView?
-//var zoomingViewEditMessage       : UIView?
-//
-//func performZoomInTapGestureForUIViewOfMessageCell(_ messageView: UIView,currentCell cell:MessageTableViewCell){
-//    dump(messageView)
-//    startingViewEditMessage = messageView
-//    startingViewEditMessage!.constraints.forEach { layout in
-//        layout.isActive = false
-//    }
-//    startingViewEditMessage!.translatesAutoresizingMaskIntoConstraints = true
-//    self.startFrameEditMessage = startingViewEditMessage!.convert(messageView.frame, to: nil)
-//    dump(startFrameEditMessage)
-//    self.zoomingViewEditMessage = UIView(
-//        frame: startFrameEditMessage!
-//    )
-//    zoomingViewEditMessage! = startingViewEditMessage!
-//    zoomingViewEditMessage!.isUserInteractionEnabled = true
-//    zoomingViewEditMessage!.addGestureRecognizer(
-//        UITapGestureRecognizer(
-//            target: self,
-//            action: #selector(performZoomOutTapGestureForUIImageViewOfImageMessage)
-//        )
-//    )
-//    if let keyWindow = self.view.window?.windowScene?.keyWindow{
-//        self.backgroundViewEditMessage = UIVisualEffectView(frame: keyWindow.frame)
-//        self.backgroundViewEditMessage!.translatesAutoresizingMaskIntoConstraints = false
-//        self.backgroundViewEditMessage!.effect = UIBlurEffect(style: .systemUltraThinMaterial)
-//        self.backgroundViewEditMessage!.alpha = 0
-//        keyWindow.addSubview(self.backgroundViewEditMessage!)
-//        NSLayoutConstraint.activate([
-//            self.backgroundViewEditMessage!.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
-//            self.backgroundViewEditMessage!.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
-//            self.backgroundViewEditMessage!.topAnchor.constraint(equalTo: self.view.topAnchor),
-//            self.backgroundViewEditMessage!.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
-//        ])
-//        keyWindow.addSubview(zoomingViewEditMessage!)
-//        UIView.animate(
-//            withDuration: 0.5,
-//            delay: 0,
-//            usingSpringWithDamping: 1,
-//            initialSpringVelocity: 1,
-//            options: .curveEaseOut,
-//            animations: {
-////                    self.checkOrientationForSetupZoomingView(keyWindow: keyWindow)
-//                self.zoomingViewEditMessage!.frame = CGRect(
-//                    x: 0, y: 0,
-//                    width: self.view.frame.width,
-//                    height: CGFloat(self.startFrameEditMessage!.height/self.startFrameEditMessage!.width * keyWindow.frame.width)
-//                )
-//                self.startingViewEditMessage?.alpha = 0
-//                self.backgroundViewEditMessage!.alpha = 1
-//                self.inputAccessoryView?.alpha = 0
-//                self.inputAccessoryView?.isHidden = true
-//                self.zoomingViewEditMessage!.center = self.backgroundViewEditMessage!.center
-//
-//            },
-//            completion: nil
-//        )
-//    }
-//}
