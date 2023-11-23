@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2D2BC1222B0FA39A0014A2C6 /* FirestoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2BC1212B0FA39A0014A2C6 /* FirestoreManager.swift */; };
 		2D5A1B332ADAB64D00456C3E /* ChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5A1B322ADAB64D00456C3E /* ChatTableViewCell.swift */; };
 		2D5E141F2AD99A47009CBE98 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5E141E2AD99A47009CBE98 /* Message.swift */; };
 		2D620F862B05862400790672 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2D620F852B05862400790672 /* GoogleService-Info.plist */; };
@@ -31,6 +32,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2D2BC1212B0FA39A0014A2C6 /* FirestoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreManager.swift; sourceTree = "<group>"; };
 		2D5A1B322ADAB64D00456C3E /* ChatTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatTableViewCell.swift; sourceTree = "<group>"; };
 		2D5E141E2AD99A47009CBE98 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		2D620F852B05862400790672 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -139,6 +141,7 @@
 			children = (
 				2DB4360E2ABB2F4F00BF1A60 /* User.swift */,
 				2D5E141E2AD99A47009CBE98 /* Message.swift */,
+				2D2BC1212B0FA39A0014A2C6 /* FirestoreManager.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -308,6 +311,7 @@
 				2D5A1B332ADAB64D00456C3E /* ChatTableViewCell.swift in Sources */,
 				2DDBDAE12B0F6FD100991D6D /* InputMessageContainerView.swift in Sources */,
 				2DACA5E92AD6D49F0093EBF4 /* ChatViewController.swift in Sources */,
+				2D2BC1222B0FA39A0014A2C6 /* FirestoreManager.swift in Sources */,
 				2DB4360F2ABB2F4F00BF1A60 /* User.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

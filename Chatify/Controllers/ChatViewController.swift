@@ -266,71 +266,7 @@ class ChatViewController: UIViewController,
             )
         }
     }
-    
-    func fetchMessageWith(
-        id: String,
-        completionHandler: @escaping (Message?) -> Void
-    ) {
-        let messagesRef = db.collection("messages")
-        messagesRef.document(id).getDocument { docSnapshot, error in
-            if let messageData = docSnapshot?.data(){
-                switch messageData["messageType"] as! String {
-                case "text":
-                    if let sendToID   = messageData["sendToID"] as? String,
-                       let sendFromID = messageData["sendFromID"] as? String,
-                       let date       = messageData["Date"] as? Double,
-                       let text       = messageData["text"] as? String {
-                        let message = Message(
-                            messageType: MessageType(rawValue: "text") ?? .text,
-                            sendToID   : sendToID,
-                            sendFromID : sendFromID,
-                            Date       : date,
-                            text       : text,
-                            imageInfo  : [:],
-                            videoInfo  : [:]
-                        )
-                        completionHandler(message)
-                    }
-                case "video":
-                    if let sendToID   = messageData["sendToID"] as? String,
-                       let sendFromID = messageData["sendFromID"] as? String,
-                       let date       = messageData["Date"] as? Double,
-                       let videoInfo  = messageData["videoInfo"] as? [String:Any] {
-                        let message = Message(
-                            messageType: MessageType(rawValue: "video") ?? .video,
-                            sendToID   : sendToID,
-                            sendFromID : sendFromID,
-                            Date       : date,
-                            text       : "",
-                            imageInfo  : [:],
-                            videoInfo  : videoInfo
-                        )
-                        completionHandler(message)
-                    }
-                case "image":
-                    if let sendToID   = messageData["sendToID"] as? String,
-                       let sendFromID = messageData["sendFromID"] as? String,
-                       let date       = messageData["Date"] as? Double,
-                       let imageInfo   = messageData["imageInfo"] as? [String:Any] {
-                        let message = Message(
-                            messageType: MessageType(rawValue: "image") ?? .image,
-                            sendToID   : sendToID,
-                            sendFromID : sendFromID,
-                            Date       : date,
-                            text       : "",
-                            imageInfo  : imageInfo,
-                            videoInfo  : [:]
-                        )
-                        completionHandler(message)
-                    }
-                default:
-                    break
-                }
-            }else{
-                completionHandler(nil)
-            }
-        }
-    }
+
     func fetchUserMessages(){
         if let userID = user?.id{
             dump(messagesCache.object(forKey: NSString(string: userID)) as? [Message])
@@ -356,7 +292,7 @@ class ChatViewController: UIViewController,
                         if let snapshots = docSnapshots?.data()/*?.sorted(by: {$0.value as! Double > $1.value as! Double})*/{
                             self.messagesIDDictionary = snapshots as! [String:Double]
                             snapshots.forEach { key,_ in
-                                self.fetchMessageWith(id: key) { message in
+                                FirestoreManager.manager.fetchMessageWith(id: key) { message in
                                     if let message = message {
                                         if message.chatPartnerID() == self.user?.id{
                                             self.messages.append(message)
@@ -491,6 +427,7 @@ class ChatViewController: UIViewController,
             }
         }
     }
+    
     func deleteMessage(messageID: String, index: Int) {
         print(index)
         guard let currentUserUID = Auth.auth().currentUser?.uid else { return }
