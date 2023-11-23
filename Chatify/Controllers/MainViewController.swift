@@ -307,47 +307,15 @@ class MainViewController: UITableViewController {
     }
     
     func fetchUsers(){
-        db.collection("users").addSnapshotListener { snapshot, error in
-            
-            self.users = []
-            
-            if error != nil {
-                print("\(error?.localizedDescription ?? "error")")
-            } else {
-                
-                if let docs = snapshot?.documents {
-                    
-                    for doc in docs {
-                        
-                        let userData = doc.data()
-                        
-                        let user = User(
-                            id             : doc.documentID ,
-                            name           : userData["name"] as! String,
-                            email          : userData["email"] as! String,
-                            profileImageURL: userData["profileImageURL"] as! String
-                        )
-                        
-                        URLSession.shared.dataTask(
-                            with: URL(string: userData["profileImageURL"] as! String)!
-                        ) { data, response, error in
-                            
-                            if let d = data {
-                                
-                                DispatchQueue.main.sync {
-                                    
-                                    if let downloadedImage = UIImage(data: d) {
-                                        
-                                        self.imgsCache.setObject(
-                                            downloadedImage,
-                                            forKey: NSString(string: userData["profileImageURL"] as! String)
-                                        )
-                                    }
-                                }
-                            }
-                        }.resume()
-                        
-                        self.users.append(user)
+        FirestoreManager.manager.fetchUsers { usersData in
+            self.users = usersData
+        } complation: { usersData in
+            usersData.forEach { user in
+                FirestoreManager.manager.downloadImage(urlString: user.profileImageURL) { image in
+                    if let img = image {
+                        DispatchQueue.main.async {
+                            self.imgsCache.setObject(img, forKey: NSString(string: user.profileImageURL))
+                        }
                     }
                 }
             }
@@ -380,15 +348,16 @@ class MainViewController: UITableViewController {
                 cell.userLabel.text = user.name
             }
         }
-        if message.text != "" {
+        switch message.messageType {
+        case .text:
             if message.sendFromID == Auth.auth().currentUser?.uid {
                 cell.lastMessageLabel.text = "You: \(message.text)"
             }else{
                 cell.lastMessageLabel.text = message.text
             }
-        }else if !(message.imageInfo.isEmpty){
+        case .image:
             cell.lastMessageLabel.text = "📸 Photo"
-        }else {
+        case .video:
             cell.lastMessageLabel.text = "🎥 Video"
         }
         

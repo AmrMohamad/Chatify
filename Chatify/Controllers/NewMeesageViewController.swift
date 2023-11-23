@@ -34,26 +34,10 @@ class NewMeesageViewController: UITableViewController {
     }
     
     func fetchUsers(){
-        db.collection("users").addSnapshotListener { snapshot, error in
-            self.users = []
-            if error != nil {
-                print("\(error?.localizedDescription ?? "error")")
-            } else {
-                if let docs = snapshot?.documents {
-                    for doc in docs {
-                        let userData = doc.data()
-                        let user = User(
-                            id             : doc.documentID ,
-                            name           : userData["name"] as! String,
-                            email          : userData["email"] as! String,
-                            profileImageURL: userData["profileImageURL"] as! String
-                        )
-                        self.users.append(user)
-                        DispatchQueue.main.async {
-                            self.tableView.reloadData()
-                        }
-                    }
-                }
+        FirestoreManager.manager.fetchUsers { usersData in
+            self.users = usersData
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
             }
         }
     }

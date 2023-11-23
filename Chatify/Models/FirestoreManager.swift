@@ -77,4 +77,53 @@ struct FirestoreManager {
             }
         }
     }
+    
+    func fetchUsers(
+        data usersData: @escaping ([User]) -> Void,
+        complation after: ( ([User])->())? = nil
+    ) {
+        db.collection("users").addSnapshotListener { snapshot, error in
+            var users: [User] = []
+
+            guard error == nil else {
+                print("\(error?.localizedDescription ?? "error")")
+                usersData([])
+                return
+            }
+            
+            if let docs = snapshot?.documents {
+                for doc in docs {
+                    let userData = doc.data()
+                    
+                    let user = User(
+                        id             : doc.documentID,
+                        name           : userData["name"] as! String,
+                        email          : userData["email"] as! String,
+                        profileImageURL: userData["profileImageURL"] as! String
+                    )
+                    users.append(user)
+                }
+                
+                usersData(users)
+                after?(users)
+                
+            }
+        }
+    }
+
+    func downloadImage(urlString: String, completion: @escaping (UIImage?) -> Void) {
+        guard let url = URL(string: urlString) else {
+            completion(nil)
+            return
+        }
+
+        URLSession.shared.dataTask(with: url) { data, _, error in
+            if let data = data, error == nil {
+                let image = UIImage(data: data)
+                completion(image)
+            } else {
+                completion(nil)
+            }
+        }.resume()
+    }
 }
