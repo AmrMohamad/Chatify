@@ -268,50 +268,44 @@ class ChatViewController: UIViewController,
     }
 
     func fetchUserMessages(){
-        if let userID = user?.id{
-            dump(messagesCache.object(forKey: NSString(string: userID)) as? [Message])
+        guard let uid = Auth.auth().currentUser?.uid else {
+            return
         }
-        if let userID = user?.id,
-           let messages = messagesCache.object(forKey: NSString(string: userID)) as? [Message]{
-            print("STORED")
-            self.messages = messages
-        }else {
-            print("Not STORED")
-            guard let uid = Auth.auth().currentUser?.uid else {
-                return
-            }
-            self.db.collection("user-messages").document(uid)
-                .collection("chats").document(user!.id)
-                .collection("chatContent").document("messagesID")
-                .addSnapshotListener { docSnapshots, error in
-                    if error != nil{
-                        print(error!.localizedDescription)
-                        return
-                    }else{
-                        self.messages = []
-                        if let snapshots = docSnapshots?.data()/*?.sorted(by: {$0.value as! Double > $1.value as! Double})*/{
-                            self.messagesIDDictionary = snapshots as! [String:Double]
-                            snapshots.forEach { key,_ in
-                                FirestoreManager.manager.fetchMessageWith(id: key) { message in
-                                    if let message = message {
-                                        if message.chatPartnerID() == self.user?.id{
-                                            self.messages.append(message)
-                                            self.timer?.invalidate()
-                                            self.timer = Timer.scheduledTimer(
-                                                timeInterval: 0.59,
-                                                target: self,
-                                                selector: #selector(self.handleReloadTable),
-                                                userInfo: nil,
-                                                repeats: false
-                                            )
-                                        }
+        self.db.collection("user-messages").document(uid)
+            .collection("chats").document(user!.id)
+            .collection("chatContent").document("messagesID")
+            .addSnapshotListener { docSnapshots, error in
+                if error != nil{
+                    print(error!.localizedDescription)
+                    return
+                }else{
+                    self.messages = []
+                    self.messagesIDDictionary = [:]
+                    self.messagesID = []
+                    if let snapshots = docSnapshots?.data()/*?.sorted(by: {$0.value as! Double > $1.value as! Double})*/{
+                        self.messagesIDDictionary = snapshots as! [String:Double]
+                        snapshots.forEach { key,_ in
+                            FirestoreManager.manager.fetchMessageWith(id: key) { message in
+                                if let message = message {
+                                    if message.chatPartnerID() == self.user?.id{
+                                        self.messages.append(message)
+                                        self.timer?.invalidate()
+                                        self.timer = Timer.scheduledTimer(
+                                            timeInterval: 0.59,
+                                            target: self,
+                                            selector: #selector(self.handleReloadTable),
+                                            userInfo: nil,
+                                            repeats: false
+                                        )
                                     }
                                 }
                             }
                         }
+                    }else {
+                        print("emtpy")
                     }
                 }
-        }
+            }
     }
     @objc func handleReloadTable(){
         DispatchQueue.main.async {
@@ -428,141 +422,158 @@ class ChatViewController: UIViewController,
         }
     }
     
-    func deleteMessage(messageID: String, index: Int) {
-        print(index)
+    func deleteMessage(messageID: String) {
+//        print(messageID)
+//        print(messagesID.firstIndex(of: messageID))
+//        dump(messages[messagesID.firstIndex(of: messageID)!])
+       
+//        chatLogTableView.reloadData()
         guard let currentUserUID = Auth.auth().currentUser?.uid else { return }
         let currentUserMessagesID = self.db
             .collection("user-messages").document(currentUserUID)
             .collection("chats").document(self.user!.id)
             .collection("chatContent").document("messagesID")
-        
+
         let chatPartnerMessagesID = self.db
             .collection("user-messages").document(self.user!.id)
             .collection("chats").document(currentUserUID)
             .collection("chatContent").document("messagesID")
-        
-        switch self.messages[index].messageType {
-        case .text, .image, .video:
-            self.deleteMessageAndUpdateData(
-                messageID: messageID,
-                currentUserMessagesID: currentUserMessagesID,
-                chatPartnerMessagesID: chatPartnerMessagesID,
-                index: index
-            )
-        }
-    }
-
-    func deleteMessageAndUpdateData(messageID: String, currentUserMessagesID: DocumentReference, chatPartnerMessagesID: DocumentReference, index: Int) {
-        print(index)
-        switch self.messages[index].messageType {
-        case .image:
-            self.deleteImage(messageID: messageID, index: index)
-            currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
-                guard error == nil else {
-                    print(error as Any)
-                    return
+        let deletedMessage = self.messages[messagesID.firstIndex(of: messageID)!]
+//        messages.remove(at: messagesID.firstIndex(of: messageID)!)
+        switch deletedMessage.messageType {
+        case .text:
+            messages.remove(at: messagesID.firstIndex(of: messageID)!)
+            messagesID.remove(at: messagesID.firstIndex(of: messageID)!)
+            self.deleteText(messageID: messageID) {
+                currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
+                    guard error == nil else {
+                        print(error as Any)
+                        return
+                    }
+                    DispatchQueue.main.async {
+                        self.isThereAMessageDeleted = true
+                    }
                 }
-                self.isThereAMessageDeleted = true
+                chatPartnerMessagesID.updateData([messageID: FieldValue.delete()]) { error in
+                    guard error == nil else {
+                        print(error as Any)
+                        return
+                    }
+                }
+                DispatchQueue.main.async {
+                    self.chatLogTableView.reloadData()
+                }
             }
-            chatPartnerMessagesID.updateData([messageID: FieldValue.delete()]) { error in
-                guard error == nil else {
-                    print(error as Any)
-                    return
+
+        case .image:
+            self.deleteImage(messageID: messageID, index: messagesID.firstIndex(of: messageID)!) {
+                currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
+                    guard error == nil else {
+                        print(error as Any)
+                        return
+                    }
+                    DispatchQueue.main.async {
+                        self.isThereAMessageDeleted = true
+                    }
                 }
-                
+                chatPartnerMessagesID.updateData([messageID: FieldValue.delete()]) { error in
+                    guard error == nil else {
+                        print(error as Any)
+                        return
+                    }
+                    DispatchQueue.main.async {
+                        self.chatLogTableView.reloadData()
+                    }
+                }
             }
         case .video:
-            self.deleteVideo(messageID: messageID, index: index)
-            currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
-                guard error == nil else {
-                    print(error as Any)
-                    return
+            self.deleteVideo(messageID: messageID, index: messagesID.firstIndex(of: messageID)!) {
+                currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
+                    guard error == nil else {
+                        print(error as Any)
+                        return
+                    }
+                    DispatchQueue.main.async {
+                        self.isThereAMessageDeleted = true
+                    }
                 }
-                self.isThereAMessageDeleted = true
-            }
-            chatPartnerMessagesID.updateData([messageID: FieldValue.delete()]) { error in
-                guard error == nil else {
-                    print(error as Any)
-                    return
+                chatPartnerMessagesID.updateData([messageID: FieldValue.delete()]) { error in
+                    guard error == nil else {
+                        print(error as Any)
+                        return
+                    }
+                    DispatchQueue.main.async {
+                        self.chatLogTableView.reloadData()
+                    }
                 }
-                
-            }
-        case .text:
-            self.deleteText(messageID: messageID)
-            currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
-                guard error == nil else {
-                    print(error as Any)
-                    return
-                }
-                self.isThereAMessageDeleted = true
-            }
-            chatPartnerMessagesID.updateData([messageID: FieldValue.delete()]) { error in
-                guard error == nil else {
-                    print(error as Any)
-                    return
-                }
-                
             }
         }
-        
     }
 
-    func deleteText(messageID: String) {
+    func deleteText(messageID: String, completion: @escaping ()->()) {
         // Additional logic for text messages if needed
         self.db.collection("messages").document(messageID).delete { error in
             if let error = error {
                 print(error)
+            }else {
+                completion()
             }
         }
     }
 
-    func deleteImage(messageID: String, index: Int) {
+    func deleteImage(messageID: String, index: Int, completion: @escaping ()->()) {
         // Additional logic for image messages if needed
-        if let imageTitle = self.messages[index].imageInfo["imageTitle"] as? String {
-            guard let currentUserUID = Auth.auth().currentUser?.uid else {return}
-            let storageRecImage = self.storage.reference()
-                .child("chat_images")
-                .child(currentUserUID)
-                .child("\(imageTitle).jpeg")
-            storageRecImage.delete { error in
-                if let error = error {
-                    print(error)
-                }
-                self.db.collection("messages").document(messageID).delete { error in
+        self.db.collection("messages").document(messageID).delete { error in
+            if let error = error {
+                print(error)
+            }else {
+                completion()
+            }
+            if let imageTitle = self.messages[index].imageInfo["imageTitle"] as? String {
+                guard let currentUserUID = Auth.auth().currentUser?.uid else {return}
+                let storageRecImage = self.storage.reference()
+                    .child("chat_images")
+                    .child(currentUserUID)
+                    .child("\(imageTitle).jpeg")
+                storageRecImage.delete { error in
                     if let error = error {
                         print(error)
                     }
+                    
                 }
             }
         }
     }
 
-    func deleteVideo(messageID: String, index: Int) {
+    func deleteVideo(messageID: String, index: Int, completion: @escaping ()->()) {
         // Additional logic for video messages if needed
-        if let titleVideo = self.messages[index].videoInfo["videoTitle"] as? String {
-            guard let currentUserUID = Auth.auth().currentUser?.uid else {return}
-            let storageRecVideo = self.storage.reference()
-                .child("chat_videos")
-                .child(currentUserUID)
-                .child(titleVideo)
-                .child("\(titleVideo).mov")
-            let storageRecVideoThumbnail = self.storage.reference()
-                .child("chat_videos")
-                .child(currentUserUID)
-                .child(titleVideo)
-                .child("\(titleVideo).jpeg")
-            storageRecVideo.delete { error in
-                if let error = error {
-                    print(error)
-                }
-                storageRecVideoThumbnail.delete { error in
+        self.db.collection("messages").document(messageID).delete { error in
+            if let error = error {
+                print(error)
+            }else {
+                completion()
+            }
+            if let titleVideo = self.messages[index].videoInfo["videoTitle"] as? String {
+                guard let currentUserUID = Auth.auth().currentUser?.uid else {return}
+                let storageRecVideo = self.storage.reference()
+                    .child("chat_videos")
+                    .child(currentUserUID)
+                    .child(titleVideo)
+                    .child("\(titleVideo).mov")
+                let storageRecVideoThumbnail = self.storage.reference()
+                    .child("chat_videos")
+                    .child(currentUserUID)
+                    .child(titleVideo)
+                    .child("\(titleVideo).jpeg")
+                storageRecVideo.delete { error in
                     if let error = error {
                         print(error)
                     }
-                    self.db.collection("messages").document(messageID).delete { error in
+                    storageRecVideoThumbnail.delete { error in
                         if let error = error {
                             print(error)
                         }
+                        
                     }
                 }
             }
@@ -780,7 +791,7 @@ class ChatViewController: UIViewController,
         let delete = UIContextualAction(style: .normal, title: "Delete") { action, view, completionHandler in
             print("delete")
             print(indexPath.row)
-            self.deleteMessage(messageID: self.messagesID[indexPath.row], index: indexPath.row)
+            self.deleteMessage(messageID: self.messagesID[indexPath.row])
             completionHandler(true)
         }
         delete.backgroundColor = .systemRed
