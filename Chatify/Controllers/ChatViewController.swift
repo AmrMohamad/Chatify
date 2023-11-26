@@ -423,11 +423,6 @@ class ChatViewController: UIViewController,
     }
     
     func deleteMessage(messageID: String) {
-//        print(messageID)
-//        print(messagesID.firstIndex(of: messageID))
-//        dump(messages[messagesID.firstIndex(of: messageID)!])
-       
-//        chatLogTableView.reloadData()
         guard let currentUserUID = Auth.auth().currentUser?.uid else { return }
         let currentUserMessagesID = self.db
             .collection("user-messages").document(currentUserUID)
@@ -439,12 +434,12 @@ class ChatViewController: UIViewController,
             .collection("chats").document(currentUserUID)
             .collection("chatContent").document("messagesID")
         let deletedMessage = self.messages[messagesID.firstIndex(of: messageID)!]
-//        messages.remove(at: messagesID.firstIndex(of: messageID)!)
+
         switch deletedMessage.messageType {
         case .text:
             messages.remove(at: messagesID.firstIndex(of: messageID)!)
             messagesID.remove(at: messagesID.firstIndex(of: messageID)!)
-            self.deleteText(messageID: messageID) {
+            FirestoreManager.manager.chat.deleteText(messageID: messageID) {
                 currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
                     guard error == nil else {
                         print(error as Any)
@@ -466,7 +461,11 @@ class ChatViewController: UIViewController,
             }
 
         case .image:
-            self.deleteImage(messageID: messageID, index: messagesID.firstIndex(of: messageID)!) {
+            FirestoreManager.manager.chat.deleteImage(
+                messages: self.messages,
+                messageID: messageID,
+                index: messagesID.firstIndex(of: messageID)!
+            ) {
                 currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
                     guard error == nil else {
                         print(error as Any)
@@ -487,7 +486,11 @@ class ChatViewController: UIViewController,
                 }
             }
         case .video:
-            self.deleteVideo(messageID: messageID, index: messagesID.firstIndex(of: messageID)!) {
+            FirestoreManager.manager.chat.deleteVideo(
+                messages: self.messages,
+                messageID: messageID,
+                index: messagesID.firstIndex(of: messageID)!
+            ) {
                 currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
                     guard error == nil else {
                         print(error as Any)
@@ -509,77 +512,6 @@ class ChatViewController: UIViewController,
             }
         }
     }
-
-    func deleteText(messageID: String, completion: @escaping ()->()) {
-        // Additional logic for text messages if needed
-        self.db.collection("messages").document(messageID).delete { error in
-            if let error = error {
-                print(error)
-            }else {
-                completion()
-            }
-        }
-    }
-
-    func deleteImage(messageID: String, index: Int, completion: @escaping ()->()) {
-        // Additional logic for image messages if needed
-        self.db.collection("messages").document(messageID).delete { error in
-            if let error = error {
-                print(error)
-            }else {
-                completion()
-            }
-            if let imageTitle = self.messages[index].imageInfo["imageTitle"] as? String {
-                guard let currentUserUID = Auth.auth().currentUser?.uid else {return}
-                let storageRecImage = self.storage.reference()
-                    .child("chat_images")
-                    .child(currentUserUID)
-                    .child("\(imageTitle).jpeg")
-                storageRecImage.delete { error in
-                    if let error = error {
-                        print(error)
-                    }
-                    
-                }
-            }
-        }
-    }
-
-    func deleteVideo(messageID: String, index: Int, completion: @escaping ()->()) {
-        // Additional logic for video messages if needed
-        self.db.collection("messages").document(messageID).delete { error in
-            if let error = error {
-                print(error)
-            }else {
-                completion()
-            }
-            if let titleVideo = self.messages[index].videoInfo["videoTitle"] as? String {
-                guard let currentUserUID = Auth.auth().currentUser?.uid else {return}
-                let storageRecVideo = self.storage.reference()
-                    .child("chat_videos")
-                    .child(currentUserUID)
-                    .child(titleVideo)
-                    .child("\(titleVideo).mov")
-                let storageRecVideoThumbnail = self.storage.reference()
-                    .child("chat_videos")
-                    .child(currentUserUID)
-                    .child(titleVideo)
-                    .child("\(titleVideo).jpeg")
-                storageRecVideo.delete { error in
-                    if let error = error {
-                        print(error)
-                    }
-                    storageRecVideoThumbnail.delete { error in
-                        if let error = error {
-                            print(error)
-                        }
-                        
-                    }
-                }
-            }
-        }
-    }
-
     
     //MARK: - Sending Video & Image
     

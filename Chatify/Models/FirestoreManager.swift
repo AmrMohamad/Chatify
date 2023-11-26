@@ -9,10 +9,12 @@ import Foundation
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseCore
+import FirebaseStorage
 
 struct FirestoreManager {
     static let manager = FirestoreManager()
     let db = Firestore.firestore()
+    let chat = Chat()
     func fetchMessageWith(
         id: String,
         completionHandler: @escaping (Message?) -> Void
@@ -125,5 +127,80 @@ struct FirestoreManager {
                 completion(nil)
             }
         }.resume()
+    }
+}
+
+struct Chat {
+    let db = Firestore.firestore()
+    let storage = Storage.storage()
+    
+    func deleteText(messageID: String, completion: @escaping ()->()) {
+        // Additional logic for text messages if needed
+        self.db.collection("messages").document(messageID).delete { error in
+            if let error = error {
+                print(error)
+            }else {
+                completion()
+            }
+        }
+    }
+    
+    func deleteImage(messages: [Message] ,messageID: String, index: Int, completion: @escaping ()->()) {
+        // Additional logic for image messages if needed
+        self.db.collection("messages").document(messageID).delete { error in
+            if let error = error {
+                print(error)
+            }else {
+                completion()
+            }
+            if let imageTitle = messages[index].imageInfo["imageTitle"] as? String {
+                guard let currentUserUID = Auth.auth().currentUser?.uid else {return}
+                let storageRecImage = self.storage.reference()
+                    .child("chat_images")
+                    .child(currentUserUID)
+                    .child("\(imageTitle).jpeg")
+                storageRecImage.delete { error in
+                    if let error = error {
+                        print(error)
+                    }
+                    
+                }
+            }
+        }
+    }
+    
+    func deleteVideo(messages: [Message] ,messageID: String, index: Int, completion: @escaping ()->()) {
+        // Additional logic for video messages if needed
+        self.db.collection("messages").document(messageID).delete { error in
+            if let error = error {
+                print(error)
+            }else {
+                completion()
+            }
+            if let titleVideo = messages[index].videoInfo["videoTitle"] as? String {
+                guard let currentUserUID = Auth.auth().currentUser?.uid else {return}
+                let storageRecVideo = self.storage.reference()
+                    .child("chat_videos")
+                    .child(currentUserUID)
+                    .child(titleVideo)
+                    .child("\(titleVideo).mov")
+                let storageRecVideoThumbnail = self.storage.reference()
+                    .child("chat_videos")
+                    .child(currentUserUID)
+                    .child(titleVideo)
+                    .child("\(titleVideo).jpeg")
+                storageRecVideo.delete { error in
+                    if let error = error {
+                        print(error)
+                    }
+                    storageRecVideoThumbnail.delete { error in
+                        if let error = error {
+                            print(error)
+                        }
+                        
+                    }
+                }
+            }
+        }
     }
 }
