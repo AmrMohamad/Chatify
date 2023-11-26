@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2D2BC1222B0FA39A0014A2C6 /* FirestoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2BC1212B0FA39A0014A2C6 /* FirestoreManager.swift */; };
+		2D54B8B42B13DBCE00B4627B /* ChatViewController+HandleZoomingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D54B8B32B13DBCE00B4627B /* ChatViewController+HandleZoomingView.swift */; };
 		2D5A1B332ADAB64D00456C3E /* ChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5A1B322ADAB64D00456C3E /* ChatTableViewCell.swift */; };
 		2D5E141F2AD99A47009CBE98 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5E141E2AD99A47009CBE98 /* Message.swift */; };
 		2D620F862B05862400790672 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2D620F852B05862400790672 /* GoogleService-Info.plist */; };
@@ -16,6 +17,7 @@
 		2D6C074D2AA65AFD0036E273 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6C074C2AA65AFD0036E273 /* MainViewController.swift */; };
 		2D6C07522AA65AFF0036E273 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2D6C07512AA65AFF0036E273 /* Assets.xcassets */; };
 		2D6C07552AA65AFF0036E273 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2D6C07532AA65AFF0036E273 /* LaunchScreen.storyboard */; };
+		2D7C102F2B13F579009C5C0F /* UINavigationItem+LargeTitleAccessoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7C102E2B13F579009C5C0F /* UINavigationItem+LargeTitleAccessoryView.swift */; };
 		2D7E0DBE2B0D5F96009D9A3D /* Inject in Frameworks */ = {isa = PBXBuildFile; productRef = 2D7E0DBD2B0D5F96009D9A3D /* Inject */; };
 		2D8963352AC3225F00F5E73F /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8963342AC3225F00F5E73F /* Extensions.swift */; };
 		2D8CE8242AEB0A8700F67783 /* MessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8CE8232AEB0A8700F67783 /* MessageTableViewCell.swift */; };
@@ -34,6 +36,7 @@
 /* Begin PBXFileReference section */
 		2D2BC1212B0FA39A0014A2C6 /* FirestoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreManager.swift; sourceTree = "<group>"; };
 		2D54B8B12B1394A900B4627B /* Chatify.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Chatify.entitlements; sourceTree = "<group>"; };
+		2D54B8B32B13DBCE00B4627B /* ChatViewController+HandleZoomingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatViewController+HandleZoomingView.swift"; sourceTree = "<group>"; };
 		2D5A1B322ADAB64D00456C3E /* ChatTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatTableViewCell.swift; sourceTree = "<group>"; };
 		2D5E141E2AD99A47009CBE98 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		2D620F852B05862400790672 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -44,6 +47,7 @@
 		2D6C07512AA65AFF0036E273 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2D6C07542AA65AFF0036E273 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2D6C07562AA65AFF0036E273 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2D7C102E2B13F579009C5C0F /* UINavigationItem+LargeTitleAccessoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UINavigationItem+LargeTitleAccessoryView.swift"; sourceTree = "<group>"; };
 		2D8963342AC3225F00F5E73F /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		2D8CE8232AEB0A8700F67783 /* MessageTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageTableViewCell.swift; sourceTree = "<group>"; };
 		2DA155072AAE0C540012AFCD /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
@@ -80,6 +84,15 @@
 				EE33BC174F8672D934D046C7 /* Pods-Chatify.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		2D54B8B22B13DB8A00B4627B /* ChatViewController */ = {
+			isa = PBXGroup;
+			children = (
+				2DACA5E82AD6D49E0093EBF4 /* ChatViewController.swift */,
+				2D54B8B32B13DBCE00B4627B /* ChatViewController+HandleZoomingView.swift */,
+			);
+			path = ChatViewController;
 			sourceTree = "<group>";
 		};
 		2D6C073C2AA65AFD0036E273 = {
@@ -133,7 +146,7 @@
 				2DCC3FFC2AC05AAE00156346 /* LoginViewController+Handlers.swift */,
 				2D6C074C2AA65AFD0036E273 /* MainViewController.swift */,
 				2DB4360A2ABB1C9300BF1A60 /* NewMeesageViewController.swift */,
-				2DACA5E82AD6D49E0093EBF4 /* ChatViewController.swift */,
+				2D54B8B22B13DB8A00B4627B /* ChatViewController */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -156,6 +169,7 @@
 				2D5A1B322ADAB64D00456C3E /* ChatTableViewCell.swift */,
 				2D8CE8232AEB0A8700F67783 /* MessageTableViewCell.swift */,
 				2DDBDAE02B0F6FD100991D6D /* InputMessageContainerView.swift */,
+				2D7C102E2B13F579009C5C0F /* UINavigationItem+LargeTitleAccessoryView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -299,6 +313,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2DA155082AAE0C540012AFCD /* LoginViewController.swift in Sources */,
+				2D54B8B42B13DBCE00B4627B /* ChatViewController+HandleZoomingView.swift in Sources */,
 				2DD054D52AE1743A0086664F /* AsImage.swift in Sources */,
 				2D8963352AC3225F00F5E73F /* Extensions.swift in Sources */,
 				2D6C074D2AA65AFD0036E273 /* MainViewController.swift in Sources */,
@@ -313,6 +328,7 @@
 				2D5A1B332ADAB64D00456C3E /* ChatTableViewCell.swift in Sources */,
 				2DDBDAE12B0F6FD100991D6D /* InputMessageContainerView.swift in Sources */,
 				2DACA5E92AD6D49F0093EBF4 /* ChatViewController.swift in Sources */,
+				2D7C102F2B13F579009C5C0F /* UINavigationItem+LargeTitleAccessoryView.swift in Sources */,
 				2D2BC1222B0FA39A0014A2C6 /* FirestoreManager.swift in Sources */,
 				2DB4360F2ABB2F4F00BF1A60 /* User.swift in Sources */,
 			);

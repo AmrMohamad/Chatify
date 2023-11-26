@@ -59,6 +59,27 @@ class MainViewController: UITableViewController {
         return button
     }()
     
+    lazy var imageProfileContainer : UIView = {
+        let imageProfileContainer = UIView()
+        imageProfileContainer.translatesAutoresizingMaskIntoConstraints = false
+        imageProfileContainer.layer.cornerRadius = 15.5
+        imageProfileContainer.layer.shadowRadius = 2.2
+        imageProfileContainer.layer.shadowOpacity = 0.30
+        imageProfileContainer.layer.shadowColor = UIColor.black.cgColor
+        imageProfileContainer.layer.shadowOffset = CGSize(width: 0, height: 0)
+        return imageProfileContainer
+    }()
+    lazy var imageProfileContainerLargeTitleNavBar : UIView = {
+        let imageProfileContainer = UIView()
+        imageProfileContainer.translatesAutoresizingMaskIntoConstraints = false
+        imageProfileContainer.layer.cornerRadius = 15.5
+        imageProfileContainer.layer.shadowRadius = 2.2
+        imageProfileContainer.layer.shadowOpacity = 0.30
+        imageProfileContainer.layer.shadowColor = UIColor.black.cgColor
+        imageProfileContainer.layer.shadowOffset = CGSize(width: 0, height: 0)
+        return imageProfileContainer
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -67,11 +88,12 @@ class MainViewController: UITableViewController {
         navigationItem.leftBarButtonItem = leftBarButtonLogOut
         navigationItem.rightBarButtonItem = rightBarButtonNewChat
         navigationController?.navigationBar.prefersLargeTitles = true
-//        fetchAndProcessMessages()
+        
         fetchUsers()
         fetchMessages()
         
     }
+    @objc private func profileButtonTapped(_ sender: ProfileButton) {}
     override func viewWillAppear(_ animated: Bool) {
         fetchMessages()
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -136,14 +158,17 @@ class MainViewController: UITableViewController {
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if let largeBarView = navigationController?.navigationBar.subviews[1]{
             userNameLabel.alpha = largeBarView.alpha == 1.0 ? 0.0 : 1.0
+            imageProfileContainer.alpha = largeBarView.alpha == 1.0 ? 0.0 : 1.0
         }
     }
     
     func setupNavTitleWith(user: User){
         let customTitleView = UIView()
         customTitleView.translatesAutoresizingMaskIntoConstraints = false
-//        customTitleView.backgroundColor = .orange
-
+        
+        navigationItem.largeTitleAccessoryView = imageProfileContainerLargeTitleNavBar
+        navigationItem.alignLargeTitleAccessoryViewToBaseline = false
+        
         self.navigationItem.titleView = customTitleView
         customTitleView.widthAnchor
             .constraint(equalToConstant: 100)
@@ -176,14 +201,6 @@ class MainViewController: UITableViewController {
             .constraint(equalTo: customTitleView.centerYAnchor)
             .isActive = true
         
-        let imageProfileContainer = UIView()
-        imageProfileContainer.translatesAutoresizingMaskIntoConstraints = false
-//        imageProfileContainer.backgroundColor = .cyan
-        imageProfileContainer.layer.cornerRadius = 15.5
-        imageProfileContainer.layer.shadowRadius = 2.2
-        imageProfileContainer.layer.shadowOpacity = 0.30
-        imageProfileContainer.layer.shadowColor = UIColor.black.cgColor
-        imageProfileContainer.layer.shadowOffset = CGSize(width: 0, height: 0)
         containerView.addSubview(imageProfileContainer)
         
         imageProfileContainer.centerXAnchor
@@ -210,6 +227,24 @@ class MainViewController: UITableViewController {
         imageProfile.bottomAnchor.constraint(equalTo: imageProfileContainer.bottomAnchor).isActive = true
         imageProfile.leadingAnchor.constraint(equalTo: imageProfileContainer.leadingAnchor).isActive = true
         imageProfile.trailingAnchor.constraint(equalTo: imageProfileContainer.trailingAnchor).isActive = true
+        
+        
+        let imageProfileLargeTitle = UIImageView()
+        imageProfileLargeTitle.translatesAutoresizingMaskIntoConstraints = false
+        imageProfileLargeTitle.layer.cornerRadius = 15.5
+        imageProfileLargeTitle.layer.masksToBounds = true
+        imageProfileLargeTitle.loadImagefromCacheWithURLstring(urlString: user.profileImageURL)
+        imageProfileContainerLargeTitleNavBar.heightAnchor
+            .constraint(equalToConstant: 34)
+            .isActive = true
+        imageProfileContainerLargeTitleNavBar.widthAnchor
+            .constraint(equalToConstant: 34)
+            .isActive = true
+        imageProfileContainerLargeTitleNavBar.addSubview(imageProfileLargeTitle)
+        imageProfileLargeTitle.topAnchor.constraint(equalTo: imageProfileContainerLargeTitleNavBar.topAnchor).isActive = true
+        imageProfileLargeTitle.bottomAnchor.constraint(equalTo: imageProfileContainerLargeTitleNavBar.bottomAnchor).isActive = true
+        imageProfileLargeTitle.leadingAnchor.constraint(equalTo: imageProfileContainerLargeTitleNavBar.leadingAnchor).isActive = true
+        imageProfileLargeTitle.trailingAnchor.constraint(equalTo: imageProfileContainerLargeTitleNavBar.trailingAnchor).isActive = true
         
         userNameLabel.text = user.name
         containerView.addSubview(userNameLabel)

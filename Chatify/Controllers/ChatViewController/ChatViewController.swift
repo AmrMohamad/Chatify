@@ -434,11 +434,11 @@ class ChatViewController: UIViewController,
             .collection("chats").document(currentUserUID)
             .collection("chatContent").document("messagesID")
         let deletedMessage = self.messages[messagesID.firstIndex(of: messageID)!]
-
+        let indexOfDeletedMessage = messagesID.firstIndex(of: messageID)!
         switch deletedMessage.messageType {
         case .text:
-            messages.remove(at: messagesID.firstIndex(of: messageID)!)
-            messagesID.remove(at: messagesID.firstIndex(of: messageID)!)
+            messages.remove(at: indexOfDeletedMessage)
+            messagesID.remove(at: indexOfDeletedMessage)
             if let lastMessageID = messagesID.last {
                 self.db
                     .collection("user-messages").document(deletedMessage.chatPartnerID())
@@ -472,10 +472,22 @@ class ChatViewController: UIViewController,
             }
 
         case .image:
+            messages.remove(at: indexOfDeletedMessage)
+            messagesID.remove(at:indexOfDeletedMessage)
+            if let lastMessageID = messagesID.last {
+                self.db
+                    .collection("user-messages").document(deletedMessage.chatPartnerID())
+                    .collection("chats").document(currentUserUID)
+                    .setData(["lastMessage":lastMessageID])
+                self.db
+                    .collection("user-messages").document(currentUserUID)
+                    .collection("chats").document(deletedMessage.chatPartnerID())
+                    .setData(["lastMessage":lastMessageID])
+            }
             FirestoreManager.manager.chat.deleteImage(
-                messages: self.messages,
+                message: deletedMessage,
                 messageID: messageID,
-                index: messagesID.firstIndex(of: messageID)!
+                index: indexOfDeletedMessage
             ) {
                 currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
                     guard error == nil else {
@@ -497,10 +509,22 @@ class ChatViewController: UIViewController,
                 }
             }
         case .video:
+            messages.remove(at: indexOfDeletedMessage)
+            messagesID.remove(at: indexOfDeletedMessage)
+            if let lastMessageID = messagesID.last {
+                self.db
+                    .collection("user-messages").document(deletedMessage.chatPartnerID())
+                    .collection("chats").document(currentUserUID)
+                    .setData(["lastMessage":lastMessageID])
+                self.db
+                    .collection("user-messages").document(currentUserUID)
+                    .collection("chats").document(deletedMessage.chatPartnerID())
+                    .setData(["lastMessage":lastMessageID])
+            }
             FirestoreManager.manager.chat.deleteVideo(
-                messages: self.messages,
+                message: deletedMessage,
                 messageID: messageID,
-                index: messagesID.firstIndex(of: messageID)!
+                index: indexOfDeletedMessage
             ) {
                 currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
                     guard error == nil else {
@@ -869,121 +893,5 @@ class ChatViewController: UIViewController,
     
     //MARK: - ZoomingView of image message
     
-    var startFrame        : CGRect?
-    var backgroundView    : UIVisualEffectView?
-    var startingImageView : UIImageView?
-    var zoomingView       : UIImageView?
-    
-    func performZoomInTapGestureForUIImageViewOfImageMessage(_ imageView: UIImageView,currentCell cell:MessageTableViewCell){
-        startingImageView = imageView
-        self.startFrame = startingImageView!.convert(imageView.frame, to: nil)
-        dump(startFrame)
-        self.zoomingView = UIImageView(
-            frame: startFrame!
-        )
-        zoomingView!.image = startingImageView!.image
-        zoomingView!.isUserInteractionEnabled = true
-        zoomingView!.addGestureRecognizer(
-            UITapGestureRecognizer(
-                target: self,
-                action: #selector(performZoomOutTapGestureForUIImageViewOfImageMessage)
-            )
-        )
-        if let keyWindow = self.view.window?.windowScene?.keyWindow{
-            self.backgroundView = UIVisualEffectView(frame: keyWindow.frame)
-            self.backgroundView!.translatesAutoresizingMaskIntoConstraints = false
-            self.backgroundView!.effect = UIBlurEffect(style: .systemUltraThinMaterial)
-            self.backgroundView!.alpha = 0
-            keyWindow.addSubview(self.backgroundView!)
-            NSLayoutConstraint.activate([
-                self.backgroundView!.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
-                self.backgroundView!.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
-                self.backgroundView!.topAnchor.constraint(equalTo: self.view.topAnchor),
-                self.backgroundView!.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
-            ])
-            keyWindow.addSubview(zoomingView!)
-            UIView.animate(
-                withDuration: 0.5,
-                delay: 0,
-                usingSpringWithDamping: 1,
-                initialSpringVelocity: 1,
-                options: .curveEaseOut,
-                animations: {
-                    self.checkOrientationForSetupZoomingView(keyWindow: keyWindow)
-                    self.startingImageView?.alpha = 0
-                    self.backgroundView!.alpha = 1
-                    self.inputAccessoryView?.alpha = 0
-                    self.inputAccessoryView?.isHidden = true
-                    self.zoomingView!.center = self.backgroundView!.center
-                    
-                },
-                completion: nil
-            )
-        }
-    }
-    
-    @objc func performZoomOutTapGestureForUIImageViewOfImageMessage(tapGesture: UITapGestureRecognizer){
-        if let zoomingOutView = tapGesture.view as? UIImageView{
-            UIView.animate(
-                withDuration: 0.5,
-                delay: 0,
-                usingSpringWithDamping: 1,
-                initialSpringVelocity: 1,
-                options: .curveEaseIn) {
-                    zoomingOutView.frame = self.startFrame!
-                    zoomingOutView.layer.cornerRadius = 16
-                    zoomingOutView.layer.masksToBounds = true
-                    self.backgroundView?.alpha = 0
-                    self.inputAccessoryView?.alpha = 1
-                    self.inputAccessoryView?.isHidden = false
-//                    cell.bubbleView.alpha = 1
-                } completion: { complete in
-                    print(complete)
-                    zoomingOutView.removeFromSuperview()
-                    self.startingImageView?.alpha = 1
-                    self.backgroundView?.removeFromSuperview()
-                    self.backgroundView = nil
-                }
-        }
-    }
-    
-    private func checkOrientationForSetupZoomingView(keyWindow: UIWindow){
-        switch UIDevice.current.orientation {
-        case .portrait :
-            self.zoomingView!.frame = CGRect(
-                x: 0, y: 0,
-                width: self.view.frame.width,
-                height: CGFloat(self.startFrame!.height/self.startFrame!.width * keyWindow.frame.width)
-            )
-            self.inputAccessoryView!.alpha = 0.0
-            self.inputAccessoryView?.isHidden = true
-        case .landscapeLeft, .landscapeRight :
-            self.zoomingView!.frame = CGRect(
-                x: 0, y: 0,
-                width: self.view.frame.width * 0.50,
-                height: CGFloat(self.startFrame!.height/self.startFrame!.width * (keyWindow.frame.width * 0.50))
-            )
-            self.inputAccessoryView!.alpha = 0.0
-            self.inputAccessoryView?.isHidden = true
-        default:
-            self.zoomingView!.frame = CGRect(
-                x: 0, y: 0,
-                width: self.view.frame.width,
-                height: CGFloat(self.startFrame!.height/self.startFrame!.width * keyWindow.frame.width)
-            )
-            self.inputAccessoryView?.alpha = 0.0
-            self.inputAccessoryView?.isHidden = true
-        }
-    }
-    
-    func handleZoomingViewWhanUpdateLayoutOfChatView(){
-        if let bgView = backgroundView {
-            if let keyWindow = self.view.window?.windowScene?.keyWindow{
-                checkOrientationForSetupZoomingView(keyWindow: keyWindow)
-                self.zoomingView!.center = bgView.center
-                self.inputAccessoryView?.alpha = 0.0
-                self.inputAccessoryView?.isHidden = true
-            }
-        }
-    }
+
 }

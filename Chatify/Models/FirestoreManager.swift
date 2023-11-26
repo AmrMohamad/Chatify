@@ -145,7 +145,7 @@ struct Chat {
         }
     }
     
-    func deleteImage(messages: [Message] ,messageID: String, index: Int, completion: @escaping ()->()) {
+    func deleteImage(message: Message ,messageID: String, index: Int, completion: @escaping ()->()) {
         // Additional logic for image messages if needed
         self.db.collection("messages").document(messageID).delete { error in
             if let error = error {
@@ -153,7 +153,7 @@ struct Chat {
             }else {
                 completion()
             }
-            if let imageTitle = messages[index].imageInfo["imageTitle"] as? String {
+            if let imageTitle = message.imageInfo["imageTitle"] as? String {
                 guard let currentUserUID = Auth.auth().currentUser?.uid else {return}
                 let storageRecImage = self.storage.reference()
                     .child("chat_images")
@@ -169,7 +169,7 @@ struct Chat {
         }
     }
     
-    func deleteVideo(messages: [Message] ,messageID: String, index: Int, completion: @escaping ()->()) {
+    func deleteVideo(message: Message ,messageID: String, index: Int, completion: @escaping ()->()) {
         // Additional logic for video messages if needed
         self.db.collection("messages").document(messageID).delete { error in
             if let error = error {
@@ -177,7 +177,7 @@ struct Chat {
             }else {
                 completion()
             }
-            if let titleVideo = messages[index].videoInfo["videoTitle"] as? String {
+            if let titleVideo = message.videoInfo["videoTitle"] as? String {
                 guard let currentUserUID = Auth.auth().currentUser?.uid else {return}
                 let storageRecVideo = self.storage.reference()
                     .child("chat_videos")
