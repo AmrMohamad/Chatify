@@ -33,6 +33,7 @@
 
 /* Begin PBXFileReference section */
 		2D2BC1212B0FA39A0014A2C6 /* FirestoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreManager.swift; sourceTree = "<group>"; };
+		2D54B8B12B1394A900B4627B /* Chatify.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Chatify.entitlements; sourceTree = "<group>"; };
 		2D5A1B322ADAB64D00456C3E /* ChatTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatTableViewCell.swift; sourceTree = "<group>"; };
 		2D5E141E2AD99A47009CBE98 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		2D620F852B05862400790672 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -112,6 +113,7 @@
 				2D6C07532AA65AFF0036E273 /* LaunchScreen.storyboard */,
 				2D6C07562AA65AFF0036E273 /* Info.plist */,
 				2D620F852B05862400790672 /* GoogleService-Info.plist */,
+				2D54B8B12B1394A900B4627B /* Chatify.entitlements */,
 			);
 			path = Chatify;
 			sourceTree = "<group>";
@@ -454,8 +456,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Chatify/Chatify.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BZ8RNUV8HS;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Chatify/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Chatify;
@@ -483,8 +487,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Chatify/Chatify.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BZ8RNUV8HS;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Chatify/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Chatify;

@@ -14,7 +14,7 @@ import FirebaseCore
 class MainViewController: UITableViewController {
 
     ///The reference of the DataBase FirebaseFirestore
-    let db = Firestore.firestore()
+    weak var db = Firestore.firestore()
     ///messages is a array of Message datatype
     var messages: [Message] = [Message]()
     /// messageDictionary is used to avoid messages/chats duplication
@@ -73,6 +73,7 @@ class MainViewController: UITableViewController {
         
     }
     override func viewWillAppear(_ animated: Bool) {
+        fetchMessages()
         navigationController?.navigationBar.prefersLargeTitles = true
         guard let navBar = navigationController?
             .navigationBar else {
@@ -80,12 +81,12 @@ class MainViewController: UITableViewController {
         }
         navBar.setBackgroundImage(UIImage(), for: .default)
         navBar.shadowImage = UIImage()
-        let variableBlurView = VariableBlurView(
+        lazy var variableBlurView = VariableBlurView(
             gradientMask: UIImage(named: "Gradient")!,
             maxBlurRadius: 28,
             filterType: "variableBlur"
         )
-        let hostingController = UIHostingController(rootView: variableBlurView)
+        lazy var hostingController = UIHostingController(rootView: variableBlurView)
 
         hostingController.view.backgroundColor = .clear
         hostingController.view.tag = 1
@@ -259,25 +260,29 @@ class MainViewController: UITableViewController {
         guard let uid = Auth.auth().currentUser?.uid else {
             return
         }
-        db.collection("user-messages").document(uid).collection("chats").addSnapshotListener { qS, error in
-            if let chats = qS?.documents {
-                for chat in chats{
-                    let lastMessage = chat.data()
-                    if let lastMessageID = lastMessage["lastMessage"] as? String{
-                        FirestoreManager.manager.fetchMessageWith(id: lastMessageID) { message in
-                            if let m = message{
-                                if m.chatPartnerID() == m.sendFromID || m.chatPartnerID() == m.sendToID{
-                                    if let existMessage = self.messageDictionary[m.chatPartnerID()] {
-                                        if existMessage.Date > m.Date {
-
+        if let refDB = db {
+            refDB.collection("user-messages").document(uid).collection("chats").addSnapshotListener { qS, error in
+                self.messageDictionary = [:]
+                self.messages = []
+                if let chats = qS?.documents {
+                    for chat in chats{
+                        let lastMessage = chat.data()
+                        if let lastMessageID = lastMessage["lastMessage"] as? String{
+                            FirestoreManager.manager.fetchMessageWith(id: lastMessageID) { message in
+                                if let m = message{
+                                    if m.chatPartnerID() == m.sendFromID || m.chatPartnerID() == m.sendToID{
+                                        if let existMessage = self.messageDictionary[m.chatPartnerID()] {
+                                            if existMessage.Date > m.Date {
+                                                
+                                            }else{
+                                                self.messageDictionary[m.chatPartnerID()] = m
+                                            }
                                         }else{
                                             self.messageDictionary[m.chatPartnerID()] = m
                                         }
-                                    }else{
-                                        self.messageDictionary[m.chatPartnerID()] = m
                                     }
+                                    self.reloadOfChatsTable()
                                 }
-                                self.reloadOfChatsTable()
                             }
                         }
                     }

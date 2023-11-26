@@ -439,6 +439,16 @@ class ChatViewController: UIViewController,
         case .text:
             messages.remove(at: messagesID.firstIndex(of: messageID)!)
             messagesID.remove(at: messagesID.firstIndex(of: messageID)!)
+            if let lastMessageID = messagesID.last {
+                self.db
+                    .collection("user-messages").document(deletedMessage.chatPartnerID())
+                    .collection("chats").document(currentUserUID)
+                    .setData(["lastMessage":lastMessageID])
+                self.db
+                    .collection("user-messages").document(currentUserUID)
+                    .collection("chats").document(deletedMessage.chatPartnerID())
+                    .setData(["lastMessage":lastMessageID])
+            }
             FirestoreManager.manager.chat.deleteText(messageID: messageID) {
                 currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
                     guard error == nil else {
@@ -455,6 +465,7 @@ class ChatViewController: UIViewController,
                         return
                     }
                 }
+                
                 DispatchQueue.main.async {
                     self.chatLogTableView.reloadData()
                 }
