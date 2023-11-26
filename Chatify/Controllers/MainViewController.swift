@@ -67,6 +67,7 @@ class MainViewController: UITableViewController {
         imageProfileContainer.layer.shadowOpacity = 0.30
         imageProfileContainer.layer.shadowColor = UIColor.black.cgColor
         imageProfileContainer.layer.shadowOffset = CGSize(width: 0, height: 0)
+        imageProfileContainer.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(navToSettingsVC)))
         return imageProfileContainer
     }()
     lazy var imageProfileContainerLargeTitleNavBar : UIView = {
@@ -77,6 +78,7 @@ class MainViewController: UITableViewController {
         imageProfileContainer.layer.shadowOpacity = 0.30
         imageProfileContainer.layer.shadowColor = UIColor.black.cgColor
         imageProfileContainer.layer.shadowOffset = CGSize(width: 0, height: 0)
+        imageProfileContainer.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(navToSettingsVC)))
         return imageProfileContainer
     }()
     
@@ -93,7 +95,7 @@ class MainViewController: UITableViewController {
         fetchMessages()
         
     }
-    @objc private func profileButtonTapped(_ sender: ProfileButton) {}
+    
     override func viewWillAppear(_ animated: Bool) {
         fetchMessages()
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -179,7 +181,6 @@ class MainViewController: UITableViewController {
         
         let containerView = UIView()
         containerView.translatesAutoresizingMaskIntoConstraints = false
-//        containerView.backgroundColor = .yellow
         customTitleView.addSubview(containerView)
         
         containerView.leadingAnchor
@@ -263,7 +264,10 @@ class MainViewController: UITableViewController {
         chatVC.user = user
         self.navigationController?.pushViewController(chatVC, animated: true)
     }
-    
+    @objc func navToSettingsVC(){
+        let settingsVC = ChatifySettingsViewController(style: .insetGrouped)
+        self.navigationController?.pushViewController(settingsVC, animated: true)
+    }
     @objc func handeleLogOut(){
         do{
             try Auth.auth().signOut()

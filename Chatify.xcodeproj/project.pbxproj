@@ -18,6 +18,7 @@
 		2D6C07522AA65AFF0036E273 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2D6C07512AA65AFF0036E273 /* Assets.xcassets */; };
 		2D6C07552AA65AFF0036E273 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2D6C07532AA65AFF0036E273 /* LaunchScreen.storyboard */; };
 		2D7C102F2B13F579009C5C0F /* UINavigationItem+LargeTitleAccessoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7C102E2B13F579009C5C0F /* UINavigationItem+LargeTitleAccessoryView.swift */; };
+		2D7C10322B1405A6009C5C0F /* ChatifySettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7C10312B1405A6009C5C0F /* ChatifySettingsViewController.swift */; };
 		2D7E0DBE2B0D5F96009D9A3D /* Inject in Frameworks */ = {isa = PBXBuildFile; productRef = 2D7E0DBD2B0D5F96009D9A3D /* Inject */; };
 		2D8963352AC3225F00F5E73F /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8963342AC3225F00F5E73F /* Extensions.swift */; };
 		2D8CE8242AEB0A8700F67783 /* MessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8CE8232AEB0A8700F67783 /* MessageTableViewCell.swift */; };
@@ -48,6 +49,7 @@
 		2D6C07542AA65AFF0036E273 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2D6C07562AA65AFF0036E273 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2D7C102E2B13F579009C5C0F /* UINavigationItem+LargeTitleAccessoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UINavigationItem+LargeTitleAccessoryView.swift"; sourceTree = "<group>"; };
+		2D7C10312B1405A6009C5C0F /* ChatifySettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatifySettingsViewController.swift; sourceTree = "<group>"; };
 		2D8963342AC3225F00F5E73F /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		2D8CE8232AEB0A8700F67783 /* MessageTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageTableViewCell.swift; sourceTree = "<group>"; };
 		2DA155072AAE0C540012AFCD /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
@@ -131,6 +133,15 @@
 			path = Chatify;
 			sourceTree = "<group>";
 		};
+		2D7C10302B1403E9009C5C0F /* LoginViewController */ = {
+			isa = PBXGroup;
+			children = (
+				2DA155072AAE0C540012AFCD /* LoginViewController.swift */,
+				2DCC3FFC2AC05AAE00156346 /* LoginViewController+Handlers.swift */,
+			);
+			path = LoginViewController;
+			sourceTree = "<group>";
+		};
 		2D8963332AC3223500F5E73F /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
@@ -142,11 +153,11 @@
 		2DA155022AADE6580012AFCD /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				2DA155072AAE0C540012AFCD /* LoginViewController.swift */,
-				2DCC3FFC2AC05AAE00156346 /* LoginViewController+Handlers.swift */,
+				2D7C10302B1403E9009C5C0F /* LoginViewController */,
 				2D6C074C2AA65AFD0036E273 /* MainViewController.swift */,
 				2DB4360A2ABB1C9300BF1A60 /* NewMeesageViewController.swift */,
 				2D54B8B22B13DB8A00B4627B /* ChatViewController */,
+				2D7C10312B1405A6009C5C0F /* ChatifySettingsViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -318,6 +329,7 @@
 				2D8963352AC3225F00F5E73F /* Extensions.swift in Sources */,
 				2D6C074D2AA65AFD0036E273 /* MainViewController.swift in Sources */,
 				2DB4360B2ABB1C9300BF1A60 /* NewMeesageViewController.swift in Sources */,
+				2D7C10322B1405A6009C5C0F /* ChatifySettingsViewController.swift in Sources */,
 				2D6C07492AA65AFD0036E273 /* AppDelegate.swift in Sources */,
 				2D6C074B2AA65AFD0036E273 /* SceneDelegate.swift in Sources */,
 				2DD054D32AE174160086664F /* VariableBlurUIView.swift in Sources */,
