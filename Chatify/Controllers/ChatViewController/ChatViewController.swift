@@ -367,18 +367,11 @@ class ChatViewController: UIViewController,
         let indexOfDeletedMessage = messagesID.firstIndex(of: messageID)!
         switch deletedMessage.messageType {
         case .text:
-            messages.remove(at: indexOfDeletedMessage)
-            messagesID.remove(at: indexOfDeletedMessage)
-            if let lastMessageID = messagesID.last {
-                self.db
-                    .collection("user-messages").document(deletedMessage.chatPartnerID())
-                    .collection("chats").document(currentUserUID)
-                    .setData(["lastMessage":lastMessageID])
-                self.db
-                    .collection("user-messages").document(currentUserUID)
-                    .collection("chats").document(deletedMessage.chatPartnerID())
-                    .setData(["lastMessage":lastMessageID])
-            }
+            updateLastLastMessageAfterDeleteMessageOf(
+                message: indexOfDeletedMessage,
+                deletedMessage: deletedMessage,
+                currentUserUID: currentUserUID
+            )
             FirestoreManager.manager.chat.deleteText(messageID: messageID) {
                 currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
                     guard error == nil else {
@@ -402,18 +395,11 @@ class ChatViewController: UIViewController,
             }
 
         case .image:
-            messages.remove(at: indexOfDeletedMessage)
-            messagesID.remove(at:indexOfDeletedMessage)
-            if let lastMessageID = messagesID.last {
-                self.db
-                    .collection("user-messages").document(deletedMessage.chatPartnerID())
-                    .collection("chats").document(currentUserUID)
-                    .setData(["lastMessage":lastMessageID])
-                self.db
-                    .collection("user-messages").document(currentUserUID)
-                    .collection("chats").document(deletedMessage.chatPartnerID())
-                    .setData(["lastMessage":lastMessageID])
-            }
+            updateLastLastMessageAfterDeleteMessageOf(
+                message: indexOfDeletedMessage,
+                deletedMessage: deletedMessage,
+                currentUserUID: currentUserUID
+            )
             FirestoreManager.manager.chat.deleteImage(
                 message: deletedMessage,
                 messageID: messageID,
@@ -439,18 +425,11 @@ class ChatViewController: UIViewController,
                 }
             }
         case .video:
-            messages.remove(at: indexOfDeletedMessage)
-            messagesID.remove(at: indexOfDeletedMessage)
-            if let lastMessageID = messagesID.last {
-                self.db
-                    .collection("user-messages").document(deletedMessage.chatPartnerID())
-                    .collection("chats").document(currentUserUID)
-                    .setData(["lastMessage":lastMessageID])
-                self.db
-                    .collection("user-messages").document(currentUserUID)
-                    .collection("chats").document(deletedMessage.chatPartnerID())
-                    .setData(["lastMessage":lastMessageID])
-            }
+            updateLastLastMessageAfterDeleteMessageOf(
+                message: indexOfDeletedMessage,
+                deletedMessage: deletedMessage,
+                currentUserUID: currentUserUID
+            )
             FirestoreManager.manager.chat.deleteVideo(
                 message: deletedMessage,
                 messageID: messageID,
@@ -477,7 +456,24 @@ class ChatViewController: UIViewController,
             }
         }
     }
-    
+    func updateLastLastMessageAfterDeleteMessageOf(
+        message index: Int,
+        deletedMessage: Message,
+        currentUserUID uid: String
+    ){
+        messages.remove(at: index)
+        messagesID.remove(at: index)
+        if let lastMessageID = messagesID.last {
+            self.db
+                .collection("user-messages").document(deletedMessage.chatPartnerID())
+                .collection("chats").document(uid)
+                .setData(["lastMessage":lastMessageID])
+            self.db
+                .collection("user-messages").document(uid)
+                .collection("chats").document(deletedMessage.chatPartnerID())
+                .setData(["lastMessage":lastMessageID])
+        }
+    }
     //MARK: - Sending Video & Image
     
     @objc func handleSendingMediaMessage(){
