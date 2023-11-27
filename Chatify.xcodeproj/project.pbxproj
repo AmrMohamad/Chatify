@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2D06B8732B14BA0B00DCA1FA /* ChatViewController+UITableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D06B8722B14BA0B00DCA1FA /* ChatViewController+UITableViewDataSource.swift */; };
 		2D2BC1222B0FA39A0014A2C6 /* FirestoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2BC1212B0FA39A0014A2C6 /* FirestoreManager.swift */; };
 		2D54B8B42B13DBCE00B4627B /* ChatViewController+HandleZoomingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D54B8B32B13DBCE00B4627B /* ChatViewController+HandleZoomingView.swift */; };
 		2D5A1B332ADAB64D00456C3E /* ChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5A1B322ADAB64D00456C3E /* ChatTableViewCell.swift */; };
@@ -35,6 +36,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2D06B8722B14BA0B00DCA1FA /* ChatViewController+UITableViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatViewController+UITableViewDataSource.swift"; sourceTree = "<group>"; };
 		2D2BC1212B0FA39A0014A2C6 /* FirestoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreManager.swift; sourceTree = "<group>"; };
 		2D54B8B12B1394A900B4627B /* Chatify.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Chatify.entitlements; sourceTree = "<group>"; };
 		2D54B8B32B13DBCE00B4627B /* ChatViewController+HandleZoomingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatViewController+HandleZoomingView.swift"; sourceTree = "<group>"; };
@@ -93,6 +95,7 @@
 			children = (
 				2DACA5E82AD6D49E0093EBF4 /* ChatViewController.swift */,
 				2D54B8B32B13DBCE00B4627B /* ChatViewController+HandleZoomingView.swift */,
+				2D06B8722B14BA0B00DCA1FA /* ChatViewController+UITableViewDataSource.swift */,
 			);
 			path = ChatViewController;
 			sourceTree = "<group>";
@@ -338,6 +341,7 @@
 				2DCC3FFD2AC05AAE00156346 /* LoginViewController+Handlers.swift in Sources */,
 				2DB4360D2ABB2BE300BF1A60 /* AddNewUserCell.swift in Sources */,
 				2D5A1B332ADAB64D00456C3E /* ChatTableViewCell.swift in Sources */,
+				2D06B8732B14BA0B00DCA1FA /* ChatViewController+UITableViewDataSource.swift in Sources */,
 				2DDBDAE12B0F6FD100991D6D /* InputMessageContainerView.swift in Sources */,
 				2DACA5E92AD6D49F0093EBF4 /* ChatViewController.swift in Sources */,
 				2D7C102F2B13F579009C5C0F /* UINavigationItem+LargeTitleAccessoryView.swift in Sources */,

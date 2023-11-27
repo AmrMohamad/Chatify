@@ -12,9 +12,9 @@ import FirebaseCore
 import FirebaseStorage
 
 struct FirestoreManager {
-    static let manager = FirestoreManager()
+    static var manager = FirestoreManager()
     let db = Firestore.firestore()
-    let chat = Chat()
+    var chat = Chat()
     func fetchMessageWith(
         id: String,
         completionHandler: @escaping (Message?) -> Void
@@ -133,6 +133,78 @@ struct FirestoreManager {
 struct Chat {
     let db = Firestore.firestore()
     let storage = Storage.storage()
+    var user: User?
+    
+    func sendMessage(
+        withProperties properties: [String: Any],
+        typeOfMessage type: MessageType
+    ){
+        if properties.isEmpty{
+            return
+        }else {
+            if let sender = Auth.auth().currentUser?.uid{
+                let currentTime = Date().timeIntervalSince1970
+                var values: [String: Any] = [
+                    "messageType"  : type.rawValue,
+                    "sendFromID"   : sender,
+                    "sendToID"     : user!.id,
+                    "Date"         : currentTime
+                ]
+                properties.forEach({values[$0] = $1})
+                var ref: DocumentReference? = nil
+                ref = db.collection("messages")
+                    .addDocument(data: values) { error in
+                        if error != nil {
+                            print("error with sending message: \(error!.localizedDescription)")
+                            return
+                        }
+                        if let messageRef = ref {
+                            let messageID = messageRef.documentID
+                            if let userID = self.user?.id{
+                                self.sendMessageToDB(
+                                    messageID: messageID,
+                                    currentTime: currentTime,
+                                    sender: sender,
+                                    receiver: userID
+                                )
+                            }
+                        }
+                    }
+            }
+        }
+    }
+    private func sendMessageToDB(
+        messageID: String,
+        currentTime: TimeInterval,
+        sender sendFromID: String,
+        receiver sendToID: String
+    ){
+        let se = self.db.collection("user-messages").document(sendFromID)
+            .collection("chats").document(self.user!.id)
+            .collection("chatContent").document("messagesID")
+        
+        se.updateData([messageID:currentTime]) { error in
+            self.db.collection("user-messages").document(sendFromID).setData(["hasChats":true])
+            self.db.collection("user-messages").document(sendFromID)
+                .collection("chats").document(sendToID).setData(["lastMessage":messageID])
+            if error != nil {
+                se.setData([messageID:currentTime])
+            }
+        }
+        
+        let re = self.db.collection("user-messages").document(self.user!.id)
+            .collection("chats").document(sendFromID)
+            .collection("chatContent").document("messagesID")
+        
+        re.updateData([messageID:currentTime]) { error in
+            self.db.collection("user-messages").document(sendToID).setData(["hasChats":true])
+            self.db.collection("user-messages").document(sendToID)
+                .collection("chats").document(sendFromID).setData(["lastMessage":messageID])
+            if error != nil {
+                re.setData([messageID:currentTime])
+            }
+        }
+    }
     
     func deleteText(messageID: String, completion: @escaping ()->()) {
         // Additional logic for text messages if needed
