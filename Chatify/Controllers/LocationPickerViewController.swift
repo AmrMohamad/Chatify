@@ -16,6 +16,12 @@ class LocationPickerViewController: UIViewController {
         return map
     }()
     
+    private var coordinates: CLLocationCoordinate2D?{
+        didSet{
+            dump(coordinates)
+        }
+    }
+    
     private lazy var sendLoactionButton: UIBarButtonItem = {
         let cButton = UIButton(type: .system)
         cButton.setTitle("Send", for: .normal)
@@ -52,7 +58,17 @@ class LocationPickerViewController: UIViewController {
         print("PICKED")
     }
     @objc func didTapOnMap(_ gesture: UITapGestureRecognizer){
-        print("PICKED map")
+        let locationInView = gesture.location(in: map)
+        let coordinates = map.convert(locationInView, toCoordinateFrom: map)
+        self.coordinates = coordinates
+        
+        for annotation in map.annotations {
+            map.removeAnnotation(annotation)
+        }
+        
+        let pin = MKPointAnnotation()
+        pin.coordinate = coordinates
+        map.addAnnotation(pin)
     }
     
 }
