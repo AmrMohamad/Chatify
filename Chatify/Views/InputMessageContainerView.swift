@@ -17,16 +17,16 @@ class InputMessageContainerView: UIView, UITextViewDelegate {
                            ),
                            for: .touchUpInside
                 )
-            sendMediaButton
+            sendAttachmentButton
                 .addTarget(chatViewControllerDelegate,
                            action: #selector(
-                            chatViewControllerDelegate!.handleSendingMediaMessage
+                            chatViewControllerDelegate!.presentAttachmentsActionSheet
                            ),
                            for: .touchUpInside
                 )
         }
     }
-    lazy var sendMediaButton: UIButton = {
+    lazy var sendAttachmentButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(systemName: "photo.on.rectangle.angled"), for: .normal)
@@ -53,29 +53,29 @@ class InputMessageContainerView: UIView, UITextViewDelegate {
         super.init(frame: frame)
         backgroundColor = .systemGroupedBackground.withAlphaComponent(0.95)
         
-        addSubview(sendMediaButton)
+        addSubview(sendAttachmentButton)
         addSubview(writeMessageTextView)
         addSubview(sendMessageButton)
         
         NSLayoutConstraint.activate([
-            sendMediaButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
-            sendMediaButton.centerYAnchor.constraint(equalTo: centerYAnchor),
-            sendMediaButton.heightAnchor.constraint(equalToConstant: 44),
-            sendMediaButton.widthAnchor.constraint(equalToConstant: 44)
+            sendAttachmentButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
+            sendAttachmentButton.centerYAnchor.constraint(equalTo: centerYAnchor),
+            sendAttachmentButton.heightAnchor.constraint(equalToConstant: 44),
+            sendAttachmentButton.widthAnchor.constraint(equalToConstant: 44)
         ])
         
         NSLayoutConstraint.activate([
             writeMessageTextView.topAnchor.constraint(equalTo: topAnchor, constant: 2),
             writeMessageTextView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -2),
-            writeMessageTextView.leadingAnchor.constraint(equalTo: sendMediaButton.trailingAnchor, constant: 10),
+            writeMessageTextView.leadingAnchor.constraint(equalTo: sendAttachmentButton.trailingAnchor, constant: 10),
             writeMessageTextView.trailingAnchor.constraint(equalTo: sendMessageButton.leadingAnchor, constant: -10)
             ]
         )
         
         NSLayoutConstraint.activate([
             sendMessageButton.centerYAnchor.constraint(equalTo: centerYAnchor),
-            sendMessageButton.topAnchor.constraint(equalTo: sendMediaButton.topAnchor),
-            sendMessageButton.bottomAnchor.constraint(equalTo: sendMediaButton.bottomAnchor),
+            sendMessageButton.topAnchor.constraint(equalTo: sendAttachmentButton.topAnchor),
+            sendMessageButton.bottomAnchor.constraint(equalTo: sendAttachmentButton.bottomAnchor),
             sendMessageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             sendMessageButton.widthAnchor.constraint(equalToConstant: 44)
             ]

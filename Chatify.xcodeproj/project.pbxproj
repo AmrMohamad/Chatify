@@ -32,6 +32,7 @@
 		2DD054D32AE174160086664F /* VariableBlurUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD054D22AE174160086664F /* VariableBlurUIView.swift */; };
 		2DD054D52AE1743A0086664F /* AsImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD054D42AE1743A0086664F /* AsImage.swift */; };
 		2DDBDAE12B0F6FD100991D6D /* InputMessageContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDBDAE02B0F6FD100991D6D /* InputMessageContainerView.swift */; };
+		2DFDDC182B163668008915A8 /* LocationPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFDDC172B163668008915A8 /* LocationPickerViewController.swift */; };
 		B5955674E0BF03A77F653F2C /* Pods_Chatify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5F60F88CBFEFBD673C51F8BE /* Pods_Chatify.framework */; };
 /* End PBXBuildFile section */
 
@@ -63,6 +64,7 @@
 		2DD054D22AE174160086664F /* VariableBlurUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariableBlurUIView.swift; sourceTree = "<group>"; };
 		2DD054D42AE1743A0086664F /* AsImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsImage.swift; sourceTree = "<group>"; };
 		2DDBDAE02B0F6FD100991D6D /* InputMessageContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMessageContainerView.swift; sourceTree = "<group>"; };
+		2DFDDC172B163668008915A8 /* LocationPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPickerViewController.swift; sourceTree = "<group>"; };
 		49701EC90B6FD722D6A0806B /* Pods-Chatify.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chatify.debug.xcconfig"; path = "Target Support Files/Pods-Chatify/Pods-Chatify.debug.xcconfig"; sourceTree = "<group>"; };
 		5F60F88CBFEFBD673C51F8BE /* Pods_Chatify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Chatify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE33BC174F8672D934D046C7 /* Pods-Chatify.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chatify.release.xcconfig"; path = "Target Support Files/Pods-Chatify/Pods-Chatify.release.xcconfig"; sourceTree = "<group>"; };
@@ -160,6 +162,7 @@
 				2D6C074C2AA65AFD0036E273 /* MainViewController.swift */,
 				2DB4360A2ABB1C9300BF1A60 /* NewMeesageViewController.swift */,
 				2D54B8B22B13DB8A00B4627B /* ChatViewController */,
+				2DFDDC172B163668008915A8 /* LocationPickerViewController.swift */,
 				2D7C10312B1405A6009C5C0F /* ChatifySettingsViewController.swift */,
 			);
 			path = Controllers;
@@ -331,6 +334,7 @@
 				2DD054D52AE1743A0086664F /* AsImage.swift in Sources */,
 				2D8963352AC3225F00F5E73F /* Extensions.swift in Sources */,
 				2D6C074D2AA65AFD0036E273 /* MainViewController.swift in Sources */,
+				2DFDDC182B163668008915A8 /* LocationPickerViewController.swift in Sources */,
 				2DB4360B2ABB1C9300BF1A60 /* NewMeesageViewController.swift in Sources */,
 				2D7C10322B1405A6009C5C0F /* ChatifySettingsViewController.swift in Sources */,
 				2D6C07492AA65AFD0036E273 /* AppDelegate.swift in Sources */,

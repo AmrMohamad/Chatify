@@ -474,13 +474,50 @@ class ChatViewController: UIViewController,
                 .setData(["lastMessage":lastMessageID])
         }
     }
-    //MARK: - Sending Video & Image
+    //MARK: - Picking an attachment
+    @objc func presentAttachmentsActionSheet(){
+        let attachmentsSheet = UIAlertController(title: "Attach Media", message: "What would you like to attach?", preferredStyle: .actionSheet)
+        
+        attachmentsSheet.addAction(
+            UIAlertAction(title: "Photos", style: .default) { [weak self] _ in
+                self?.handleSendingImageMessage()
+            }
+        )
+        
+        attachmentsSheet.addAction(
+            UIAlertAction(title: "Videos", style: .default) { [weak self] _ in
+                self?.handleSendingVideoMessage()
+            }
+        )
+        
+        attachmentsSheet.addAction(
+            UIAlertAction(title: "Location", style: .default) { [weak self] _ in
+                self?.handleSendingLocationMessage()
+            }
+        )
+        
+        attachmentsSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        present(attachmentsSheet, animated: true)
+    }
     
-    @objc func handleSendingMediaMessage(){
+    @objc func handleSendingLocationMessage(){
+        let locationPickerVC = LocationPickerViewController()
+        locationPickerVC.title = "Pick a location"
+        navigationController?.pushViewController(locationPickerVC, animated: true)
+    }
+    //MARK: - Sending Video & Image
+    @objc func handleSendingImageMessage(){
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = self
         imagePicker.allowsEditing = true
-        imagePicker.mediaTypes = [UTType.image.identifier,UTType.video.identifier,UTType.movie.identifier,UTType.mpeg.identifier]
+        imagePicker.mediaTypes = [UTType.image.identifier]
+        present(imagePicker, animated: true)
+    }
+    @objc func handleSendingVideoMessage(){
+        let imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
+        imagePicker.allowsEditing = true
+        imagePicker.mediaTypes = [UTType.video.identifier,UTType.movie.identifier,UTType.mpeg.identifier]
         present(imagePicker, animated: true)
     }
     func imagePickerController(

@@ -430,6 +430,7 @@ class MainViewController: UITableViewController {
             user.id = chatPartnerID
             handleNavigationToChat(of: user)
         }
+        tableView.deselectRow(at: indexPath, animated: true)
     }
 }
 
