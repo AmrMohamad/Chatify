@@ -504,6 +504,9 @@ class ChatViewController: UIViewController,
         let locationPickerVC = LocationPickerViewController()
         locationPickerVC.title = "Pick a location"
         navigationController?.pushViewController(locationPickerVC, animated: true)
+        locationPickerVC.completion = { [weak self] coordinates in
+            print(coordinates)
+        }
     }
     //MARK: - Sending Video & Image
     @objc func handleSendingImageMessage(){
