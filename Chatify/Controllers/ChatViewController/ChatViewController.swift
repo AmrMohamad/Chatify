@@ -454,6 +454,8 @@ class ChatViewController: UIViewController,
                     }
                 }
             }
+        case .location :
+            break
         }
     }
     func updateLastLastMessageAfterDeleteMessageOf(
@@ -499,15 +501,32 @@ class ChatViewController: UIViewController,
         attachmentsSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         present(attachmentsSheet, animated: true)
     }
-    
+    //MARK: - Sending Location
     @objc func handleSendingLocationMessage(){
         let locationPickerVC = LocationPickerViewController()
         locationPickerVC.title = "Pick a location"
         navigationController?.pushViewController(locationPickerVC, animated: true)
         locationPickerVC.completion = { [weak self] coordinates in
-            print(coordinates)
+            self?.handleSendLocation(
+                latitude: coordinates.latitude,
+                longitude: coordinates.longitude
+            )
         }
     }
+    
+    private func handleSendLocation(latitude lat: Double,longitude long: Double){
+        let locationProperties : [String: Any] = [
+            "locationInfo" : [
+                "latitude" : lat,
+                "longitude":long,
+            ] as [String: Any]
+        ] as [String: Any]
+        FirestoreManager.manager.chat.sendMessage(
+            withProperties: locationProperties,
+            typeOfMessage: .location
+        )
+    }
+    
     //MARK: - Sending Video & Image
     @objc func handleSendingImageMessage(){
         let imagePicker = UIImagePickerController()

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreLocation
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseCore
@@ -31,6 +32,8 @@ extension ChatViewController {
             handleSetupOfVideoMessageCell(cell, withContentOf: message)
         case .text:
             handleSetupOfTextMessageCell(cell, withContentOf: message)
+        case .location:
+            handleSetupOfLocationMessageCell(cell, withContentOf: message)
         }
         let timeOfSend = Date(timeIntervalSince1970: message.Date)
         let dataFormatter = DateFormatter()
@@ -88,6 +91,7 @@ extension ChatViewController {
         cell.bubbleViewWidthAnchor = cell.bubbleView.widthAnchor.constraint(equalToConstant: CGFloat(sizeOfText(message.text).width + 80.0))
         cell.bubbleViewWidthAnchor?.isActive = true
         cell.playButton.isHidden = true
+        cell.snapOfMap.isHidden  = true
     }
     
     private func handleSetupOfImageMessageCell(_ cell: MessageTableViewCell, withContentOf  message: Message){
@@ -108,6 +112,7 @@ extension ChatViewController {
         cell.imageMessageView.isHidden = false
         cell.messageTextContent.isHidden = true
         cell.playButton.isHidden = true
+        cell.snapOfMap.isHidden  = true
     }
     
     private func handleSetupOfVideoMessageCell(_ cell: MessageTableViewCell, withContentOf  message: Message){
@@ -134,6 +139,24 @@ extension ChatViewController {
             cell.imageMessageView.isHidden = false
             cell.messageTextContent.isHidden = true
             cell.playButton.isHidden = false
+            cell.snapOfMap.isHidden  = true
         }
+    }
+    
+    private func handleSetupOfLocationMessageCell(_ cell: MessageTableViewCell, withContentOf  message: Message){
+        cell.imageMessageView.isHidden = true
+        cell.messageTextContent.isHidden = true
+        cell.playButton.isHidden = true
+        cell.snapOfMap.isHidden  = false
+        let lat  = message.locationInfo["latitude"] as! CLLocationDegrees
+        let long = message.locationInfo["longitude"] as! CLLocationDegrees
+        print(lat,long)
+        cell.snapOfMap.configureSnap(with: CLLocation(latitude: lat, longitude: long))
+        cell.bubbleViewWidthAnchor?.isActive = false
+        cell.bubbleViewWidthAnchor = cell.bubbleView.widthAnchor.constraint(equalToConstant: 256)
+        cell.bubbleViewWidthAnchor?.isActive = true
+        cell.bubbleViewHeightAnchor?.isActive = false
+        cell.bubbleViewHeightAnchor = cell.bubbleView.heightAnchor.constraint(equalToConstant: 256)
+        cell.bubbleViewHeightAnchor?.isActive = true
     }
 }

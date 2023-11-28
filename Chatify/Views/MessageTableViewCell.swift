@@ -12,10 +12,12 @@ class MessageTableViewCell: UITableViewCell {
     
     static let identifier = "MessageCell"
     
-    var chatVC: ChatViewController?
-    var videoURL: URL?
-    var player: AVPlayer?
+    var chatVC      : ChatViewController?
+    var videoURL    : URL?
+    var player      : AVPlayer?
     var playerLayer : AVPlayerLayer?
+    var latitude    : Double?
+    var longitude   : Double?
     
     let messageTextContent: UILabel = {
         let tv = UILabel()
@@ -90,6 +92,13 @@ class MessageTableViewCell: UITableViewCell {
         let aiv = UIActivityIndicatorView(style: .whiteLarge)
         aiv.translatesAutoresizingMaskIntoConstraints = false
         return aiv
+    }()
+    
+    lazy var snapOfMap: LocationSnapshot = {
+        let view = LocationSnapshot(frame: bubbleView.bounds)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        
+        return view
     }()
     
     override var isHighlighted: Bool {
@@ -168,8 +177,7 @@ class MessageTableViewCell: UITableViewCell {
             timeOfSend.leadingAnchor.constraint(equalTo: messageTextContent.trailingAnchor, constant: -32),
             timeOfSend.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -6),
             timeOfSend.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -3),
-            timeOfSend.heightAnchor.constraint(equalToConstant: 10),
-//            timeOfSend.widthAnchor.
+            timeOfSend.heightAnchor.constraint(equalToConstant: 10)
         ])
         
         bubbleView.addSubview(playButton)
@@ -187,8 +195,13 @@ class MessageTableViewCell: UITableViewCell {
             activityIndicator.widthAnchor.constraint(equalTo: bubbleView.widthAnchor, multiplier: 0.36),
             activityIndicator.heightAnchor.constraint(equalTo: bubbleView.heightAnchor, multiplier: 0.36)
         ])
-        
-        
+        bubbleView.addSubview(snapOfMap)
+        NSLayoutConstraint.activate([
+            snapOfMap.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor),
+            snapOfMap.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor),
+            snapOfMap.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor),
+            snapOfMap.topAnchor.constraint(equalTo: bubbleView.topAnchor),
+        ])
     }
     
     required init?(coder: NSCoder) {

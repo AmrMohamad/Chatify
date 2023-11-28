@@ -30,12 +30,13 @@ struct FirestoreManager {
                        let text       = messageData["text"] as? String {
                         let message = Message(
                             messageType: MessageType(rawValue: "text") ?? .text,
-                            sendToID   : sendToID,
-                            sendFromID : sendFromID,
-                            Date       : date,
-                            text       : text,
-                            imageInfo  : [:],
-                            videoInfo  : [:]
+                            sendToID    : sendToID,
+                            sendFromID  : sendFromID,
+                            Date        : date,
+                            text        : text,
+                            imageInfo   : [:],
+                            videoInfo   : [:],
+                            locationInfo: [:]
                         )
                         completionHandler(message)
                     }
@@ -46,12 +47,13 @@ struct FirestoreManager {
                        let videoInfo  = messageData["videoInfo"] as? [String:Any] {
                         let message = Message(
                             messageType: MessageType(rawValue: "video") ?? .video,
-                            sendToID   : sendToID,
-                            sendFromID : sendFromID,
-                            Date       : date,
-                            text       : "",
-                            imageInfo  : [:],
-                            videoInfo  : videoInfo
+                            sendToID    : sendToID,
+                            sendFromID  : sendFromID,
+                            Date        : date,
+                            text        : "",
+                            imageInfo   : [:],
+                            videoInfo   : videoInfo,
+                            locationInfo: [:]
                         )
                         completionHandler(message)
                     }
@@ -62,12 +64,30 @@ struct FirestoreManager {
                        let imageInfo   = messageData["imageInfo"] as? [String:Any] {
                         let message = Message(
                             messageType: MessageType(rawValue: "image") ?? .image,
-                            sendToID   : sendToID,
-                            sendFromID : sendFromID,
-                            Date       : date,
-                            text       : "",
-                            imageInfo  : imageInfo,
-                            videoInfo  : [:]
+                            sendToID    : sendToID,
+                            sendFromID  : sendFromID,
+                            Date        : date,
+                            text        : "",
+                            imageInfo   : imageInfo,
+                            videoInfo   : [:],
+                            locationInfo: [:]
+                        )
+                        completionHandler(message)
+                    }
+                case "location":
+                    if let sendToID   = messageData["sendToID"] as? String,
+                       let sendFromID = messageData["sendFromID"] as? String,
+                       let date       = messageData["Date"] as? Double,
+                       let locationInfo  = messageData["locationInfo"] as? [String:Any] {
+                        let message = Message(
+                            messageType: MessageType(rawValue: "location") ?? .location,
+                            sendToID    : sendToID,
+                            sendFromID  : sendFromID,
+                            Date        : date,
+                            text        : "",
+                            imageInfo   : [:],
+                            videoInfo   : [:],
+                            locationInfo: locationInfo
                         )
                         completionHandler(message)
                     }

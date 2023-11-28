@@ -29,7 +29,7 @@ class InputMessageContainerView: UIView, UITextViewDelegate {
     lazy var sendAttachmentButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(systemName: "photo.on.rectangle.angled"), for: .normal)
+        button.setImage(UIImage(systemName: "paperclip"), for: .normal)
         return button
     }()
     lazy var sendMessageButton: UIButton = {

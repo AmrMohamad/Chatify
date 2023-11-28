@@ -9,13 +9,14 @@ import UIKit
 import MapKit
 import CoreLocation
 
-class LocationPickerViewController: UIViewController {
+class LocationPickerViewController: UIViewController, CLLocationManagerDelegate {
 
     private lazy var map: MKMapView = {
         let map = MKMapView()
         return map
     }()
     
+    let locationManager = CLLocationManager()
     private var coordinates: CLLocationCoordinate2D?
     public var completion: ((CLLocationCoordinate2D)->())?
     
@@ -36,6 +37,11 @@ class LocationPickerViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         navigationItem.rightBarButtonItem = sendLoactionButton
+        
+        locationManager.delegate = self
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.requestLocation()
+        locationManager.startUpdatingLocation()
         
         map.isUserInteractionEnabled = true
         let gesture = UITapGestureRecognizer(
@@ -73,4 +79,24 @@ class LocationPickerViewController: UIViewController {
         map.addAnnotation(pin)
     }
     
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let location = locations.last {
+            locationManager.stopUpdatingLocation()
+            renderMap(location)
+        }
+    }
+    func renderMap(_ location: CLLocation){
+        let coordinate = CLLocationCoordinate2D(
+            latitude: location.coordinate.latitude,
+            longitude: location.coordinate.longitude
+        )
+        
+        let span = MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+        let region = MKCoordinateRegion(center: coordinate, span: span)
+        map.setRegion(region, animated: true)
+        
+    }
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print(error)
+    }
 }

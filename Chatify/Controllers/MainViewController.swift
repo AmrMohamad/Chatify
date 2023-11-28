@@ -403,6 +403,8 @@ class MainViewController: UITableViewController {
             cell.lastMessageLabel.text = "📸 Photo"
         case .video:
             cell.lastMessageLabel.text = "🎥 Video"
+        case .location:
+            cell.lastMessageLabel.text = "📍 Location"
         }
         
         let timeOfSend = Date(timeIntervalSince1970: message.Date)

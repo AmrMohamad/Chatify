@@ -17,6 +17,7 @@ struct Message {
     var text       : String
     var imageInfo  : [String : Any]
     var videoInfo  : [String : Any]
+    var locationInfo  : [String : Any]
     
     ///chatPartnerID is returning the ID of receiver
     func chatPartnerID() -> String {
@@ -25,7 +26,8 @@ struct Message {
 }
 
 enum MessageType: String {
-    case image = "image"
-    case video = "video"
-    case text  = "text"
+    case image    = "image"
+    case video    = "video"
+    case text     = "text"
+    case location = "location"
 }
