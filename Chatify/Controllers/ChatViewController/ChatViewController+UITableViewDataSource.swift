@@ -158,5 +158,21 @@ extension ChatViewController {
         cell.bubbleViewHeightAnchor?.isActive = false
         cell.bubbleViewHeightAnchor = cell.bubbleView.heightAnchor.constraint(equalToConstant: 256)
         cell.bubbleViewHeightAnchor?.isActive = true
+        self.currentMessageOfTappedCell = message
+        cell.snapOfMap.addGestureRecognizer(UITapGestureRecognizer(
+            target: self,
+            action: #selector(didTaped))
+        )
+        
+    }
+    @objc func didTaped(_ gesture: UITapGestureRecognizer){
+        if let message = self.currentMessageOfTappedCell {
+            let latitude = message.locationInfo["latitude"] as! Double
+            let longitude = message.locationInfo["longitude"] as! Double
+            let vc = LocationPickerViewController(coordinates: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
+            vc.title = "Location"
+            navigationController?.pushViewController(vc, animated: true)
+            
+        }
     }
 }

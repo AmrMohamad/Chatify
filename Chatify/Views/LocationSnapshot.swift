@@ -9,6 +9,8 @@ import UIKit
 import MapKit
 import CoreLocation
 
+let thumbnailOfMapSnapshot = NSCache<AnyObject,AnyObject>()
+
 class LocationSnapshot: UIView {
 
     lazy var activityIndicator: UIActivityIndicatorView = {
@@ -51,6 +53,13 @@ class LocationSnapshot: UIView {
     }
     
     func configureSnap(with location: CLLocation){
+        let locationString: String = "\(location.coordinate.latitude),\(location.coordinate.longitude)"
+        if let cacheSnapshot = thumbnailOfMapSnapshot.object(forKey: NSString(string: locationString)) as? UIImage {
+            DispatchQueue.main.async {
+                self.imageOfLocationSnapshot.image = cacheSnapshot
+            }
+            return
+        }
         activityIndicator.startAnimating()
         let snapshotOptions = MKMapSnapshotter.Options()
         snapshotOptions.region  = MKCoordinateRegion(center: location.coordinate, latitudinalMeters: 1500, longitudinalMeters: 1500)
@@ -93,6 +102,8 @@ class LocationSnapshot: UIView {
                 
                 UIGraphicsEndImageContext()
                 strongSelf.imageOfLocationSnapshot.image = composedImage
+                thumbnailOfMapSnapshot.setObject(composedImage!, forKey: NSString(string: locationString))
+                
                 strongSelf.activityIndicator.stopAnimating()
             }
         }

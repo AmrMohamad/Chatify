@@ -19,7 +19,7 @@ class LocationPickerViewController: UIViewController, CLLocationManagerDelegate 
     let locationManager = CLLocationManager()
     private var coordinates: CLLocationCoordinate2D?
     public var completion: ((CLLocationCoordinate2D)->())?
-    
+    var isPickable: Bool = true
     
     private lazy var sendLoactionButton: UIBarButtonItem = {
         let cButton = UIButton(type: .system)
@@ -33,24 +33,46 @@ class LocationPickerViewController: UIViewController, CLLocationManagerDelegate 
         let button = UIBarButtonItem(customView: cButton)
         return button
     }()
+    
+    init(coordinates: CLLocationCoordinate2D?) {
+        super.init(nibName: nil, bundle: nil)
+        self.coordinates = coordinates
+        self.isPickable = coordinates == nil
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        navigationItem.rightBarButtonItem = sendLoactionButton
-        
-        locationManager.delegate = self
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.requestLocation()
-        locationManager.startUpdatingLocation()
+        if isPickable {
+            navigationItem.rightBarButtonItem = sendLoactionButton
+            
+            locationManager.delegate = self
+            locationManager.requestWhenInUseAuthorization()
+            locationManager.requestLocation()
+            locationManager.startUpdatingLocation()
+            
+            let gesture = UITapGestureRecognizer(
+                target: self,
+                action: #selector(didTapOnMap)
+            )
+            gesture.numberOfTouchesRequired = 1
+            gesture.numberOfTapsRequired = 1
+            map.addGestureRecognizer(gesture)
+        }else {
+            guard let coordinates = self.coordinates else {
+                return
+            }
+            let pin = MKPointAnnotation()
+            pin.coordinate = coordinates
+            map.addAnnotation(pin)
+            renderMap(CLLocation(latitude: coordinates.latitude, longitude: coordinates.longitude))
+        }
         
         map.isUserInteractionEnabled = true
-        let gesture = UITapGestureRecognizer(
-            target: self,
-            action: #selector(didTapOnMap)
-        )
-        gesture.numberOfTouchesRequired = 1
-        gesture.numberOfTapsRequired = 1
-        map.addGestureRecognizer(gesture)
+        
         view.addSubview(map)
     }
     override func viewDidLayoutSubviews() {

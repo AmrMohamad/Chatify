@@ -53,6 +53,7 @@ class ChatViewController: UIViewController,
     }
     var isThereAMessageDeleted: Bool = false
     var timer: Timer?
+    var currentMessageOfTappedCell: Message?
     
     lazy var chatLogTableView: UITableView = {
         let table = UITableView()
@@ -351,7 +352,7 @@ class ChatViewController: UIViewController,
         handleSendingMessage()
         return true
     }
-    
+    //MARK: - Delete message
     func deleteMessage(messageID: String) {
         guard let currentUserUID = Auth.auth().currentUser?.uid else { return }
         let currentUserMessagesID = getMessageDocumentFor(firstUserID: currentUserUID, secondUserID: self.user!.id)
@@ -451,7 +452,7 @@ class ChatViewController: UIViewController,
     }
     //MARK: - Sending Location
     @objc func handleSendingLocationMessage(){
-        let locationPickerVC = LocationPickerViewController()
+        let locationPickerVC = LocationPickerViewController(coordinates: nil)
         locationPickerVC.title = "Pick a location"
         navigationController?.pushViewController(locationPickerVC, animated: true)
         locationPickerVC.completion = { [weak self] coordinates in
