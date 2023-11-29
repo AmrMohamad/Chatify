@@ -305,4 +305,46 @@ struct Chat {
             }
         }
     }
+    
+    func updateLastMessage(target: ChatViewController? = nil,currentUserDocRef: DocumentReference,chatPartnerDocRef: DocumentReference,messageID: String){
+        guard let strongSelf = target else { return }
+        currentUserDocRef.updateData([messageID: FieldValue.delete()]) {error in
+            guard error == nil else {
+                print(error as Any)
+                return
+            }
+            DispatchQueue.main.async {
+                strongSelf.isThereAMessageDeleted = true
+            }
+        }
+        chatPartnerDocRef.updateData([messageID: FieldValue.delete()]) {error in
+            guard error == nil else {
+                print(error as Any)
+                return
+            }
+            DispatchQueue.main.async {
+                strongSelf.chatLogTableView.reloadData()
+            }
+        }
+    }
+    
+    func updateLastMessageAfterDeleteMessage(
+        _ deletedMessage: Message,
+        lastMessageID: String? ,
+        currentUserUID uid: String
+    ){
+        
+        if lastMessageID != nil {
+            self.db
+                .collection("user-messages").document(deletedMessage.chatPartnerID())
+                .collection("chats").document(uid)
+                .setData(["lastMessage":lastMessageID!])
+            self.db
+                .collection("user-messages").document(uid)
+                .collection("chats").document(deletedMessage.chatPartnerID())
+                .setData(["lastMessage":lastMessageID!])
+        }else {
+            return
+        }
+    }
 }

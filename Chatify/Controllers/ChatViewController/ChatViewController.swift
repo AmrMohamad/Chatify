@@ -354,152 +354,75 @@ class ChatViewController: UIViewController,
     
     func deleteMessage(messageID: String) {
         guard let currentUserUID = Auth.auth().currentUser?.uid else { return }
-        let currentUserMessagesID = self.db
-            .collection("user-messages").document(currentUserUID)
-            .collection("chats").document(self.user!.id)
-            .collection("chatContent").document("messagesID")
-
-        let chatPartnerMessagesID = self.db
-            .collection("user-messages").document(self.user!.id)
-            .collection("chats").document(currentUserUID)
-            .collection("chatContent").document("messagesID")
+        let currentUserMessagesID = getMessageDocumentFor(firstUserID: currentUserUID, secondUserID: self.user!.id)
+        let chatPartnerMessagesID = getMessageDocumentFor(firstUserID: self.user!.id, secondUserID: currentUserUID)
+        
         let deletedMessage = self.messages[messagesID.firstIndex(of: messageID)!]
         let indexOfDeletedMessage = messagesID.firstIndex(of: messageID)!
+        
+        messages.remove(at: indexOfDeletedMessage)
+        messagesID.remove(at: indexOfDeletedMessage)
+        FirestoreManager.shared.chat.updateLastMessageAfterDeleteMessage(
+            deletedMessage,
+            lastMessageID: messagesID.last,
+            currentUserUID: currentUserUID
+        )
         switch deletedMessage.messageType {
         case .text:
-            updateLastLastMessageAfterDeleteMessageOf(
-                message: indexOfDeletedMessage,
-                deletedMessage: deletedMessage,
-                currentUserUID: currentUserUID
-            )
-            FirestoreManager.shared.chat.deleteText(messageID: messageID) {
-                currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
-                    guard error == nil else {
-                        print(error as Any)
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        self.isThereAMessageDeleted = true
-                    }
-                }
-                chatPartnerMessagesID.updateData([messageID: FieldValue.delete()]) { error in
-                    guard error == nil else {
-                        print(error as Any)
-                        return
-                    }
-                }
-                
-                DispatchQueue.main.async {
-                    self.chatLogTableView.reloadData()
-                }
+            FirestoreManager.shared.chat.deleteText(messageID: messageID) { [weak self] in
+                guard let self = self else { return }
+                FirestoreManager.shared.chat.updateLastMessage(
+                    target: self,
+                    currentUserDocRef: currentUserMessagesID,
+                    chatPartnerDocRef: chatPartnerMessagesID,
+                    messageID: messageID
+                )
             }
-
         case .image:
-            updateLastLastMessageAfterDeleteMessageOf(
-                message: indexOfDeletedMessage,
-                deletedMessage: deletedMessage,
-                currentUserUID: currentUserUID
-            )
             FirestoreManager.shared.chat.deleteImage(
                 message: deletedMessage,
                 messageID: messageID,
                 index: indexOfDeletedMessage
-            ) {
-                currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
-                    guard error == nil else {
-                        print(error as Any)
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        self.isThereAMessageDeleted = true
-                    }
-                }
-                chatPartnerMessagesID.updateData([messageID: FieldValue.delete()]) { error in
-                    guard error == nil else {
-                        print(error as Any)
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        self.chatLogTableView.reloadData()
-                    }
-                }
+            ) { [weak self] in
+                guard let self = self else { return }
+                FirestoreManager.shared.chat.updateLastMessage(
+                    target: self,
+                    currentUserDocRef: currentUserMessagesID,
+                    chatPartnerDocRef: chatPartnerMessagesID,
+                    messageID: messageID
+                )
             }
         case .video:
-            updateLastLastMessageAfterDeleteMessageOf(
-                message: indexOfDeletedMessage,
-                deletedMessage: deletedMessage,
-                currentUserUID: currentUserUID
-            )
             FirestoreManager.shared.chat.deleteVideo(
                 message: deletedMessage,
                 messageID: messageID,
                 index: indexOfDeletedMessage
-            ) {
-                currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
-                    guard error == nil else {
-                        print(error as Any)
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        self.isThereAMessageDeleted = true
-                    }
-                }
-                chatPartnerMessagesID.updateData([messageID: FieldValue.delete()]) { error in
-                    guard error == nil else {
-                        print(error as Any)
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        self.chatLogTableView.reloadData()
-                    }
-                }
+            ) { [weak self] in
+                guard let self = self else { return }
+                FirestoreManager.shared.chat.updateLastMessage(
+                    target: self,
+                    currentUserDocRef: currentUserMessagesID,
+                    chatPartnerDocRef: chatPartnerMessagesID,
+                    messageID: messageID
+                )
             }
         case .location :
-            updateLastLastMessageAfterDeleteMessageOf(
-                message: indexOfDeletedMessage,
-                deletedMessage: deletedMessage,
-                currentUserUID: currentUserUID
-            )
-            FirestoreManager.shared.chat.deleteLocation(messageID: messageID) {
-                currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
-                    guard error == nil else {
-                        print(error as Any)
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        self.isThereAMessageDeleted = true
-                    }
-                }
-                chatPartnerMessagesID.updateData([messageID: FieldValue.delete()]) { error in
-                    guard error == nil else {
-                        print(error as Any)
-                        return
-                    }
-                }
-                
-                DispatchQueue.main.async {
-                    self.chatLogTableView.reloadData()
-                }
+            FirestoreManager.shared.chat.deleteLocation(messageID: messageID) { [weak self] in
+                guard let self = self else { return }
+                FirestoreManager.shared.chat.updateLastMessage(
+                    target: self,
+                    currentUserDocRef: currentUserMessagesID,
+                    chatPartnerDocRef: chatPartnerMessagesID,
+                    messageID: messageID
+                )
             }
         }
     }
-    func updateLastLastMessageAfterDeleteMessageOf(
-        message index: Int,
-        deletedMessage: Message,
-        currentUserUID uid: String
-    ){
-        messages.remove(at: index)
-        messagesID.remove(at: index)
-        if let lastMessageID = messagesID.last {
-            self.db
-                .collection("user-messages").document(deletedMessage.chatPartnerID())
-                .collection("chats").document(uid)
-                .setData(["lastMessage":lastMessageID])
-            self.db
-                .collection("user-messages").document(uid)
-                .collection("chats").document(deletedMessage.chatPartnerID())
-                .setData(["lastMessage":lastMessageID])
-        }
+    func getMessageDocumentFor(firstUserID user1: String,secondUserID user2: String) -> DocumentReference {
+        return self.db
+            .collection("user-messages").document(user1)
+            .collection("chats").document(user2)
+            .collection("chatContent").document("messagesID")
     }
     //MARK: - Picking an attachment
     @objc func presentAttachmentsActionSheet(){
