@@ -14,6 +14,7 @@ target 'Chatify' do
 
   # Pods for Chatify
 
+pod 'RealmSwift'
 pod 'DeviceKit', '~> 5.1'
 pod 'FirebaseAuth'
 pod 'FirebaseFirestore'

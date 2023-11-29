@@ -303,8 +303,6 @@ class ChatViewController: UIViewController,
                                 }
                             }
                         }
-                    }else {
-                        print("emtpy")
                     }
                 }
             }
