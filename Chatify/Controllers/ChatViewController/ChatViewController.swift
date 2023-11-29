@@ -38,7 +38,7 @@ class ChatViewController: UIViewController,
     var user: User? {
         didSet{
             navigationItem.title = user!.name
-            FirestoreManager.manager.chat.user = user
+            FirestoreManager.shared.chat.user = user
             fetchUserMessages()
         }
     }
@@ -286,7 +286,7 @@ class ChatViewController: UIViewController,
                     if let snapshots = docSnapshots?.data()/*?.sorted(by: {$0.value as! Double > $1.value as! Double})*/{
                         self.messagesIDDictionary = snapshots as! [String:Double]
                         snapshots.forEach { key,_ in
-                            FirestoreManager.manager.fetchMessageWith(id: key) { message in
+                            FirestoreManager.shared.fetchMessageWith(id: key) { message in
                                 if let message = message {
                                     if message.chatPartnerID() == self.user?.id{
                                         self.messages.append(message)
@@ -335,7 +335,7 @@ class ChatViewController: UIViewController,
         
         if let text = inputContainerView.writeMessageTextView.text{
             if text != "" && text != "Enter Message ...." {
-                FirestoreManager.manager.chat.sendMessage(
+                FirestoreManager.shared.chat.sendMessage(
                     withProperties: [
                         "text" : text
                     ],
@@ -372,7 +372,7 @@ class ChatViewController: UIViewController,
                 deletedMessage: deletedMessage,
                 currentUserUID: currentUserUID
             )
-            FirestoreManager.manager.chat.deleteText(messageID: messageID) {
+            FirestoreManager.shared.chat.deleteText(messageID: messageID) {
                 currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
                     guard error == nil else {
                         print(error as Any)
@@ -400,7 +400,7 @@ class ChatViewController: UIViewController,
                 deletedMessage: deletedMessage,
                 currentUserUID: currentUserUID
             )
-            FirestoreManager.manager.chat.deleteImage(
+            FirestoreManager.shared.chat.deleteImage(
                 message: deletedMessage,
                 messageID: messageID,
                 index: indexOfDeletedMessage
@@ -430,7 +430,7 @@ class ChatViewController: UIViewController,
                 deletedMessage: deletedMessage,
                 currentUserUID: currentUserUID
             )
-            FirestoreManager.manager.chat.deleteVideo(
+            FirestoreManager.shared.chat.deleteVideo(
                 message: deletedMessage,
                 messageID: messageID,
                 index: indexOfDeletedMessage
@@ -455,7 +455,32 @@ class ChatViewController: UIViewController,
                 }
             }
         case .location :
-            break
+            updateLastLastMessageAfterDeleteMessageOf(
+                message: indexOfDeletedMessage,
+                deletedMessage: deletedMessage,
+                currentUserUID: currentUserUID
+            )
+            FirestoreManager.shared.chat.deleteLocation(messageID: messageID) {
+                currentUserMessagesID.updateData([messageID: FieldValue.delete()]) { error in
+                    guard error == nil else {
+                        print(error as Any)
+                        return
+                    }
+                    DispatchQueue.main.async {
+                        self.isThereAMessageDeleted = true
+                    }
+                }
+                chatPartnerMessagesID.updateData([messageID: FieldValue.delete()]) { error in
+                    guard error == nil else {
+                        print(error as Any)
+                        return
+                    }
+                }
+                
+                DispatchQueue.main.async {
+                    self.chatLogTableView.reloadData()
+                }
+            }
         }
     }
     func updateLastLastMessageAfterDeleteMessageOf(
@@ -521,7 +546,7 @@ class ChatViewController: UIViewController,
                 "longitude":long,
             ] as [String: Any]
         ] as [String: Any]
-        FirestoreManager.manager.chat.sendMessage(
+        FirestoreManager.shared.chat.sendMessage(
             withProperties: locationProperties,
             typeOfMessage: .location
         )
@@ -629,7 +654,7 @@ class ChatViewController: UIViewController,
                                                 ] as [String : Any]
                                             ] as [String : Any]
                                         ]
-                                        FirestoreManager.manager.chat.sendMessage(
+                                        FirestoreManager.shared.chat.sendMessage(
                                             withProperties: properties,
                                             typeOfMessage: .video
                                         )
@@ -717,7 +742,7 @@ class ChatViewController: UIViewController,
     }
     
     private func sendMessageWithImageURL(_ imageURL:URL, _ image:UIImage, title: String){
-        FirestoreManager.manager.chat.sendMessage(
+        FirestoreManager.shared.chat.sendMessage(
             withProperties: [
                 "imageInfo" : [
                     "imageTitle"  : title,

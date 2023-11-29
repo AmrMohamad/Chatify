@@ -34,7 +34,7 @@ class NewMeesageViewController: UITableViewController {
     }
     
     func fetchUsers(){
-        FirestoreManager.manager.fetchUsers { usersData in
+        FirestoreManager.shared.fetchUsers { usersData in
             self.users = usersData
             DispatchQueue.main.async {
                 self.tableView.reloadData()

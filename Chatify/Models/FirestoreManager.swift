@@ -12,7 +12,7 @@ import FirebaseCore
 import FirebaseStorage
 
 struct FirestoreManager {
-    static var manager = FirestoreManager()
+    static var shared = FirestoreManager()
     let db = Firestore.firestore()
     var chat = Chat()
     func fetchMessageWith(
@@ -292,6 +292,16 @@ struct Chat {
                         
                     }
                 }
+            }
+        }
+    }
+    
+    func deleteLocation(messageID: String, completion: @escaping ()->()){
+        self.db.collection("messages").document(messageID).delete { error in
+            if let error = error {
+                print(error)
+            }else {
+                completion()
             }
         }
     }

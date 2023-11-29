@@ -307,7 +307,7 @@ class MainViewController: UITableViewController {
                     for chat in chats{
                         let lastMessage = chat.data()
                         if let lastMessageID = lastMessage["lastMessage"] as? String{
-                            FirestoreManager.manager.fetchMessageWith(id: lastMessageID) { message in
+                            FirestoreManager.shared.fetchMessageWith(id: lastMessageID) { message in
                                 if let m = message{
                                     if m.chatPartnerID() == m.sendFromID || m.chatPartnerID() == m.sendToID{
                                         if let existMessage = self.messageDictionary[m.chatPartnerID()] {
@@ -351,11 +351,11 @@ class MainViewController: UITableViewController {
     }
     
     func fetchUsers(){
-        FirestoreManager.manager.fetchUsers { usersData in
+        FirestoreManager.shared.fetchUsers { usersData in
             self.users = usersData
         } complation: { usersData in
             usersData.forEach { user in
-                FirestoreManager.manager.downloadImage(urlString: user.profileImageURL) { image in
+                FirestoreManager.shared.downloadImage(urlString: user.profileImageURL) { image in
                     if let img = image {
                         DispatchQueue.main.async {
                             self.imgsCache.setObject(img, forKey: NSString(string: user.profileImageURL))
