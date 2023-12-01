@@ -14,6 +14,7 @@ import FirebaseCore
 import FirebaseStorage
 import MobileCoreServices
 import AVFoundation
+import RealmSwift
 
 class ChatViewController: UIViewController,
                           UITableViewDataSource,
@@ -102,6 +103,7 @@ class ChatViewController: UIViewController,
     
     let db = Firestore.firestore()
     let storage = Storage.storage()
+    let realm = try! Realm()
 
     
     override func viewDidLoad() {
@@ -291,6 +293,23 @@ class ChatViewController: UIViewController,
                                 if let message = message {
                                     if message.chatPartnerID() == self.user?.id{
                                         self.messages.append(message)
+                                        
+//                                        do {
+//                                            dump(self.realm.objects(MessageRealmObject.self).first)
+//                                            let mr = MessageRealmObject()
+//                                            mr.id = key
+//                                            mr.messageType = message.messageType
+//                                            mr.sendFromID = message.sendFromID
+//                                            mr.sendToID = message.sendToID
+//                                            mr.Date = Date(timeIntervalSince1970: message.Date)
+//                                            mr.text = message.text
+//                                            
+//                                            try self.realm.write({
+//                                                self.realm.add(mr)
+//                                            })
+//                                        }catch{
+//                                            print(error)
+//                                        }
                                         self.timer?.invalidate()
                                         self.timer = Timer.scheduledTimer(
                                             timeInterval: 0.59,

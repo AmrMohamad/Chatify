@@ -9,9 +9,11 @@ import UIKit
 import FirebaseCore
 import FirebaseFirestore
 import FirebaseAuth
+import RealmSwift
 
 class NewMeesageViewController: UITableViewController {
 
+    let realm = try! Realm()
     let db = Firestore.firestore()
     var users: [User] = [User]()
     override func viewDidLoad() {
@@ -66,6 +68,25 @@ class NewMeesageViewController: UITableViewController {
     var mainVC: MainViewController?
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let user = users[indexPath.row]
+//        let userRealm = UserRealmObject()
+//        userRealm.id              = user.id
+//        userRealm.email           = user.email
+//        userRealm.name            = user.name
+//        userRealm.profileImageURL = user.profileImageURL
+//        let userExisting = realm.object(ofType: UserRealmObject.self, forPrimaryKey: user.id)
+//        if let u = userExisting {
+//            if u.id != userRealm.id {
+//
+//            }
+//        }else {
+//            do{
+//                try realm.write({
+//                    realm.add(userRealm)
+//                })
+//            } catch {
+//                print("Error Saving Data \(error)")
+//            }
+//        }
         dismiss(animated: true) {
             self.mainVC?.handleNavigationToChat(of: user)
         }
