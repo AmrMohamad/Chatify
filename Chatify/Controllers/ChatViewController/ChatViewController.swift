@@ -132,7 +132,7 @@ class ChatViewController: UIViewController,
     }
     
     override func viewWillLayoutSubviews() {
-        handleZoomingViewWhanUpdateLayoutOfChatView()
+        handleZoomingImageViewWhanUpdateLayoutOfChatView()
     }
     override func viewDidLayoutSubviews() {
         if let navBar = navigationController?.navigationBar{

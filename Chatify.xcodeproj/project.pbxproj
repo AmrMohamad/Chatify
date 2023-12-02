@@ -8,8 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		2D06B8732B14BA0B00DCA1FA /* ChatViewController+UITableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D06B8722B14BA0B00DCA1FA /* ChatViewController+UITableViewDataSource.swift */; };
+		2D1037032B1BCA96009AAF1B /* ChatViewController+HandleZoomingVideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1037022B1BCA96009AAF1B /* ChatViewController+HandleZoomingVideoView.swift */; };
 		2D2BC1222B0FA39A0014A2C6 /* FirestoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2BC1212B0FA39A0014A2C6 /* FirestoreManager.swift */; };
-		2D54B8B42B13DBCE00B4627B /* ChatViewController+HandleZoomingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D54B8B32B13DBCE00B4627B /* ChatViewController+HandleZoomingView.swift */; };
+		2D54B8B42B13DBCE00B4627B /* ChatViewController+HandleZoomingImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D54B8B32B13DBCE00B4627B /* ChatViewController+HandleZoomingImageView.swift */; };
 		2D5A1B332ADAB64D00456C3E /* ChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5A1B322ADAB64D00456C3E /* ChatTableViewCell.swift */; };
 		2D5E141F2AD99A47009CBE98 /* MessageModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D5E141E2AD99A47009CBE98 /* MessageModels.swift */; };
 		2D620F862B05862400790672 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2D620F852B05862400790672 /* GoogleService-Info.plist */; };
@@ -39,9 +40,10 @@
 
 /* Begin PBXFileReference section */
 		2D06B8722B14BA0B00DCA1FA /* ChatViewController+UITableViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatViewController+UITableViewDataSource.swift"; sourceTree = "<group>"; };
+		2D1037022B1BCA96009AAF1B /* ChatViewController+HandleZoomingVideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatViewController+HandleZoomingVideoView.swift"; sourceTree = "<group>"; };
 		2D2BC1212B0FA39A0014A2C6 /* FirestoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreManager.swift; sourceTree = "<group>"; };
 		2D54B8B12B1394A900B4627B /* Chatify.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Chatify.entitlements; sourceTree = "<group>"; };
-		2D54B8B32B13DBCE00B4627B /* ChatViewController+HandleZoomingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatViewController+HandleZoomingView.swift"; sourceTree = "<group>"; };
+		2D54B8B32B13DBCE00B4627B /* ChatViewController+HandleZoomingImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatViewController+HandleZoomingImageView.swift"; sourceTree = "<group>"; };
 		2D5A1B322ADAB64D00456C3E /* ChatTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatTableViewCell.swift; sourceTree = "<group>"; };
 		2D5E141E2AD99A47009CBE98 /* MessageModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageModels.swift; sourceTree = "<group>"; };
 		2D620F852B05862400790672 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -98,7 +100,8 @@
 			isa = PBXGroup;
 			children = (
 				2DACA5E82AD6D49E0093EBF4 /* ChatViewController.swift */,
-				2D54B8B32B13DBCE00B4627B /* ChatViewController+HandleZoomingView.swift */,
+				2D54B8B32B13DBCE00B4627B /* ChatViewController+HandleZoomingImageView.swift */,
+				2D1037022B1BCA96009AAF1B /* ChatViewController+HandleZoomingVideoView.swift */,
 				2D06B8722B14BA0B00DCA1FA /* ChatViewController+UITableViewDataSource.swift */,
 			);
 			path = ChatViewController;
@@ -333,7 +336,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2DA155082AAE0C540012AFCD /* LoginViewController.swift in Sources */,
-				2D54B8B42B13DBCE00B4627B /* ChatViewController+HandleZoomingView.swift in Sources */,
+				2D54B8B42B13DBCE00B4627B /* ChatViewController+HandleZoomingImageView.swift in Sources */,
 				2DD054D52AE1743A0086664F /* AsImage.swift in Sources */,
 				2D8963352AC3225F00F5E73F /* Extensions.swift in Sources */,
 				2D6C074D2AA65AFD0036E273 /* MainViewController.swift in Sources */,
@@ -345,6 +348,7 @@
 				2DD054D32AE174160086664F /* VariableBlurUIView.swift in Sources */,
 				2D8CE8242AEB0A8700F67783 /* MessageTableViewCell.swift in Sources */,
 				2D5E141F2AD99A47009CBE98 /* MessageModels.swift in Sources */,
+				2D1037032B1BCA96009AAF1B /* ChatViewController+HandleZoomingVideoView.swift in Sources */,
 				2DCC3FFD2AC05AAE00156346 /* LoginViewController+Handlers.swift in Sources */,
 				2DB4360D2ABB2BE300BF1A60 /* AddNewUserCell.swift in Sources */,
 				2D5A1B332ADAB64D00456C3E /* ChatTableViewCell.swift in Sources */,

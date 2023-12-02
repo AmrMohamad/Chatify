@@ -128,10 +128,6 @@ class LoginViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = UIColor(red: 61/255, green: 91/255, blue: 151/255, alpha: 1)
         
-//        view.addSubview(icon)
-//        view.addSubview(loginRegisterSegmentedConrtol)
-//        view.addSubview(inputsContainer)
-//        view.addSubview(registerAndLoginButton)
         view.addSubview(containerStackView)
         containerStackView.axis = .vertical
         containerStackView.spacing = 5
@@ -224,14 +220,7 @@ class LoginViewController: UIViewController {
         textFieldsStack?.trailingAnchor
             .constraint(equalTo: inputsContainer.trailingAnchor, constant: -2)
             .isActive = true
-//        let nameTextFieldHeightAnchor: NSLayoutConstraint = nameTextField.heightAnchor.constraint(equalToConstant: 62.5)
-//        nameTextFieldHeightAnchor.isActive = true
-//        let emailTextFieldHeightAnchor: NSLayoutConstraint = emailTextField.heightAnchor.constraint(equalToConstant: 62.5)
-//        emailTextFieldHeightAnchor.isActive = true
-//        let passwordTextFieldHeightAnchor: NSLayoutConstraint = passwordTextField.heightAnchor.constraint(equalToConstant: 62.5)
-//        passwordTextFieldHeightAnchor.isActive = true
-//        let addImageProfileHeightAnchor: NSLayoutConstraint = addImageProfile.heightAnchor.constraint(equalToConstant: 62.5)
-//        addImageProfileHeightAnchor.isActive = true
+
         NSLayoutConstraint.activate([
             nameTextField.heightAnchor.constraint(equalToConstant: 62.5),
             emailTextField.heightAnchor.constraint(equalToConstant: 62.5),

@@ -90,7 +90,7 @@ extension ChatViewController {
         cell.bubbleViewWidthAnchor?.isActive = false
         cell.bubbleViewWidthAnchor = cell.bubbleView.widthAnchor.constraint(equalToConstant: CGFloat(sizeOfText(message.text).width + 80.0))
         cell.bubbleViewWidthAnchor?.isActive = true
-        cell.playButton.isHidden = true
+        cell.playPauseButton.isHidden = true
         cell.snapOfMap.isHidden  = true
     }
     
@@ -111,7 +111,7 @@ extension ChatViewController {
         cell.bubbleView.backgroundColor = .clear
         cell.imageMessageView.isHidden = false
         cell.messageTextContent.isHidden = true
-        cell.playButton.isHidden = true
+        cell.playPauseButton.isHidden = true
         cell.snapOfMap.isHidden  = true
     }
     
@@ -138,7 +138,7 @@ extension ChatViewController {
             cell.bubbleView.backgroundColor = .clear
             cell.imageMessageView.isHidden = false
             cell.messageTextContent.isHidden = true
-            cell.playButton.isHidden = false
+            cell.playPauseButton.isHidden = false
             cell.snapOfMap.isHidden  = true
         }
     }
@@ -146,7 +146,7 @@ extension ChatViewController {
     private func handleSetupOfLocationMessageCell(_ cell: MessageTableViewCell, withContentOf  message: Message){
         cell.imageMessageView.isHidden = true
         cell.messageTextContent.isHidden = true
-        cell.playButton.isHidden = true
+        cell.playPauseButton.isHidden = true
         cell.snapOfMap.isHidden  = false
         let lat  = message.locationInfo["latitude"] as! CLLocationDegrees
         let long = message.locationInfo["longitude"] as! CLLocationDegrees

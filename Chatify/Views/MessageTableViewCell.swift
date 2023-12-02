@@ -11,13 +11,15 @@ import AVFoundation
 class MessageTableViewCell: UITableViewCell {
     
     static let identifier = "MessageCell"
-    
     var chatVC      : ChatViewController?
+    
     var videoURL    : URL?
     var player      : AVPlayer?
     var playerLayer : AVPlayerLayer?
+    
     var latitude    : Double?
     var longitude   : Double?
+    
     
     let messageTextContent: UILabel = {
         let tv = UILabel()
@@ -66,7 +68,6 @@ class MessageTableViewCell: UITableViewCell {
     lazy var imageMessageView: UIImageView = {
         let image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
-//        image.backgroundColor = .lightGray
         image.layer.cornerRadius = 16
         image.layer.masksToBounds = true
         image.contentMode = .scaleAspectFill
@@ -80,7 +81,7 @@ class MessageTableViewCell: UITableViewCell {
         return image
     }()
     
-    lazy var playButton: UIButton = {
+    lazy var playPauseButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(systemName: "play.fill"), for: .normal)
@@ -89,7 +90,7 @@ class MessageTableViewCell: UITableViewCell {
         return button
     }()
     let activityIndicator : UIActivityIndicatorView = {
-        let aiv = UIActivityIndicatorView(style: .whiteLarge)
+        let aiv = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.medium)
         aiv.translatesAutoresizingMaskIntoConstraints = false
         return aiv
     }()
@@ -172,20 +173,12 @@ class MessageTableViewCell: UITableViewCell {
             messageTextContent.widthAnchor.constraint(greaterThanOrEqualToConstant: 34)
         ])
         
-        bubbleView.addSubview(timeOfSend)
+        bubbleView.addSubview(playPauseButton)
         NSLayoutConstraint.activate([
-            timeOfSend.leadingAnchor.constraint(equalTo: messageTextContent.trailingAnchor, constant: -32),
-            timeOfSend.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -6),
-            timeOfSend.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -3),
-            timeOfSend.heightAnchor.constraint(equalToConstant: 10)
-        ])
-        
-        bubbleView.addSubview(playButton)
-        NSLayoutConstraint.activate([
-            playButton.centerXAnchor.constraint(equalTo: bubbleView.centerXAnchor),
-            playButton.centerYAnchor.constraint(equalTo: bubbleView.centerYAnchor),
-            playButton.widthAnchor.constraint(equalTo: bubbleView.widthAnchor, multiplier: 0.36),
-            playButton.heightAnchor.constraint(equalTo: bubbleView.heightAnchor, multiplier: 0.36)
+            playPauseButton.centerXAnchor.constraint(equalTo: bubbleView.centerXAnchor),
+            playPauseButton.centerYAnchor.constraint(equalTo: bubbleView.centerYAnchor),
+            playPauseButton.widthAnchor.constraint(equalTo: bubbleView.widthAnchor, multiplier: 0.36),
+            playPauseButton.heightAnchor.constraint(equalTo: bubbleView.heightAnchor, multiplier: 0.36)
         ])
         
         bubbleView.addSubview(activityIndicator)
@@ -201,6 +194,14 @@ class MessageTableViewCell: UITableViewCell {
             snapOfMap.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor),
             snapOfMap.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor),
             snapOfMap.topAnchor.constraint(equalTo: bubbleView.topAnchor),
+        ])
+        
+        bubbleView.addSubview(timeOfSend)
+        NSLayoutConstraint.activate([
+            timeOfSend.leadingAnchor.constraint(equalTo: messageTextContent.trailingAnchor, constant: -34),
+            timeOfSend.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -6),
+            timeOfSend.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -3),
+            timeOfSend.heightAnchor.constraint(equalToConstant: 10)
         ])
     }
     
@@ -237,11 +238,16 @@ class MessageTableViewCell: UITableViewCell {
             player?.play()
             activityIndicator.startAnimating()
             if activityIndicator.isAnimating {
-                playButton.isHidden = true
+                playPauseButton.isHidden = true
             }else {
-                playButton.isHidden = false
+                playPauseButton.isHidden = false
             }
-            NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying), name: .AVPlayerItemDidPlayToEndTime, object: player!.currentItem)
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(playerDidFinishPlaying),
+                name: .AVPlayerItemDidPlayToEndTime,
+                object: player!.currentItem
+            )
         }
     }
     @objc func playerDidFinishPlaying(_ notification: Notification) {
@@ -252,7 +258,7 @@ class MessageTableViewCell: UITableViewCell {
         activityIndicator.stopAnimating()
 
         // Update UI based on activity indicator state
-        playButton.isHidden = activityIndicator.isAnimating
+        playPauseButton.isHidden = activityIndicator.isAnimating
         
         playerLayer?.removeFromSuperlayer()
         player?.pause()
