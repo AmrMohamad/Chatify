@@ -35,7 +35,6 @@ extension ChatViewController: ZoomingImageViewProtocol {
             objc_setAssociatedObject(self, &AssociatedKeysOfZoomingImageView.startImageFrame, newValue, .OBJC_ASSOCIATION_RETAIN)
         }
     }
-    
     var backgroundImageView: UIVisualEffectView? {
         get {
             return objc_getAssociatedObject(self, &AssociatedKeysOfZoomingImageView.backgroundImageView) as? UIVisualEffectView
@@ -44,7 +43,6 @@ extension ChatViewController: ZoomingImageViewProtocol {
             objc_setAssociatedObject(self, &AssociatedKeysOfZoomingImageView.backgroundImageView, newValue, .OBJC_ASSOCIATION_RETAIN)
         }
     }
-    
     var startingImageView: UIImageView? {
         get {
             return objc_getAssociatedObject(self, &AssociatedKeysOfZoomingImageView.startingImageView) as? UIImageView
@@ -53,7 +51,6 @@ extension ChatViewController: ZoomingImageViewProtocol {
             objc_setAssociatedObject(self, &AssociatedKeysOfZoomingImageView.startingImageView, newValue, .OBJC_ASSOCIATION_RETAIN)
         }
     }
-    
     var zoomingImageView: UIImageView? {
         get {
             return objc_getAssociatedObject(self, &AssociatedKeysOfZoomingImageView.zoomingImageView) as? UIImageView

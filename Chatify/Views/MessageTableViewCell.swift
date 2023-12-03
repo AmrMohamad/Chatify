@@ -226,10 +226,13 @@ class MessageTableViewCell: UITableViewCell {
     
     @objc func handleOpenImageMessage(tapGesture: UITapGestureRecognizer){
         if videoURL != nil {
-            return
-        }
-        if let imageView = tapGesture.view as? UIImageView {
-            self.chatVC?.performZoomInTapGestureForUIImageViewOfImageMessage(imageView, currentCell: self)
+            if let thumbnailImageView = tapGesture.view as? UIImageView {
+                self.chatVC?.performZoomInTapGestureForVideoMessage(thumbnailImageView, currentCell: self)
+            }
+        } else {
+            if let imageView = tapGesture.view as? UIImageView {
+                self.chatVC?.performZoomInTapGestureForUIImageViewOfImageMessage(imageView, currentCell: self)
+            }
         }
     }
     
