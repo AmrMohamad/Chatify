@@ -66,7 +66,6 @@ extension ChatViewController: ZoomingImageViewProtocol {
     func performZoomInTapGestureForUIImageViewOfImageMessage(_ imageView: UIImageView,currentCell cell:MessageTableViewCell){
         startingImageView = imageView
         self.startImageFrame = startingImageView!.convert(imageView.frame, to: nil)
-        dump(startImageFrame)
         self.zoomingImageView = UIImageView(
             frame: startImageFrame!
         )
@@ -126,7 +125,6 @@ extension ChatViewController: ZoomingImageViewProtocol {
                     self.inputAccessoryView?.alpha = 1
                     self.inputAccessoryView?.isHidden = false
                 } completion: { complete in
-                    print(complete)
                     zoomingOutView.removeFromSuperview()
                     self.startingImageView?.alpha = 1
                     self.backgroundImageView?.removeFromSuperview()

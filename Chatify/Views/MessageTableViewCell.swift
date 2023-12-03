@@ -16,6 +16,7 @@ class MessageTableViewCell: UITableViewCell {
     var videoURL    : URL?
     var player      : AVPlayer?
     var playerLayer : AVPlayerLayer?
+    var isPlaying   : Bool = false
     
     var latitude    : Double?
     var longitude   : Double?
@@ -81,16 +82,20 @@ class MessageTableViewCell: UITableViewCell {
         return image
     }()
     
-    lazy var playPauseButton: UIButton = {
+    lazy var startPlayButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(systemName: "play.fill"), for: .normal)
         button.tintColor = .white
-        button.addTarget(self, action: #selector(handlePlayingVideo), for: .touchUpInside)
+        button.addTarget(self, action: #selector(handleStartPlayingVideo), for: .touchUpInside)
         return button
     }()
+    
+    let playPauseButton: UIButton = UIButton(type: .system)
+    
     let activityIndicator : UIActivityIndicatorView = {
-        let aiv = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.medium)
+        let aiv = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.large)
+        aiv.color = .systemBackground
         aiv.translatesAutoresizingMaskIntoConstraints = false
         return aiv
     }()
@@ -173,12 +178,12 @@ class MessageTableViewCell: UITableViewCell {
             messageTextContent.widthAnchor.constraint(greaterThanOrEqualToConstant: 34)
         ])
         
-        bubbleView.addSubview(playPauseButton)
+        bubbleView.addSubview(startPlayButton)
         NSLayoutConstraint.activate([
-            playPauseButton.centerXAnchor.constraint(equalTo: bubbleView.centerXAnchor),
-            playPauseButton.centerYAnchor.constraint(equalTo: bubbleView.centerYAnchor),
-            playPauseButton.widthAnchor.constraint(equalTo: bubbleView.widthAnchor, multiplier: 0.36),
-            playPauseButton.heightAnchor.constraint(equalTo: bubbleView.heightAnchor, multiplier: 0.36)
+            startPlayButton.centerXAnchor.constraint(equalTo: bubbleView.centerXAnchor),
+            startPlayButton.centerYAnchor.constraint(equalTo: bubbleView.centerYAnchor),
+            startPlayButton.widthAnchor.constraint(equalTo: bubbleView.widthAnchor, multiplier: 0.38),
+            startPlayButton.heightAnchor.constraint(equalTo: bubbleView.heightAnchor, multiplier: 0.38)
         ])
         
         bubbleView.addSubview(activityIndicator)
@@ -228,26 +233,58 @@ class MessageTableViewCell: UITableViewCell {
         }
     }
     
-    @objc func handlePlayingVideo(){
+    @objc func handleStartPlayingVideo(){
         if let videoURL = self.videoURL {
             print(videoURL)
             player = AVPlayer(url: videoURL)
             playerLayer = AVPlayerLayer(player: player)
             playerLayer?.frame = bubbleView.bounds
             bubbleView.layer.addSublayer(playerLayer!)
+            
+            playPauseButton.setImage(UIImage(systemName: "pause.fill"), for: .normal)
+            playPauseButton.tintColor = .white
+            playPauseButton.addTarget(self, action: #selector(handlePlayingAndPausingVideo), for: .touchUpInside)
+            playPauseButton.translatesAutoresizingMaskIntoConstraints = false
+            bubbleView.addSubview(playPauseButton)
+            
+            NSLayoutConstraint.activate([
+                playPauseButton.centerXAnchor.constraint(equalTo: bubbleView.centerXAnchor),
+                playPauseButton.centerYAnchor.constraint(equalTo: bubbleView.centerYAnchor),
+                playPauseButton.widthAnchor.constraint(equalTo: bubbleView.widthAnchor, multiplier: 0.40),
+                playPauseButton.heightAnchor.constraint(equalTo: bubbleView.widthAnchor, multiplier: 0.40)
+            ])
+            playPauseButton.isHidden = true
             player?.play()
             activityIndicator.startAnimating()
             if activityIndicator.isAnimating {
-                playPauseButton.isHidden = true
+                startPlayButton.isHidden = true
             }else {
-                playPauseButton.isHidden = false
+                startPlayButton.isHidden = false
             }
+            player?.addObserver(self, forKeyPath: "currentItem.loadedTimeRanges", options: .new, context: nil)
             NotificationCenter.default.addObserver(
                 self,
                 selector: #selector(playerDidFinishPlaying),
                 name: .AVPlayerItemDidPlayToEndTime,
                 object: player!.currentItem
             )
+        }
+    }
+    @objc func handlePlayingAndPausingVideo(){
+        print("PlayingAndPausingVideo")
+        if isPlaying {
+            player?.pause()
+            playPauseButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
+        }else{
+            player?.play()
+            playPauseButton.setImage(UIImage(systemName: "pause.fill"), for: .normal)
+        }
+        isPlaying = !isPlaying
+    }
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath == "currentItem.loadedTimeRanges" {
+            isPlaying = true
+            playPauseButton.isHidden = false
         }
     }
     @objc func playerDidFinishPlaying(_ notification: Notification) {
@@ -258,9 +295,11 @@ class MessageTableViewCell: UITableViewCell {
         activityIndicator.stopAnimating()
 
         // Update UI based on activity indicator state
-        playPauseButton.isHidden = activityIndicator.isAnimating
+        startPlayButton.isHidden = activityIndicator.isAnimating
         
         playerLayer?.removeFromSuperlayer()
         player?.pause()
+        playPauseButton.isHidden = true
+        player?.removeObserver(self, forKeyPath: "currentItem.loadedTimeRanges")
     }
 }
