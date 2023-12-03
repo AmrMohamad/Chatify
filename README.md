@@ -29,7 +29,7 @@ This is a simple iOS chat application built using Firebase Firestore as the back
 
 ### Features
 
-<div style="display: flex; align-items: center; gap: 20px;">
+<div style="display: flex; align-items: center; gap: 5px;">
     <div>
         <strong>Start New Chat</strong>
         <br>
@@ -47,7 +47,7 @@ This is a simple iOS chat application built using Firebase Firestore as the back
     </div>
 </div>
 
-<div style="display: flex; align-items: center; gap: 20px;">
+<div style="display: flex; align-items: center; gap: 5px;">
     <div>
         <strong>View a Location Message</strong>
         <br>
