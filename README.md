@@ -29,40 +29,42 @@ This is a simple iOS chat application built using Firebase Firestore as the back
 
 ### Features
 
-<div style="display: flex; align-items: center; gap: 5px;">
-    <div>
-        <strong>Start New Chat</strong>
-        <br>
-        <img src="./Docs/start_new_chat.gif" width="220px">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+    <div style="display: flex; align-items: center; gap: 5px;">
+        <div>
+            <strong>Start New Chat</strong>
+            <br>
+            <img src="./Docs/start_new_chat.gif" width="220px">
+        </div>
+        <div>
+            <strong>Zooming an Image Message</strong>
+            <br>
+            <img src="./Docs/zoom_in_out_image.gif" width="220px">
+        </div>
+        <div>
+            <strong>Zooming a Video Message</strong>
+            <br>
+            <img src="./Docs/zoom_In_Out_video.gif" width="220px">
+        </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 5px;">
+        <div>
+            <strong>View a Location Message</strong>
+            <br>
+            <img src="./Docs/ view_location.gif" width="220px">
+        </div>
+        <div>
+            <strong>Play Video Message inside <br>a Bubble message</strong>
+            <br>
+            <img src="./Docs/video _in_mini.gif" width="210px">
+        </div>
     </div>
     <div>
-        <strong>Zooming an Image Message</strong>
+        <strong>Delete Messages</strong>
         <br>
-        <img src="./Docs/zoom_in_out_image.gif" width="220px">
-    </div>
-    <div>
-        <strong>Zooming a Video Message</strong>
-        <br>
-        <img src="./Docs/zoom_In_Out_video.gif" width="220px">
+        <img src="./Docs/delete_message.gif" width="488px">
     </div>
 </div>
-
-<div style="display: flex; align-items: center; gap: 5px;">
-    <div>
-        <strong>View a Location Message</strong>
-        <br>
-        <img src="./Docs/ view_location.gif" width="220px">
-    </div>
-    <div>
-        <strong>Play Video Message inside <br>a Bubble message</strong>
-        <br>
-        <img src="./Docs/video _in_mini.gif" width="210px">
-    </div>
-</div>
-
-<strong>Delete Messages</strong>
-<br>
-<img src="./Docs/delete_message.gif" width="488px">
 
 
 ## Getting Started
