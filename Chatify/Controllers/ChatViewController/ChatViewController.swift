@@ -560,7 +560,7 @@ class ChatViewController: UIViewController,
         }
         
 //        FirestoreManager.shared.uploadVideoOf(videoURL) { storageSnapshot in
-//            print("aloooo")
+//            print("alooo")
 //            UIView.animate(
 //                withDuration: 2.8,
 //                delay: 0,
