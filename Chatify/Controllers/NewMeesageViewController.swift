@@ -5,17 +5,16 @@
 //  Created by Amr Mohamad on 20/09/2023.
 //
 
-import UIKit
+import FirebaseAuth
 import FirebaseCore
 import FirebaseFirestore
-import FirebaseAuth
 import RealmSwift
+import UIKit
 
 class NewMeesageViewController: UITableViewController {
-
     let realm = try! Realm()
     let db = Firestore.firestore()
-    var users: [User] = [User]()
+    var users: [User] = .init()
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "New Massage"
@@ -25,17 +24,17 @@ class NewMeesageViewController: UITableViewController {
             target: self,
             action: #selector(handleCancelAction)
         )
-        
+
         tableView.register(
             AddNewUserCell.self,
             forCellReuseIdentifier: AddNewUserCell.identifier
         )
         tableView.separatorStyle = .none
-        
+
         fetchUsers()
     }
-    
-    func fetchUsers(){
+
+    func fetchUsers() {
         FirestoreManager.shared.fetchUsers { usersData in
             self.users = usersData
             DispatchQueue.main.async {
@@ -43,17 +42,19 @@ class NewMeesageViewController: UITableViewController {
             }
         }
     }
-    
-    @objc func handleCancelAction(){
+
+    @objc func handleCancelAction() {
         dismiss(animated: true)
     }
-    
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+
+    override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         return users.count
     }
-    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+
+    override func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
         return 66
     }
+
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(
             withIdentifier: AddNewUserCell.identifier,
@@ -62,11 +63,12 @@ class NewMeesageViewController: UITableViewController {
 
         cell.profileImage.loadImagefromCacheWithURLstring(urlString: users[indexPath.row].profileImageURL)
         cell.emailLabel.text = users[indexPath.row].email
-        cell.userLabel.text  = users[indexPath.row].name
+        cell.userLabel.text = users[indexPath.row].name
         return cell
     }
+
     var mainVC: MainViewController?
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
         let user = users[indexPath.row]
 //        let userRealm = UserRealmObject()
 //        userRealm.id              = user.id

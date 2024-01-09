@@ -8,9 +8,8 @@
 import UIKit
 
 class ChatTableViewCell: UITableViewCell {
-    
     static let identifier = "ChatCell"
-    
+
     let profileImage: UIImageView = {
         let img = UIImageView(image: UIImage(systemName: "person.crop.circle"))
         img.translatesAutoresizingMaskIntoConstraints = false
@@ -19,14 +18,15 @@ class ChatTableViewCell: UITableViewCell {
         img.layer.masksToBounds = true
         return img
     }()
-    let userLabel : UILabel = {
+
+    let userLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "userLabel"
         label.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
         return label
     }()
-    
+
     let timeLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -35,26 +35,27 @@ class ChatTableViewCell: UITableViewCell {
         label.textColor = .secondaryLabel
         return label
     }()
-    
-    let lastMessageLabel : UILabel = {
+
+    let lastMessageLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "emailLabel"
         label.textColor = .darkGray
         return label
     }()
-    
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?){
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         contentView.addSubview(profileImage)
         setupProfileImageConstraints()
         setupLabelsConstraints()
     }
-    
-    required init?(coder: NSCoder) {
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     func setupProfileImageConstraints() {
         profileImage.leadingAnchor
             .constraint(equalTo: contentView.leadingAnchor, constant: 16)
@@ -69,14 +70,14 @@ class ChatTableViewCell: UITableViewCell {
             .constraint(equalTo: contentView.centerYAnchor)
             .isActive = true
     }
-    
+
     func setupLabelsConstraints() {
-        let UserNameAndTimeContainerView: UIView = UIView()
+        let UserNameAndTimeContainerView = UIView()
 //        UserNameAndTimeContainerView.backgroundColor = .yellow
-        
+
         UserNameAndTimeContainerView.addSubview(userLabel)
         UserNameAndTimeContainerView.addSubview(timeLabel)
-        
+
         userLabel.leadingAnchor
             .constraint(equalTo: UserNameAndTimeContainerView.leadingAnchor, constant: 0)
             .isActive = true
@@ -89,7 +90,7 @@ class ChatTableViewCell: UITableViewCell {
         userLabel.bottomAnchor
             .constraint(equalTo: UserNameAndTimeContainerView.bottomAnchor, constant: -1)
             .isActive = true
-        
+
         timeLabel.trailingAnchor
             .constraint(equalTo: UserNameAndTimeContainerView.trailingAnchor, constant: -2)
             .isActive = true
@@ -102,25 +103,25 @@ class ChatTableViewCell: UITableViewCell {
         timeLabel.widthAnchor
             .constraint(equalTo: UserNameAndTimeContainerView.widthAnchor, multiplier: 0.193)
             .isActive = true
-        
+
         let DetailsOfChatStackView = UIStackView(
             arrangedSubviews: [
                 UserNameAndTimeContainerView,
-                lastMessageLabel
+                lastMessageLabel,
             ]
         )
         DetailsOfChatStackView.translatesAutoresizingMaskIntoConstraints = false
-        DetailsOfChatStackView.axis         = .vertical
-        DetailsOfChatStackView.alignment    = .fill
+        DetailsOfChatStackView.axis = .vertical
+        DetailsOfChatStackView.alignment = .fill
         DetailsOfChatStackView.distribution = .fillEqually
-        DetailsOfChatStackView.spacing      = 1
+        DetailsOfChatStackView.spacing = 1
         contentView.addSubview(DetailsOfChatStackView)
-        
+
         DetailsOfChatStackView.leadingAnchor
             .constraint(equalTo: profileImage.trailingAnchor, constant: 16)
             .isActive = true
         DetailsOfChatStackView.trailingAnchor
-            .constraint(equalTo: self.trailingAnchor, constant: -16)
+            .constraint(equalTo: trailingAnchor, constant: -16)
             .isActive = true
         DetailsOfChatStackView.topAnchor
             .constraint(equalTo: profileImage.topAnchor, constant: 6)
@@ -129,5 +130,4 @@ class ChatTableViewCell: UITableViewCell {
             .constraint(equalTo: profileImage.bottomAnchor, constant: -6)
             .isActive = true
     }
-    
 }

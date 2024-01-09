@@ -8,24 +8,22 @@
 import UIKit
 
 class ProfileButton: UIButton {
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupProfileButton()
     }
-    
-    required init?(coder: NSCoder) {
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     private func setupProfileButton() {
 //        let image: UIImage = .profile.withRenderingMode(.alwaysOriginal)
-        let image: UIImage = UIImage(systemName: "person")!.withRenderingMode(.alwaysOriginal)
+        let image = UIImage(systemName: "person")!.withRenderingMode(.alwaysOriginal)
         setImage(image, for: .normal)
     }
 }
-
-
 
 extension UINavigationItem {
     var largeTitleAccessoryView: UIView? {
@@ -35,7 +33,7 @@ extension UINavigationItem {
             perform(Selector(("_setLargeTitleAccessoryView:")), with: newValue)
         }
     }
-    
+
     var alignLargeTitleAccessoryViewToBaseline: Bool {
         get {
             return value(forKey: "_alignLargeTitleAccessoryViewToBaseline") as? Bool ?? true

@@ -5,24 +5,23 @@
 //  Created by Amr Mohamad on 04/09/2023.
 //
 
-import UIKit
-import SwiftUI
 import FirebaseAuth
-import FirebaseFirestore
 import FirebaseCore
+import FirebaseFirestore
+import SwiftUI
+import UIKit
 
 class MainViewController: UITableViewController {
-
-    ///The reference of the DataBase FirebaseFirestore
+    /// The reference of the DataBase FirebaseFirestore
     weak var db = Firestore.firestore()
-    ///messages is a array of Message datatype
-    var messages: [Message] = [Message]()
+    /// messages is a array of Message datatype
+    var messages: [Message] = .init()
     /// messageDictionary is used to avoid messages/chats duplication
-    var messageDictionary: [String : Message] = [String : Message]()
-    var users: [User] = [User]()
+    var messageDictionary: [String: Message] = .init()
+    var users: [User] = .init()
     let imgsCache = NSCache<AnyObject, AnyObject>()
     var timer: Timer?
-    
+
     let userNameLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -34,7 +33,7 @@ class MainViewController: UITableViewController {
         label.textAlignment = .center
         return label
     }()
-    
+
     lazy var leftBarButtonLogOut: UIBarButtonItem = {
         let cButton = UIButton(type: .system)
         cButton.setTitle("Log Out", for: .normal)
@@ -46,7 +45,7 @@ class MainViewController: UITableViewController {
         let button = UIBarButtonItem(customView: cButton)
         return button
     }()
-    
+
     lazy var rightBarButtonNewChat: UIBarButtonItem = {
         let cButton = UIButton(type: .system)
         cButton.setImage(UIImage(systemName: "plus.message"), for: .normal)
@@ -58,8 +57,8 @@ class MainViewController: UITableViewController {
         let button = UIBarButtonItem(customView: cButton)
         return button
     }()
-    
-    lazy var imageProfileContainer : UIView = {
+
+    lazy var imageProfileContainer: UIView = {
         let imageProfileContainer = UIView()
         imageProfileContainer.translatesAutoresizingMaskIntoConstraints = false
         imageProfileContainer.layer.cornerRadius = 15.5
@@ -70,7 +69,8 @@ class MainViewController: UITableViewController {
         imageProfileContainer.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(navToSettingsVC)))
         return imageProfileContainer
     }()
-    lazy var imageProfileContainerLargeTitleNavBar : UIView = {
+
+    lazy var imageProfileContainerLargeTitleNavBar: UIView = {
         let imageProfileContainer = UIView()
         imageProfileContainer.translatesAutoresizingMaskIntoConstraints = false
         imageProfileContainer.layer.cornerRadius = 15.5
@@ -81,7 +81,7 @@ class MainViewController: UITableViewController {
         imageProfileContainer.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(navToSettingsVC)))
         return imageProfileContainer
     }()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -90,17 +90,17 @@ class MainViewController: UITableViewController {
         navigationItem.leftBarButtonItem = leftBarButtonLogOut
         navigationItem.rightBarButtonItem = rightBarButtonNewChat
         navigationController?.navigationBar.prefersLargeTitles = true
-        
+
         fetchUsers()
         fetchMessages()
-        
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
+
+    override func viewWillAppear(_: Bool) {
         fetchMessages()
         navigationController?.navigationBar.prefersLargeTitles = true
         guard let navBar = navigationController?
-            .navigationBar else {
+            .navigationBar
+        else {
             fatalError("Navigation Bar not exist YET")
         }
         navBar.setBackgroundImage(UIImage(), for: .default)
@@ -116,7 +116,7 @@ class MainViewController: UITableViewController {
         hostingController.view.tag = 1
         hostingController.view.translatesAutoresizingMaskIntoConstraints = false
 
-        hostingController.didMove(toParent: self.navigationController!)
+        hostingController.didMove(toParent: navigationController!)
         navBar.subviews.first?.insertSubview(hostingController.view, at: 0)
         if let backView = navBar.subviews.first {
             if let shadowImage = backView.subviews.last {
@@ -131,16 +131,17 @@ class MainViewController: UITableViewController {
             hostingController.view
                 .trailingAnchor.constraint(equalTo: navBar.trailingAnchor).isActive = true
         }
-        
+
         let cnav = UINavigationBarAppearance()
         cnav.configureWithOpaqueBackground()
         cnav.backgroundColor = .clear
         navBar.standardAppearance = cnav
     }
-    
-    override func viewWillDisappear(_ animated: Bool) {
+
+    override func viewWillDisappear(_: Bool) {
         guard let navBar = navigationController?
-            .navigationBar else {
+            .navigationBar
+        else {
             fatalError("Navigation controller not exist yet")
         }
         navBar.setBackgroundImage(nil, for: .default)
@@ -156,33 +157,33 @@ class MainViewController: UITableViewController {
         cnav.configureWithDefaultBackground()
         navBar.standardAppearance = cnav
     }
-    
-    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if let largeBarView = navigationController?.navigationBar.subviews[1]{
+
+    override func scrollViewDidScroll(_: UIScrollView) {
+        if let largeBarView = navigationController?.navigationBar.subviews[1] {
             userNameLabel.alpha = largeBarView.alpha == 1.0 ? 0.0 : 1.0
             imageProfileContainer.alpha = largeBarView.alpha == 1.0 ? 0.0 : 1.0
         }
     }
-    
-    func setupNavTitleWith(user: User){
+
+    func setupNavTitleWith(user: User) {
         let customTitleView = UIView()
         customTitleView.translatesAutoresizingMaskIntoConstraints = false
-        
+
         navigationItem.largeTitleAccessoryView = imageProfileContainerLargeTitleNavBar
         navigationItem.alignLargeTitleAccessoryViewToBaseline = false
-        
-        self.navigationItem.titleView = customTitleView
+
+        navigationItem.titleView = customTitleView
         customTitleView.widthAnchor
             .constraint(equalToConstant: 100)
             .isActive = true
         customTitleView.heightAnchor
             .constraint(equalToConstant: 44)
             .isActive = true
-        
+
         let containerView = UIView()
         containerView.translatesAutoresizingMaskIntoConstraints = false
         customTitleView.addSubview(containerView)
-        
+
         containerView.leadingAnchor
             .constraint(equalTo: customTitleView.leadingAnchor, constant: 0)
             .isActive = true
@@ -201,9 +202,9 @@ class MainViewController: UITableViewController {
         containerView.centerYAnchor
             .constraint(equalTo: customTitleView.centerYAnchor)
             .isActive = true
-        
+
         containerView.addSubview(imageProfileContainer)
-        
+
         imageProfileContainer.centerXAnchor
             .constraint(equalTo: containerView.centerXAnchor)
             .isActive = true
@@ -216,20 +217,19 @@ class MainViewController: UITableViewController {
         imageProfileContainer.widthAnchor
             .constraint(equalToConstant: 31)
             .isActive = true
-        
+
         let imageProfile = UIImageView()
         imageProfile.translatesAutoresizingMaskIntoConstraints = false
         imageProfile.layer.cornerRadius = 15.5
         imageProfile.layer.masksToBounds = true
         imageProfile.loadImagefromCacheWithURLstring(urlString: user.profileImageURL)
-        
+
         imageProfileContainer.addSubview(imageProfile)
         imageProfile.topAnchor.constraint(equalTo: imageProfileContainer.topAnchor).isActive = true
         imageProfile.bottomAnchor.constraint(equalTo: imageProfileContainer.bottomAnchor).isActive = true
         imageProfile.leadingAnchor.constraint(equalTo: imageProfileContainer.leadingAnchor).isActive = true
         imageProfile.trailingAnchor.constraint(equalTo: imageProfileContainer.trailingAnchor).isActive = true
-        
-        
+
         let imageProfileLargeTitle = UIImageView()
         imageProfileLargeTitle.translatesAutoresizingMaskIntoConstraints = false
         imageProfileLargeTitle.layer.cornerRadius = 15.5
@@ -246,7 +246,7 @@ class MainViewController: UITableViewController {
         imageProfileLargeTitle.bottomAnchor.constraint(equalTo: imageProfileContainerLargeTitleNavBar.bottomAnchor).isActive = true
         imageProfileLargeTitle.leadingAnchor.constraint(equalTo: imageProfileContainerLargeTitleNavBar.leadingAnchor).isActive = true
         imageProfileLargeTitle.trailingAnchor.constraint(equalTo: imageProfileContainerLargeTitleNavBar.trailingAnchor).isActive = true
-        
+
         userNameLabel.text = user.name
         containerView.addSubview(userNameLabel)
 
@@ -258,23 +258,25 @@ class MainViewController: UITableViewController {
             .isActive = true
         navigationItem.title = user.name
     }
-    
-    func handleNavigationToChat(of user: User){
+
+    func handleNavigationToChat(of user: User) {
         let chatVC = ChatViewController()
         chatVC.user = user
-        self.navigationController?.pushViewController(chatVC, animated: true)
+        navigationController?.pushViewController(chatVC, animated: true)
     }
-    @objc func navToSettingsVC(){
+
+    @objc func navToSettingsVC() {
         let settingsVC = ChatifySettingsViewController(style: .insetGrouped)
-        self.navigationController?.pushViewController(settingsVC, animated: true)
+        navigationController?.pushViewController(settingsVC, animated: true)
     }
-    @objc func handeleLogOut(){
-        do{
+
+    @objc func handeleLogOut() {
+        do {
             try Auth.auth().signOut()
             messages.removeAll()
             messageDictionary.removeAll()
             tableView.reloadData()
-        }catch {
+        } catch {
             print(error)
         }
         let loginVC = LoginViewController()
@@ -283,8 +285,8 @@ class MainViewController: UITableViewController {
         present(loginVC, animated: true)
 //        navigationController?.pushViewController(loginVC, animated: true)
     }
-    
-    @objc func addNewMessage(){
+
+    @objc func addNewMessage() {
         let newMessageVC = NewMeesageViewController()
         newMessageVC.mainVC = self
         let nav = UINavigationController(rootViewController: newMessageVC)
@@ -294,29 +296,28 @@ class MainViewController: UITableViewController {
         nav.sheetPresentationController?.prefersScrollingExpandsWhenScrolledToEdge = false
         present(nav, animated: true)
     }
-    
-    func fetchMessages(){
+
+    func fetchMessages() {
         guard let uid = Auth.auth().currentUser?.uid else {
             return
         }
         if let refDB = db {
-            refDB.collection("user-messages").document(uid).collection("chats").addSnapshotListener { qS, error in
+            refDB.collection("user-messages").document(uid).collection("chats").addSnapshotListener { qS, _ in
                 self.messageDictionary = [:]
                 self.messages = []
                 if let chats = qS?.documents {
-                    for chat in chats{
+                    for chat in chats {
                         let lastMessage = chat.data()
-                        if let lastMessageID = lastMessage["lastMessage"] as? String{
+                        if let lastMessageID = lastMessage["lastMessage"] as? String {
                             FirestoreManager.shared.fetchMessageWith(id: lastMessageID) { message in
-                                if let m = message{
-                                    if m.chatPartnerID() == m.sendFromID || m.chatPartnerID() == m.sendToID{
+                                if let m = message {
+                                    if m.chatPartnerID() == m.sendFromID || m.chatPartnerID() == m.sendToID {
                                         if let existMessage = self.messageDictionary[m.chatPartnerID()] {
                                             if existMessage.Date > m.Date {
-                                                
-                                            }else{
+                                            } else {
                                                 self.messageDictionary[m.chatPartnerID()] = m
                                             }
-                                        }else{
+                                        } else {
                                             self.messageDictionary[m.chatPartnerID()] = m
                                         }
                                     }
@@ -329,28 +330,28 @@ class MainViewController: UITableViewController {
             }
         }
     }
-    
-    @objc func handleReloadTable(){
-        self.messages = Array(self.messageDictionary.values).sorted(by: { m1, m2 in
-            return m1.Date > m2.Date
+
+    @objc func handleReloadTable() {
+        messages = Array(messageDictionary.values).sorted(by: { m1, m2 in
+            m1.Date > m2.Date
         })
         DispatchQueue.main.async {
             self.tableView.reloadData()
         }
     }
-    
+
     func reloadOfChatsTable() {
-        self.timer?.invalidate()
-        self.timer = Timer.scheduledTimer(
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(
             timeInterval: 0.45,
             target: self,
-            selector: #selector(self.handleReloadTable),
+            selector: #selector(handleReloadTable),
             userInfo: nil,
             repeats: false
         )
     }
-    
-    func fetchUsers(){
+
+    func fetchUsers() {
         FirestoreManager.shared.fetchUsers { usersData in
             self.users = usersData
         } complation: { usersData in
@@ -365,29 +366,29 @@ class MainViewController: UITableViewController {
             }
         }
     }
-    
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+
+    override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         return messages.count
     }
-    
-    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+
+    override func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
         return 68
     }
-    
+
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: ChatTableViewCell.identifier, for: indexPath) as! ChatTableViewCell
         let message = messages[indexPath.row]
 
         var chatPartnerID: String?
-        
+
         if message.sendFromID == Auth.auth().currentUser?.uid {
             chatPartnerID = message.sendToID
-        }else{
+        } else {
             chatPartnerID = message.sendFromID
         }
-        
+
         if let id = chatPartnerID {
-            if let user = users.first(where: {$0.id == id}){
+            if let user = users.first(where: { $0.id == id }) {
                 cell.profileImage.loadImagefromCacheWithURLstring(urlString: user.profileImageURL)
                 cell.userLabel.text = user.name
             }
@@ -396,7 +397,7 @@ class MainViewController: UITableViewController {
         case .text:
             if message.sendFromID == Auth.auth().currentUser?.uid {
                 cell.lastMessageLabel.text = "You: \(message.text)"
-            }else{
+            } else {
                 cell.lastMessageLabel.text = message.text
             }
         case .image:
@@ -406,33 +407,32 @@ class MainViewController: UITableViewController {
         case .location:
             cell.lastMessageLabel.text = "📍 Location"
         }
-        
+
         let timeOfSend = Date(timeIntervalSince1970: message.Date)
         var calender = Calendar.current
         calender.timeZone = TimeZone.current
         let result = calender.compare(timeOfSend, to: .now, toGranularity: .day)
         let dataFormatter = DateFormatter()
-        
+
         if result == .orderedSame {
             dataFormatter.dateFormat = "hh:mm a"
             cell.timeLabel.text = dataFormatter.string(from: timeOfSend)
             cell.timeLabel.font = UIFont.systemFont(ofSize: 12)
-        }else{
+        } else {
             dataFormatter.dateFormat = "dd/MM/yyyy"
             cell.timeLabel.text = dataFormatter.string(from: timeOfSend)
             cell.timeLabel.font = UIFont.systemFont(ofSize: 10)
         }
         return cell
     }
-    
+
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let message = messages[indexPath.row]
         let chatPartnerID = message.chatPartnerID()
-        if var user = users.first(where: {$0.id == chatPartnerID}){
+        if var user = users.first(where: { $0.id == chatPartnerID }) {
             user.id = chatPartnerID
             handleNavigationToChat(of: user)
         }
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }
-

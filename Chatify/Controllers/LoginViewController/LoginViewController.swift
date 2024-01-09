@@ -5,37 +5,36 @@
 //  Created by Amr Mohamad on 10/09/2023.
 //
 
-import UIKit
+import FirebaseAuth
 import FirebaseCore
 import FirebaseFirestore
-import FirebaseAuth
 import Inject
+import UIKit
 
 class LoginViewController: UIViewController {
-    
     var mainViewController: MainViewController?
-    
+
     var inputsContainer: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = 12
         view.layer.masksToBounds = true
         view.backgroundColor = .white
-        
+
         return view
     }()
-    
+
     let registerAndLoginButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Register", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 25)
-        button.backgroundColor = UIColor(red: 80/255, green: 101/255, blue: 161/255, alpha: 1)
+        button.backgroundColor = UIColor(red: 80 / 255, green: 101 / 255, blue: 161 / 255, alpha: 1)
         button.layer.cornerRadius = 12
         return button
     }()
-    
+
     let nameTextField: UITextField = {
         let tf = UITextField()
         tf.translatesAutoresizingMaskIntoConstraints = false
@@ -43,7 +42,7 @@ class LoginViewController: UIViewController {
         tf.font = UIFont.systemFont(ofSize: 22, weight: .regular)
         return tf
     }()
-    
+
     let emailTextField: UITextField = {
         let tf = UITextField()
         tf.translatesAutoresizingMaskIntoConstraints = false
@@ -56,7 +55,7 @@ class LoginViewController: UIViewController {
         tf.font = UIFont.systemFont(ofSize: 22, weight: .regular)
         return tf
     }()
-    
+
     let passwordTextField: UITextField = {
         let tf = UITextField()
         tf.translatesAutoresizingMaskIntoConstraints = false
@@ -68,21 +67,21 @@ class LoginViewController: UIViewController {
         tf.autocapitalizationType = .none
         return tf
     }()
-    
-    let icon : UIImageView = {
+
+    let icon: UIImageView = {
         let image = UIImageView(image: UIImage(named: "Chatify logo"))
         image.contentMode = .scaleAspectFill
         image.tintColor = .white
         image.translatesAutoresizingMaskIntoConstraints = false
         return image
     }()
-    
-    lazy var addImageProfile : UIImageView = {
+
+    lazy var addImageProfile: UIImageView = {
         let image = UIImageView()
         image.image = UIImage(systemName: "person.crop.circle.fill.badge.plus")
         image.translatesAutoresizingMaskIntoConstraints = false
         image.contentMode = .scaleAspectFit
-        image.tintColor   = UIColor(red: 61/255, green: 91/255, blue: 151/255, alpha: 1)
+        image.tintColor = UIColor(red: 61 / 255, green: 91 / 255, blue: 151 / 255, alpha: 1)
         image.isUserInteractionEnabled = true
         image.addGestureRecognizer(
             UITapGestureRecognizer(
@@ -92,52 +91,51 @@ class LoginViewController: UIViewController {
         )
         return image
     }()
-    
+
     lazy var loginRegisterSegmentedConrtol: UISegmentedControl = {
         let sc = UISegmentedControl(items: ["Log In", "Register"])
         sc.translatesAutoresizingMaskIntoConstraints = false
         sc.selectedSegmentIndex = 1
         sc.setTitleTextAttributes(
             [
-                NSAttributedString.Key.foregroundColor : UIColor.white
+                NSAttributedString.Key.foregroundColor: UIColor.white,
             ],
             for: .normal
         )
         sc.setTitleTextAttributes(
             [
-                NSAttributedString.Key.foregroundColor : UIColor(red: 61/255, green: 91/255, blue: 151/255, alpha: 1)
+                NSAttributedString.Key.foregroundColor: UIColor(red: 61 / 255, green: 91 / 255, blue: 151 / 255, alpha: 1),
             ],
             for: .selected
         )
         sc.addTarget(self,
                      action: #selector(handleChangeBetweenRegisterAndLogin),
-                     for: .valueChanged
-        )
-        
+                     for: .valueChanged)
+
         return sc
     }()
-    
+
     lazy var containerStackView: UIStackView = {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
         return stack
     }()
-    
+
     var containerStackViewTopAnchor: NSLayoutConstraint?
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(red: 61/255, green: 91/255, blue: 151/255, alpha: 1)
-        
+        view.backgroundColor = UIColor(red: 61 / 255, green: 91 / 255, blue: 151 / 255, alpha: 1)
+
         view.addSubview(containerStackView)
         containerStackView.axis = .vertical
         containerStackView.spacing = 5
         containerStackView.alignment = .center
         containerStackView.distribution = .fill
-        
+
         NSLayoutConstraint.activate([
             containerStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             containerStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 15),
-            containerStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15)
+            containerStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15),
         ])
         containerStackViewTopAnchor = containerStackView.topAnchor.constraint(greaterThanOrEqualTo: view.safeAreaLayoutGuide.topAnchor)
         containerStackViewTopAnchor?.isActive = true
@@ -145,36 +143,33 @@ class LoginViewController: UIViewController {
         containerStackView.insertArrangedSubview(loginRegisterSegmentedConrtol, at: 1)
         containerStackView.insertArrangedSubview(inputsContainer, at: 2)
         containerStackView.insertArrangedSubview(registerAndLoginButton, at: 3)
-        
-        
+
         setupInputsContainerConstraints()
         setupRegisterLoginButtonConstraints()
         setupIconConstraints()
         setuploginRegisterSegmentedConrtolConstraints()
-        
+
         registerAndLoginButton.addTarget(self, action: #selector(registerAndLoginActionHandler), for: .touchUpInside)
         handleSetupOfObservingKB()
         initializeHideKeyboard()
     }
-    
+
     public var textFieldsStack: UIStackView?
     public var inputsContainerHeightConstraint: NSLayoutConstraint?
 
     // For get a database connection
     let db = Firestore.firestore()
-    
-    func setupIconConstraints() {
 
+    func setupIconConstraints() {
         icon.widthAnchor
             .constraint(equalTo: view.widthAnchor, multiplier: 0.80)
             .isActive = true
         icon.heightAnchor
-            .constraint(equalTo: view.heightAnchor, multiplier: 1/5)
+            .constraint(equalTo: view.heightAnchor, multiplier: 1 / 5)
             .isActive = true
-        
     }
-    
-    func setupInputsContainerConstraints(){
+
+    func setupInputsContainerConstraints() {
         // Postion of InputsContainer
         inputsContainer.centerXAnchor
             .constraint(equalTo: view.centerXAnchor).isActive = true
@@ -193,14 +188,14 @@ class LoginViewController: UIViewController {
                 addImageProfile,
                 nameTextField,
                 emailTextField,
-                passwordTextField
+                passwordTextField,
             ]
         )
         textFieldsStack?.translatesAutoresizingMaskIntoConstraints = false
-        textFieldsStack?.axis         = .vertical
-        textFieldsStack?.alignment    = .fill
+        textFieldsStack?.axis = .vertical
+        textFieldsStack?.alignment = .fill
         textFieldsStack?.distribution = .fillEqually
-        textFieldsStack?.spacing      = 0
+        textFieldsStack?.spacing = 0
         inputsContainer.addSubview(textFieldsStack ?? UIView())
         textFieldsStack?.centerXAnchor
             .constraint(equalTo: inputsContainer.centerXAnchor)
@@ -225,13 +220,11 @@ class LoginViewController: UIViewController {
             nameTextField.heightAnchor.constraint(equalToConstant: 62.5),
             emailTextField.heightAnchor.constraint(equalToConstant: 62.5),
             passwordTextField.heightAnchor.constraint(equalToConstant: 62.5),
-            addImageProfile.heightAnchor.constraint(equalToConstant: 62.5)
+            addImageProfile.heightAnchor.constraint(equalToConstant: 62.5),
         ])
-        
-        
     }
-    
-    func setupRegisterLoginButtonConstraints(){
+
+    func setupRegisterLoginButtonConstraints() {
         registerAndLoginButton.centerXAnchor
             .constraint(equalTo: view.centerXAnchor)
             .isActive = true
@@ -242,10 +235,10 @@ class LoginViewController: UIViewController {
             .constraint(equalTo: inputsContainer.widthAnchor)
             .isActive = true
         registerAndLoginButton.heightAnchor
-            .constraint(equalTo: view.heightAnchor, multiplier: 1/11)
+            .constraint(equalTo: view.heightAnchor, multiplier: 1 / 11)
             .isActive = true
     }
-    
+
     func setuploginRegisterSegmentedConrtolConstraints() {
         loginRegisterSegmentedConrtol.centerXAnchor
             .constraint(equalTo: view.centerXAnchor)
@@ -260,13 +253,13 @@ class LoginViewController: UIViewController {
             .constraint(equalTo: inputsContainer.widthAnchor, multiplier: 0.7)
             .isActive = true
     }
-    
+
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         NotificationCenter.default.removeObserver(self)
     }
-    
-    func handleSetupOfObservingKB(){
+
+    func handleSetupOfObservingKB() {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(showKeyboard),
@@ -280,15 +273,16 @@ class LoginViewController: UIViewController {
             object: nil
         )
     }
-    
+
     lazy var containerStackViewBottomAnchor: NSLayoutConstraint = containerStackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0)
-    
-    @objc func showKeyboard(notification: Notification){
+
+    @objc func showKeyboard(notification: Notification) {
         let kbFrameSize = notification.userInfo?["UIKeyboardFrameEndUserInfoKey"] as? CGRect
-        let kbDuration =  notification.userInfo?["UIKeyboardAnimationDurationUserInfoKey"] as? Double
-        
+        let kbDuration = notification.userInfo?["UIKeyboardAnimationDurationUserInfoKey"] as? Double
+
         if let heightOfKB = kbFrameSize?.height,
-           let duration = kbDuration{
+           let duration = kbDuration
+        {
             containerStackViewBottomAnchor.constant = -heightOfKB
             containerStackViewBottomAnchor.isActive = true
             containerStackViewTopAnchor?.isActive = false
@@ -297,12 +291,12 @@ class LoginViewController: UIViewController {
             }
         }
     }
-    
-    @objc func hideKeyboard(notification: Notification){
-        let kbDuration =  notification.userInfo?["UIKeyboardAnimationDurationUserInfoKey"] as? Double
-        
-        if let durationOfKB = kbDuration{
-            if let topConstraint = containerStackViewTopAnchor{
+
+    @objc func hideKeyboard(notification: Notification) {
+        let kbDuration = notification.userInfo?["UIKeyboardAnimationDurationUserInfoKey"] as? Double
+
+        if let durationOfKB = kbDuration {
+            if let topConstraint = containerStackViewTopAnchor {
                 containerStackViewBottomAnchor.isActive = false
                 containerStackView.removeConstraint(containerStackViewBottomAnchor)
                 containerStackViewTopAnchor?.isActive = true
@@ -312,18 +306,20 @@ class LoginViewController: UIViewController {
             }
         }
     }
-    func initializeHideKeyboard(){
-        //Declare a Tap Gesture Recognizer which will trigger our dismissMyKeyboard() function
-        let tap: UITapGestureRecognizer = UITapGestureRecognizer(
+
+    func initializeHideKeyboard() {
+        // Declare a Tap Gesture Recognizer which will trigger our dismissMyKeyboard() function
+        let tap = UITapGestureRecognizer(
             target: self,
-            action: #selector(dismissMyKeyboard))
-        //Add this tap gesture recognizer to the parent view
+            action: #selector(dismissMyKeyboard)
+        )
+        // Add this tap gesture recognizer to the parent view
         view.addGestureRecognizer(tap)
     }
-    @objc func dismissMyKeyboard(){
-        //endEditing causes the view (or one of its embedded text fields) to resign the first responder status.
-        //In short- Dismiss the active keyboard.
+
+    @objc func dismissMyKeyboard() {
+        // endEditing causes the view (or one of its embedded text fields) to resign the first responder status.
+        // In short- Dismiss the active keyboard.
         view.endEditing(true)
     }
-
 }

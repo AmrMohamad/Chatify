@@ -1,5 +1,5 @@
 //
-//  ChatViewController+HandleZoomingView.swift
+//  ChatViewController+HandleZoomingImageView.swift
 //  Chatify
 //
 //  Created by Amr Mohamad on 26/11/2023.
@@ -8,25 +8,25 @@
 import UIKit
 
 protocol ZoomingImageViewProtocol {
-    var startImageFrame   : CGRect? { get set }
-    var backgroundImageView    : UIVisualEffectView? { get set }
-    var startingImageView : UIImageView? { get set }
-    var zoomingImageView  : UIImageView? { get set }
-    
-    func performZoomInTapGestureForUIImageViewOfImageMessage(_ imageView: UIImageView,currentCell cell:MessageTableViewCell)
+    var startImageFrame: CGRect? { get set }
+    var backgroundImageView: UIVisualEffectView? { get set }
+    var startingImageView: UIImageView? { get set }
+    var zoomingImageView: UIImageView? { get set }
+
+    func performZoomInTapGestureForUIImageViewOfImageMessage(_ imageView: UIImageView, currentCell cell: MessageTableViewCell)
     func performZoomOutTapGestureForUIImageViewOfImageMessage(tapGesture: UITapGestureRecognizer)
     func checkOrientationForSetupZoomingImageView(keyWindow: UIWindow)
     func handleZoomingImageViewWhanUpdateLayoutOfChatView()
 }
+
 extension ChatViewController: ZoomingImageViewProtocol {
-    
-    private struct AssociatedKeysOfZoomingImageView {
+    private enum AssociatedKeysOfZoomingImageView {
         static var startImageFrame = "startImageFrame"
         static var backgroundImageView = "backgroundImageView"
         static var startingImageView = "startingImageView"
         static var zoomingImageView = "zoomingImageView"
     }
-    
+
     var startImageFrame: CGRect? {
         get {
             return objc_getAssociatedObject(self, &AssociatedKeysOfZoomingImageView.startImageFrame) as? CGRect
@@ -35,6 +35,7 @@ extension ChatViewController: ZoomingImageViewProtocol {
             objc_setAssociatedObject(self, &AssociatedKeysOfZoomingImageView.startImageFrame, newValue, .OBJC_ASSOCIATION_RETAIN)
         }
     }
+
     var backgroundImageView: UIVisualEffectView? {
         get {
             return objc_getAssociatedObject(self, &AssociatedKeysOfZoomingImageView.backgroundImageView) as? UIVisualEffectView
@@ -43,6 +44,7 @@ extension ChatViewController: ZoomingImageViewProtocol {
             objc_setAssociatedObject(self, &AssociatedKeysOfZoomingImageView.backgroundImageView, newValue, .OBJC_ASSOCIATION_RETAIN)
         }
     }
+
     var startingImageView: UIImageView? {
         get {
             return objc_getAssociatedObject(self, &AssociatedKeysOfZoomingImageView.startingImageView) as? UIImageView
@@ -51,6 +53,7 @@ extension ChatViewController: ZoomingImageViewProtocol {
             objc_setAssociatedObject(self, &AssociatedKeysOfZoomingImageView.startingImageView, newValue, .OBJC_ASSOCIATION_RETAIN)
         }
     }
+
     var zoomingImageView: UIImageView? {
         get {
             return objc_getAssociatedObject(self, &AssociatedKeysOfZoomingImageView.zoomingImageView) as? UIImageView
@@ -60,10 +63,10 @@ extension ChatViewController: ZoomingImageViewProtocol {
         }
     }
 
-    func performZoomInTapGestureForUIImageViewOfImageMessage(_ imageView: UIImageView,currentCell cell:MessageTableViewCell){
+    func performZoomInTapGestureForUIImageViewOfImageMessage(_ imageView: UIImageView, currentCell _: MessageTableViewCell) {
         startingImageView = imageView
-        self.startImageFrame = startingImageView!.convert(imageView.frame, to: nil)
-        self.zoomingImageView = UIImageView(
+        startImageFrame = startingImageView!.convert(imageView.frame, to: nil)
+        zoomingImageView = UIImageView(
             frame: startImageFrame!
         )
         zoomingImageView!.image = startingImageView!.image
@@ -74,17 +77,17 @@ extension ChatViewController: ZoomingImageViewProtocol {
                 action: #selector(performZoomOutTapGestureForUIImageViewOfImageMessage)
             )
         )
-        if let keyWindow = self.view.window?.windowScene?.keyWindow{
-            self.backgroundImageView = UIVisualEffectView(frame: keyWindow.frame)
-            self.backgroundImageView!.translatesAutoresizingMaskIntoConstraints = false
-            self.backgroundImageView!.effect = UIBlurEffect(style: .systemUltraThinMaterial)
-            self.backgroundImageView!.alpha = 0
-            keyWindow.addSubview(self.backgroundImageView!)
+        if let keyWindow = view.window?.windowScene?.keyWindow {
+            backgroundImageView = UIVisualEffectView(frame: keyWindow.frame)
+            backgroundImageView!.translatesAutoresizingMaskIntoConstraints = false
+            backgroundImageView!.effect = UIBlurEffect(style: .systemUltraThinMaterial)
+            backgroundImageView!.alpha = 0
+            keyWindow.addSubview(backgroundImageView!)
             NSLayoutConstraint.activate([
-                self.backgroundImageView!.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
-                self.backgroundImageView!.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
-                self.backgroundImageView!.topAnchor.constraint(equalTo: self.view.topAnchor),
-                self.backgroundImageView!.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
+                backgroundImageView!.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                backgroundImageView!.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                backgroundImageView!.topAnchor.constraint(equalTo: view.topAnchor),
+                backgroundImageView!.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             ])
             keyWindow.addSubview(zoomingImageView!)
             UIView.animate(
@@ -100,72 +103,73 @@ extension ChatViewController: ZoomingImageViewProtocol {
                     self.inputAccessoryView?.alpha = 0
                     self.inputAccessoryView?.isHidden = true
                     self.zoomingImageView!.center = self.backgroundImageView!.center
-                    
+
                 },
                 completion: nil
             )
         }
     }
-    
-    @objc func performZoomOutTapGestureForUIImageViewOfImageMessage(tapGesture: UITapGestureRecognizer){
-        if let zoomingOutView = tapGesture.view as? UIImageView{
+
+    @objc func performZoomOutTapGestureForUIImageViewOfImageMessage(tapGesture: UITapGestureRecognizer) {
+        if let zoomingOutView = tapGesture.view as? UIImageView {
             UIView.animate(
                 withDuration: 0.5,
                 delay: 0,
                 usingSpringWithDamping: 1,
                 initialSpringVelocity: 1,
-                options: .curveEaseIn) {
-                    zoomingOutView.frame = self.startImageFrame!
-                    zoomingOutView.layer.cornerRadius = 16
-                    zoomingOutView.layer.masksToBounds = true
-                    self.backgroundImageView?.alpha = 0
-                    self.inputAccessoryView?.alpha = 1
-                    self.inputAccessoryView?.isHidden = false
-                } completion: { complete in
-                    zoomingOutView.removeFromSuperview()
-                    self.startingImageView?.alpha = 1
-                    self.backgroundImageView?.removeFromSuperview()
-                    self.backgroundImageView = nil
-                }
+                options: .curveEaseIn
+            ) {
+                zoomingOutView.frame = self.startImageFrame!
+                zoomingOutView.layer.cornerRadius = 16
+                zoomingOutView.layer.masksToBounds = true
+                self.backgroundImageView?.alpha = 0
+                self.inputAccessoryView?.alpha = 1
+                self.inputAccessoryView?.isHidden = false
+            } completion: { _ in
+                zoomingOutView.removeFromSuperview()
+                self.startingImageView?.alpha = 1
+                self.backgroundImageView?.removeFromSuperview()
+                self.backgroundImageView = nil
+            }
         }
     }
-    
-    internal func checkOrientationForSetupZoomingImageView(keyWindow: UIWindow){
+
+    func checkOrientationForSetupZoomingImageView(keyWindow: UIWindow) {
         switch UIDevice.current.orientation {
-        case .portrait :
-            self.zoomingImageView!.frame = CGRect(
+        case .portrait:
+            zoomingImageView!.frame = CGRect(
                 x: 0, y: 0,
-                width: self.view.frame.width,
-                height: CGFloat(self.startImageFrame!.height/self.startImageFrame!.width * keyWindow.frame.width)
+                width: view.frame.width,
+                height: CGFloat(startImageFrame!.height / startImageFrame!.width * keyWindow.frame.width)
             )
-            self.inputAccessoryView!.alpha = 0.0
-            self.inputAccessoryView?.isHidden = true
-        case .landscapeLeft, .landscapeRight :
-            self.zoomingImageView!.frame = CGRect(
+            inputAccessoryView!.alpha = 0.0
+            inputAccessoryView?.isHidden = true
+        case .landscapeLeft, .landscapeRight:
+            zoomingImageView!.frame = CGRect(
                 x: 0, y: 0,
-                width: self.view.frame.width * 0.50,
-                height: CGFloat(self.startImageFrame!.height/self.startImageFrame!.width * (keyWindow.frame.width * 0.50))
+                width: view.frame.width * 0.50,
+                height: CGFloat(startImageFrame!.height / startImageFrame!.width * (keyWindow.frame.width * 0.50))
             )
-            self.inputAccessoryView!.alpha = 0.0
-            self.inputAccessoryView?.isHidden = true
+            inputAccessoryView!.alpha = 0.0
+            inputAccessoryView?.isHidden = true
         default:
-            self.zoomingImageView!.frame = CGRect(
+            zoomingImageView!.frame = CGRect(
                 x: 0, y: 0,
-                width: self.view.frame.width,
-                height: CGFloat(self.startImageFrame!.height/self.startImageFrame!.width * keyWindow.frame.width)
+                width: view.frame.width,
+                height: CGFloat(startImageFrame!.height / startImageFrame!.width * keyWindow.frame.width)
             )
-            self.inputAccessoryView?.alpha = 0.0
-            self.inputAccessoryView?.isHidden = true
+            inputAccessoryView?.alpha = 0.0
+            inputAccessoryView?.isHidden = true
         }
     }
-    
-    func handleZoomingImageViewWhanUpdateLayoutOfChatView(){
+
+    func handleZoomingImageViewWhanUpdateLayoutOfChatView() {
         if let bgView = backgroundImageView {
-            if let keyWindow = self.view.window?.windowScene?.keyWindow{
+            if let keyWindow = view.window?.windowScene?.keyWindow {
                 checkOrientationForSetupZoomingImageView(keyWindow: keyWindow)
-                self.zoomingImageView!.center = bgView.center
-                self.inputAccessoryView?.alpha = 0.0
-                self.inputAccessoryView?.isHidden = true
+                zoomingImageView!.center = bgView.center
+                inputAccessoryView?.alpha = 0.0
+                inputAccessoryView?.isHidden = true
             }
         }
     }
